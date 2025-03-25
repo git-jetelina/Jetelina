@@ -105,7 +105,7 @@ file_column_api_execution_time = exectime
 #   defined database should be RDB, therefore postgresql org mysql so far
 #
 @jdic jetelnadb:"default db","default database","original db","original database","user db","user database"
-jetelinadb = postgresql
+jetelinadb = database
 
 #
 #  default database
