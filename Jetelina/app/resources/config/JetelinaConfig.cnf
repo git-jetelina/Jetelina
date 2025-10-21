@@ -143,7 +143,7 @@ pg_testdbname = testdb
 #    pg_ivm: true -> the extension is installed, false -> not yet
 #
 @jdic pg_ivm:"postgresql ivm"
-pg_ivm = true
+pg_ivm = false
 
 #
 # mysql,oracle and so on are goin to do after postgre is done  2024/3/4
@@ -151,7 +151,7 @@ pg_ivm = true
 
 # MySQL setting
 @jdic my_work:"mysql run","mysql availability","start mysql","mysql start"
-my_work = false
+my_work = true
 @jdic my_host:"mysql host"
 my_host = localhost
 @jdic my_port:"mysql port"
@@ -164,7 +164,7 @@ my_password = userpasswd
 # Caution: the initial db name is 'mysql', then Jetelina will rewrite it to 'jetelina'
 # 
 @jdic my_dbname:"mysql database name","mysql db name","mysql dbname"
-my_dbname = mysql 
+my_dbname = jetelina 
 @jdic my_unix_socket:"mysql unix socket","mysql socket"
 my_unix_socket = /var/run/mysqld/mysqld.sock
 @jdic my_testdbname:"mysql test database"
