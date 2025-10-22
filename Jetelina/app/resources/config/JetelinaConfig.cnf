@@ -143,7 +143,7 @@ pg_testdbname = testdb
 #    pg_ivm: true -> the extension is installed, false -> not yet
 #
 @jdic pg_ivm:"postgresql ivm"
-pg_ivm = false
+pg_ivm = true
 
 #
 # mysql,oracle and so on are goin to do after postgre is done  2024/3/4

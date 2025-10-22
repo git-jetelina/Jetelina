@@ -1117,6 +1117,10 @@ function chkUserExistence(s::String)
         ret = Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum")
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.chkUserExistence() with $s error : $err")
     finally
+        # checking ivm abailability in every login
+        # because who knows when ivm would be abailable, so check it every time when someone login to there 
+        PgIVMController.checkIVMExistence(conn)
+
         close_connection(conn)
     end
 
