@@ -378,11 +378,12 @@ function getWorkingDBList()
 function getWorkingDBList()
 	if !isnothing(JSession.get())
 		postgres = j_config.JC["pg_work"]
+		pgivm = j_config.JC["pg_ivm"]
 		mysql = j_config.JC["my_work"]
 		redis = j_config.JC["redis_work"]
 		mongodb = j_config.JC["mongodb_work"]
 
-		df = DataFrame("postgres" => postgres, "mysql" => mysql, "redis" => redis, "mongodb" => mongodb)
+		df = DataFrame("postgres" => postgres, "pgivm" => pgivm, "mysql" => mysql, "redis" => redis, "mongodb" => mongodb)
 		return Genie.Renderer.Json.json(Dict("result" => true, "Jetelina" => copy.(eachrow(df))))
 	else
 		return Genie.Renderer.Json.json(Dict("result" => false, "Jetelina" => "[{}]"))

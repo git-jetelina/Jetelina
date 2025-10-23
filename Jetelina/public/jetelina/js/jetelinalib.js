@@ -362,6 +362,11 @@ const getdata = (o, t) => {
                                 } else {
                                     $("#databaselist span[name='mongodb']").hide();
                                 }
+
+                                // postgresql ivm function 
+                                if(v["pgivm"] !== null){
+                                    loginuser.pgivm = v["pgivm"];
+                                }
                             } else if (t == 6) {
                                 if (v.date != null) {
                                     configChangeHistoryStr += `[${v.date}] `;
