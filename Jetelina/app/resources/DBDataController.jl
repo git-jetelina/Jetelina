@@ -555,7 +555,19 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 
 	if j_config.JC["dbtype"] == "postgresql"
 		# Case in PostgreSQL
-		ret = PgSQLSentenceManager.createApiSelectSentence(json_d, mode)
+		#
+		# Attention:
+		#     since v3.1, PostgreSQL has ivm function. 
+		#     so this createApiSelectSentence() returns tuple as (ivmnize::boolean, json)
+		#
+		pgret = PgSQLSentenceManager.createApiSelectSentence(json_d, mode)
+		if pgret[1]
+			# simply return json
+			ret = pgret[2]
+		else
+			# try to create ivm
+			ivmret = PgDBController.createIVMtable(pgret[2])
+		end
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
 		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)

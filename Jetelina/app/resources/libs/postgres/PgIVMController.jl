@@ -65,8 +65,8 @@ function createIVMtable(conn, apino::String)
     create ivm table from the apino's sql sentence
 
 # Arguments
+- `conn::LibPQ.Connection`: postgresql connection 
 - `apino::String`: apino in Df_JetelinaSqlList
-- `mode::Bool`: true -> create and keep it  false -> create then drop it
 - return: Boolean: true -> success, false -> couldn't create ivm table 	
 """
 function createIVMtable(conn, apino::String)
