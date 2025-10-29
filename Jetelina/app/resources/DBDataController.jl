@@ -567,7 +567,7 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 		# because sometimes the creating new ivm table is high cost execution.
 		#
 		if pgret[1]
-			@spawn PgDBController.compareJsAndJv()
+			Threads.@spawn PgDBController.compareJsAndJv()
 		end
 
 		ret = pgret[2]
