@@ -89,13 +89,20 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 # Arguments
 - `json_d::Dict`: json data
 - `mode::String`: 'ok'->real  'pre'->test
-- return: this sql is already existing -> json {"resembled":true}
-		  new sql then success to append it to  -> json {"apino":"<something no>"}
-					   fail to append it to     -> false
+- return: 
+        in case of mode = 'ok', try to create a sql sentence, then the return is tuple of (multitable::boolean, json)
+            1. if the sql is already existing -> (false, json {"resembled":true})
+		    2. if the sql is the new one (not in the list),
+               try to append it to the list anyhow,
+               in case of succeeding, 
+                  i) if it had only a table -> (false, json {"apino":"<something no>"})
+                 ii) if it had multi tables -> (true, json {"apino":"<something no>"})
+               in case of failing  -> (false, false)
 """
 function createApiSelectSentence(json_d, mode::String)
     item_d = json_d["item"]
     subq_d = json_d["subquery"]
+    multitable::boolean = false
 
     #==
     		Tips:
@@ -157,7 +164,7 @@ function createApiSelectSentence(json_d, mode::String)
         ck = ApiSqlListManager.sqlDuplicationCheck(selectSql, subq_d, "postgresql")
         if ck[1]
             # already exist it. return it and do nothing.
-            return json(Dict("result" => false, "resembled" => ck[2]))
+            return (multitable, json(Dict("result" => false, "resembled" => ck[2])))
         else
             # yes this is the new
             ret = ApiSqlListManager.writeTolist(selectSql, subq_d, tablename_arr, "postgresql")
@@ -168,11 +175,12 @@ function createApiSelectSentence(json_d, mode::String)
             ===#
             if ret[1]
                 if 1 < length(tablename_arr)
+                    multitable = true
                 end
                 
-                return json(Dict("result" => true, "apino" => ret[2]))
+                return (multitable, json(Dict("result" => true, "apino" => ret[2])))
             else
-                return ret[1]
+                return (multitable, ret[1])
             end
         end
     else

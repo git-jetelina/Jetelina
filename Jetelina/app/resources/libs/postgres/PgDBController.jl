@@ -222,13 +222,7 @@ function _getTableList()
     try
         df = DataFrame(columntable(LibPQ.execute(conn, table_str)))
         # do not include usertable and ivm table in the return
-        #DataFrames.filter!(row -> row.tablename != "jetelina_user_table" && row.tablename ∉ Df_JsJvList[!,:jv] , df)
-        #
-        # 
-        # 2025/10/21 
-        # ivm tables are treated as usual tables in Jetelina, so this .filter() set back to the previous.
-        DataFrames.filter!(row -> row.tablename != "jetelina_user_table", df)
-
+        DataFrames.filter!(row -> row.tablename != "jetelina_user_table" && row.tablename ∉ Df_JsJvList[!,:jv] , df)
     catch err
         JLog.writetoLogfile("PgDBController._getTableList() error: $err")
         return DataFrame() # return empty DataFrame if got fail

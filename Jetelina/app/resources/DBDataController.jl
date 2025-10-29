@@ -555,7 +555,22 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 
 	if j_config.JC["dbtype"] == "postgresql"
 		# Case in PostgreSQL
-		ret = PgSQLSentenceManager.createApiSelectSentence(json_d, mode)
+		pgret = PgSQLSentenceManager.createApiSelectSentence(json_d, mode)
+		#
+		# v3.1 ivm special
+		#    gpret is tuple (boolean, json)
+		#    the first param is where for using multi tables or not,
+		#              true -> using multi tables  false -> single table
+		#    the secound param is for json data of including new sql sentence
+		#
+		# kick compare..() if it were multi tables. this task should be executed in parallel,
+		# because sometimes the creating new ivm table is high cost execution.
+		#
+		if pgret[1]
+			@spawn PgDBController.compareJsAndJv()
+		end
+
+		ret = pgret[2]
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
 		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)
