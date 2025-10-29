@@ -39,7 +39,6 @@ functions
 -- special functions for IVM ---
     checkIVMExistence() checkin' ivm is availability
     compareJsAndJv() compare max/min/mean execution speed between js* and jv*.
-    createIVMtable(json) create ivm table with apino in json parameter 
     deleteIVMApi(apino::String) delete api in ivm, indeed ivm table
 """
 module PgDBController
@@ -1625,30 +1624,6 @@ function compareJsAndJv()
     catch err
         errnum = JLog.getLogHash()
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
-        return ret, errnum
-    finally
-        close_connection(conn)
-    end
-end
-"""
-function createIVMtable()
-
-    create ivm table by calling PgIVMController.createIVMtable()
-
-# Arguments
-- `json`
-- return: error -> Tuple(false, error number)
-"""
-function createIVMtable(json)
-    conn = open_connection()
-    ret::Bool = false
-
-    jj = JSON.parse(json)
-    try
-        PgIVMController.createIVMtable(conn, jj["apino"])
-    catch err
-        errnum = JLog.getLogHash()
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.createIVMtable() error : $err")
         return ret, errnum
     finally
         close_connection(conn)

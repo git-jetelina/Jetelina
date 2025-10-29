@@ -74,6 +74,7 @@ function createIVMtable(conn, apino::String)
     regulatedclauses::Array = ["having","union","intersect","except","distinct on","tablesample","value","tablesample","for update","share"]
     allowclauses::Array = ["order by","limit","offset"]
     ivmsafe::Bool = true
+
     #===
         Tips:
             1. target api name(apino) should be changed to the ivm specail name. eg. js10 -> jv10
