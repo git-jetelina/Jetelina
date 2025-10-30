@@ -8,7 +8,7 @@ Description:
 
 functions
     checkIVMExistence(conn) checkin' ivm is availability
-    compareJsAndJv(conn) compare max/min/mean execution speed between js* and jv*.
+    compareJsAndJv(conn, apino) compare max/min/mean execution speed between js* and jv*.
     createIVMtable(conn, apino::String) create ivm table from the apino's sql sentence
     dropIVMtable(ivmapino::String) drop ivm table
     collectIvmCandidateApis() collect apis that is using multiple tables in JC["tableapifile"].
@@ -71,8 +71,10 @@ function createIVMtable(conn, apino::String)
 """
 function createIVMtable(conn, apino::String)
     target_api = subset(ApiSqlListManager.Df_JetelinaSqlList, :apino => ByRow(==(apino)), skipmissing = true)
-    regulatedclauses::Array = ["having","union","intersect","except","distinct on","tablesample","value","tablesample","for update","share"]
-    allowclauses::Array = ["order by","limit","offset"]
+#    regulatedclauses::Array = ["having","union","intersect","except","distinct on","tablesample","value","tablesample","for update","share"]
+#    allowclauses::Array = ["order by","limit","offset"]
+    regulatedclauses::Array = split(j_config.JC["pg_regulatedclauses"],",")
+    allowclauses::Array = split(j_config.JC["pg_allowclauses"],",")
     ivmsafe::Bool = true
 
     #===
@@ -146,44 +148,68 @@ function dropIVMtable(ivmapino::String)
     PgDBController.dropTable(["$ivmapino"])
 end
 """
-function compareJsAndJv(conn)
+function compareJsAndJv(conn, apino)
 
     compare max/min/mean execution speed between js* and jv*.
 
+# Arguments
+- `apino`: target apino
 """
-function compareJsAndJv(conn)
-	apis::Array = collectIvmCandidateApis()
+function compareJsAndJv(conn, apino)
+#	apis::Array = collectIvmCandidateApis()
+    ivmnized::String = "created ivm table for $apino"
+    #
+    #   Tips:
+    #       this function is called when the target sql(apino) is constructed by multi tables.
+    #       the sql has already registered in the sql list file.
+    #       this function executes 2 steps
+    #            1. creat ivm table for the sql if the api is not in "js vs jv" file yet.
+    #               but it does not execute if the sql clause has some clauses sentences that are not permitted to use in creating ivm table.
+    #               this checking of clauses are worked in createIVMtable()
+    #            2. execute js and jv aps sevraltimes at background.
+    #               then compares each speed.
+    #               add the js to "js vs jv" file, if the execution speed of jv is better than js one.
+    #               this adding is done in writeToMatchinglist()
+    #            3. the created ivm table keeps alive if jv nized has been, but it is dropped if it were not.
+    #               this dropping is handled in dropIVMtable()
+    #
+    jsjvdf = ApiSqlListManager.Df_JsJvList
 
-    try
-        for apino in apis
-            ret = createIVMtable(conn, string(apino))
-            if ret
-                ivmapino::String = replace(apino, "js" => "jv")
-                jsspeed = executeJSApi(conn, string(apino))
-                jvspeed = executeJVApi(conn, ivmapino)
+    if string(apino) ∉ jsjvdf[!,:js] 
+        try
+    #        for apino in apis
+                ret = createIVMtable(conn, string(apino))
+                if ret
+                    ivmapino::String = replace(apino, "js" => "jv")
+                    jsspeed = executeJSApi(conn, string(apino))
+                    jvspeed = executeJVApi(conn, ivmapino)
 
-                if j_config.JC["debug"]
-                    @info "jsspeed: " jsspeed
-                    @info "jvspeed: " jvspeed
-                    @info "speed compare: jv_mean - js_mean " (jvspeed[3] - jsspeed[3])
+                    if j_config.JC["debug"]
+                        @info "jsspeed: " jsspeed
+                        @info "jvspeed: " jvspeed
+                        @info "speed compare: jv_mean - js_mean " (jvspeed[3] - jsspeed[3])
+                    end
+
+                    #===
+                        Tips:
+                            in case js* is faster than jv*, use js* then drop jv* table
+                            in case jv* is marverous, write the apino to js/jv matching file (j_config.JC["jsjvmatchingfile"])
+                    ===#
+                    if jsspeed[3] < jvspeed[3]
+                        dropIVMtable(ivmapino)
+                        ivmnized = "ivm table for $apino has not been created"
+                    else
+                        ApiSqlListManager.writeToMatchinglist(string(apino))
+                    end
+
+                    JLog.writetoLogfile("PgIVMController.compareJsAndJv(): $ivmnized")
                 end
-
-                #===
-                    Tips:
-                        in case js* is faster than jv*, use js* then drop jv* table
-                        in case jv* is marverous, write the apino to js/jv matching file (j_config.JC["jsjvmatchingfile"])
-                ===#
-                if jsspeed[3] < jvspeed[3]
-                    dropIVMtable(ivmapino)
-                else
-                    ApiSqlListManager.writeToMatchinglist(string(apino))
-                end
-            end
+    #       end
+        catch err
+            println(err)
+            JLog.writetoLogfile("PgIVMController.compareJsAndJv() error : $err")
+        finally
         end
-    catch err
-        println(err)
-		JLog.writetoLogfile("PgIVMController.compareJsAndJv() error : $err")
-    finally
     end
 end
 
