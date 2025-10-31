@@ -102,7 +102,7 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 function createApiSelectSentence(json_d, mode::String)
     item_d = json_d["item"]
     subq_d = json_d["subquery"]
-    multitable::boolean = false
+    multitable::Bool = false
 
     #==
     		Tips:
@@ -164,7 +164,7 @@ function createApiSelectSentence(json_d, mode::String)
         ck = ApiSqlListManager.sqlDuplicationCheck(selectSql, subq_d, "postgresql")
         if ck[1]
             # already exist it. return it and do nothing.
-            return (multitable, json(Dict("result" => false, "resembled" => ck[2])))
+            return (multitable, Dict("result" => false, "resembled" => ck[2]))
         else
             # yes this is the new
             ret = ApiSqlListManager.writeTolist(selectSql, subq_d, tablename_arr, "postgresql")
@@ -178,9 +178,9 @@ function createApiSelectSentence(json_d, mode::String)
                     multitable = true
                 end
                 
-                return (multitable, json(Dict("result" => true, "apino" => ret[2])))
+                return (multitable, Dict("result" => true, "apino" => ret[2]))
             else
-                return (multitable, ret[1])
+                return (multitable, Dict("result" => ret[1]))
             end
         end
     else
@@ -190,7 +190,7 @@ function createApiSelectSentence(json_d, mode::String)
             subq_d = ""
         end
 
-        return string(selectSql," ",subq_d);
+        return (multitable, string(selectSql," ",subq_d));
     end
 end
 """

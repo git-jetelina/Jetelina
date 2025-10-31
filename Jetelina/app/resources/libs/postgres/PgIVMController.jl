@@ -156,6 +156,7 @@ function compareJsAndJv(conn, apino)
 - `apino`: target apino
 """
 function compareJsAndJv(conn, apino)
+    @info "compareJsAndJv " apino
 #	apis::Array = collectIvmCandidateApis()
     ivmnized::String = "created ivm table for $apino"
     #

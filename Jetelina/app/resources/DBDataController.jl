@@ -566,6 +566,7 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 		# kick compare..() if it were multi tables. this task should be executed in parallel,
 		# because sometimes the creating new ivm table is high cost execution.
 		#
+		@info "pgret " pgret
 		if pgret[1]
 			Threads.@spawn PgDBController.compareJsAndJv(pgret[2])
 		end

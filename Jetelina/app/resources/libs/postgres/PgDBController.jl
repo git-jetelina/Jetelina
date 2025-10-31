@@ -1615,6 +1615,7 @@ function compareJsAndJv(json)
     ret::Bool = false
 
     try
+        @info "json[apino] " json["apino"]
         PgIVMController.compareJsAndJv(conn, json["apino"])
     catch err
         errnum = JLog.getLogHash()

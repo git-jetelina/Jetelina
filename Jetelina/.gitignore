@@ -28,6 +28,7 @@ Vagrantfile
 *.log.*
 JetelinaTableApiRelation*
 JetelinaSqlList*
+JetelinaJvmnizedJsApiList*
 *.out
 
 # OS or Editor folders
