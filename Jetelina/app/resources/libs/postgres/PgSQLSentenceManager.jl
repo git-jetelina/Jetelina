@@ -180,7 +180,7 @@ function createApiSelectSentence(json_d, mode::String)
                 
                 return (multitable, Dict("result" => true, "apino" => ret[2]))
             else
-                return (multitable, Dict("result" => ret[1]))
+                return (multitable, json(Dict("result" => ret[1])))
             end
         end
     else

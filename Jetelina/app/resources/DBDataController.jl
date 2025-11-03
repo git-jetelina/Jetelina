@@ -568,10 +568,12 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 		#
 		@info "pgret " pgret
 		if pgret[1]
-			Threads.@spawn PgDBController.compareJsAndJv(pgret[2])
+			ret = json(pgret[2])
+#			Threads.@spawn PgDBController.compareJsAndJv(pgret[2])
+			@async PgDBController.compareJsAndJv(pgret[2])
+		else
+			ret = pgret[2]
 		end
-
-		ret = pgret[2]
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
 		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)
