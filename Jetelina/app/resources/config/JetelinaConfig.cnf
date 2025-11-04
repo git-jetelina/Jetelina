@@ -28,7 +28,7 @@
 version = 3.0
 
 @jdic debug:"debug"
-debug = true
+debug = false
 
 @jdic logfile:"log name","log file name","log-name"
 logfile = log.log

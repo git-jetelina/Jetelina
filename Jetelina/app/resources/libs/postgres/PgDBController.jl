@@ -698,6 +698,7 @@ function executeApi(json_d::Dict, target_api::DataFrame)
             execute js* if it did not exsisted in the list.
     ===#
     apino = string(json_d["apino"])
+
     if startswith(apino, "js")
         jsjv = subset(ApiSqlListManager.Df_JsJvList, :js => ByRow(==(apino)), skipmissing = true)
         if 0<nrow(jsjv)
@@ -750,10 +751,12 @@ function _executeApi(apino::String, sql_str::String)
     	===#
         affected_ret = LibPQ.num_affected_rows(sql_ret)
         jmsg::String = string("compliment me!")
-
-        if startswith(apino, "js")
+@info "try to select ivm " sql_str
+@info "the return number " affected_ret 
+        if any(x -> startswith(x,apino), ["js","jv"])
             # select 
             df = DataFrame(sql_ret)
+            @info "df rows " nrow(df)
             pagingnum = parse(Int, j_config.JC["paging"])
             if pagingnum < nrow(df)
                 jmsg = string("data number over ", pagingnum, " you should set paging paramter in this SQL, it is not my business")
@@ -1615,7 +1618,6 @@ function compareJsAndJv(json)
     ret::Bool = false
 
     try
-        @info "json[apino] " json["apino"]
         PgIVMController.compareJsAndJv(conn, json["apino"])
     catch err
         errnum = JLog.getLogHash()

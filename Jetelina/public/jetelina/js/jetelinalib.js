@@ -2086,7 +2086,7 @@ $("#databaselist").on("click", ".databasename", function () {
  * ajax function for executing API test.
  */
 const apiTestAjax = () => {
-    let url = scenario["function-apitest-url"][0];
+    let url = scenario["function-japi-url"][0];
     let data = $(`${COLUMNSPANEL} [name='apiin']`).text();
 
     $.ajax({

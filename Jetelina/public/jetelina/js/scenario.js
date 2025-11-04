@@ -2,7 +2,7 @@ let scenario = []; let config = [];
 scenario["analyzed-data-collect-url"]=["/gettablecombivsaccessrelationdata", "/getperformancedata_real", "/getperformancedata_test","/chkexistimprapifile","/getapiaccessdata","/getdbaccessdata","/getapiexecspeed","/getsuggestiondata"];
 scenario["function-post-url"]=["/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns"];
 scenario["function-post-fileupload-url"]=["/postcsvfile"];
-scenario["function-apitest-url"]=["/apiactions"];
+scenario["function-japi-url"]=["/apiactions"];
 scenario["function-search-log-errnum-url"]=["/searcherror"];
 scenario["function-get-url"]=["/getapilist","/getalldbtable","/getconfigchangehistory","/goodbyenow","/getdbsavailability","/getoperationhistory"];
 scenario["null-msg"]=["",""];

@@ -25,7 +25,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export checkIVMExistence, createIVMtable, dropIVMtable, compareJsAndJv, collectIvmCandidateApis, executeJVApi, compareJsAndJv 
+export checkIVMExistence, createIVMtable, dropIVMtable, compareJsAndJv, collectIvmCandidateApis, executeJVApi
 
 """
 function checkIVMExistence(conn)
@@ -156,9 +156,9 @@ function compareJsAndJv(conn, apino)
 - `apino`: target apino
 """
 function compareJsAndJv(conn, apino)
-    @info "compareJsAndJv " apino
 #	apis::Array = collectIvmCandidateApis()
     ivmnized::String = "created ivm table for $apino"
+    
     #
     #   Tips:
     #       this function is called when the target sql(apino) is constructed by multi tables.
