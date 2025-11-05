@@ -15,3 +15,4 @@ ju14:palt:postgresql
 jd15:palt:postgresql
 js16:palt,people_1000:postgresql
 js20:palt,people_1000:postgresql
+js21:people_1000,palt:postgresql

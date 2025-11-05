@@ -538,7 +538,6 @@ function dataInsertFromCSV(fname::String)
     insertStartid::Integer = nrow(df0) + 1
     # append data into the exists table, and take care '+1' and '-1'
     insertEndid::Integer = insertStartid + nrow(df) -1
-#    @info "n_df0, n_df start end " nrow(df0) nrow(df) insertStartid insertEndid
     insertcols!(df,1,keyword2=>insertStartid:insertEndid)
 
     select!(df, cols)
@@ -751,12 +750,10 @@ function _executeApi(apino::String, sql_str::String)
     	===#
         affected_ret = LibPQ.num_affected_rows(sql_ret)
         jmsg::String = string("compliment me!")
-@info "try to select ivm " sql_str
-@info "the return number " affected_ret 
-        if any(x -> startswith(x,apino), ["js","jv"])
+
+        if any(x -> startswith(apino,x), ["js","jv"])
             # select 
             df = DataFrame(sql_ret)
-            @info "df rows " nrow(df)
             pagingnum = parse(Int, j_config.JC["paging"])
             if pagingnum < nrow(df)
                 jmsg = string("data number over ", pagingnum, " you should set paging paramter in this SQL, it is not my business")
@@ -809,7 +806,6 @@ function doSelect(sql::String,mode::String)
 		'mesure' mode -> exectution time of tuple(max,min,mean) 
 """
 function doSelect(sql::String, mode::String)
-#    @info "PgD... doSelect: " mode sql
     conn = open_connection()
     ret = ""
     try
