@@ -1136,7 +1136,21 @@ const chatKeyDown = (cmd) => {
         if (inScenarioChk(ut, 'guidance-goto-jetelinaorg-cmd')) {
             window.open(scenario["jetelina-web-site-url"][0], "_blank");
         } else {
-            m = guidancePageController(ut);
+//            m = guidancePageController(ut);
+            if(ut.startsWith("go")){
+                let gcom = ut.split(" ");
+                if(0<gcom.length){
+                    for (k in gcom){
+                        if(gcom[k].startsWith("m") && 1<gcom[k].length){
+                            let gu = $(`#guidance div[name='page1'] span[name='${gcom[k]}'] a`).prop("href");
+                            window.open(gu,"_blank");
+                            m = chooseMsg("starting-6a-msg", "", "");
+                            break;
+                        }
+                    }
+
+                }
+            }
         }
     }
 
