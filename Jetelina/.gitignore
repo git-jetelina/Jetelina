@@ -26,6 +26,9 @@ Vagrantfile
 *~
 *.sass-cache
 *.log.*
+JetelinaTableApiRelation
+JetelinaSqlList
+JetelinaJvmnizedJsApiList
 JetelinaTableApiRelation*
 JetelinaSqlList*
 JetelinaJvmnizedJsApiList*
