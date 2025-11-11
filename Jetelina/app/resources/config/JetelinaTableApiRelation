@@ -4,8 +4,6 @@ jd3:ftest2:postgresql
 ji4:ftest3:postgresql
 ju5:ftest3:postgresql
 jd6:ftest3:postgresql
-js7:ftest3,ftest2:postgresql
-js8:ftest3:postgresql
 ji13:palt:postgresql
 ju14:palt:postgresql
 jd15:palt:postgresql
@@ -15,3 +13,4 @@ jd18:people_1000:postgresql
 ji19:people_1000:mysql
 ju20:people_1000:mysql
 jd21:people_1000:mysql
+js22:ftest2,ftest3:postgresql

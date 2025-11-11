@@ -104,21 +104,41 @@ function createApiSelectSentence(json_d, mode::String)
     subq_d = json_d["subquery"]
     multitable::Bool = false
 
+    #===
+        add "jetelina_delete_flg=0" (meaning alive data) to sub query string.
+        because the js* api only manages living data. 
+    ===#
+    function _addJetelinaDeleteFlg2Subquery(subq_d,tarr)
+        if 1<length(tarr)
+            jdf = "jetelina_delete_flg=0 "
+            for i ∈ 1:length(tarr)
+                if 1<i
+                    subq_d = string(subq_d,")and( ",tarr[i],".",jdf)
+                else
+                    subq_d = string(subq_d," and((",tarr[i],".",jdf)
+                end
+            end
+
+            subq_d = string(subq_d,"))")
+        else
+        end
+
+        return subq_d
+    end
     #==
-    		Tips:
-    			item_d:column post data from dashboard.html is expected below json style
-    				{ 'item'.'["<table name>.<column name>","<table name>.<column name>",...]' }
-    			then parcing it by jsonpayload("item") 
-    				item_d -> ["<table name>.<column name1>","<table name>.<column name2>",...]
+    	Tips:
+    		item_d:column post data from dashboard.html is expected below json style
+    			{ 'item'.'["<table name>.<column name>","<table name>.<column name>",...]' }
+    		then parcing it by jsonpayload("item") 
+    			item_d -> ["<table name>.<column name1>","<table name>.<column name2>",...]
 
-    			then handle it as an array data
-    				[1] -> <table name>.<column name1>
-    			furthermore deviding it to <table name> and <column name> by '.' 
-    				table name  -> <table name>
-    				column name -> <column name1>
-
+    		then handle it as an array data
+    			[1] -> <table name>.<column name1>
+    		furthermore deviding it to <table name> and <column name> by '.' 
+    			table name  -> <table name>
+    			column name -> <column name1>
     			use these to create sql sentence.
-    	==#
+   	==#
     if (subq_d != "")
         subq_d = checkSubQuery(subq_d)
     end
@@ -126,10 +146,10 @@ function createApiSelectSentence(json_d, mode::String)
     selectSql::String = ""
     tableName::String = ""
     #===
-    		Tips: 
-    			put into array to write it to JC["tableapifile"]. 
-    			This is used in ApiSqlListManager.writeTolist().
-    	===#
+   		Tips: 
+   			put into array to write it to JC["tableapifile"]. 
+   			This is used in ApiSqlListManager.writeTolist().
+    ===#
     tablename_arr::Vector{String} = []
 
     for i ∈ 1:length(item_d)
@@ -138,10 +158,10 @@ function createApiSelectSentence(json_d, mode::String)
         t2 = strip(t[2])
         if 0 < length(selectSql)
             #===
-            				Tips: 
-            					should be justfified this columns line for analyzing in SQLAnalyzer.
-            						ex. select ftest.id,ftest.name from.....
-            			===#
+                Tips: 
+                    should be justfified this columns line for analyzing in SQLAnalyzer.
+                        ex. select ftest.id,ftest.name from.....
+            ===#
             selectSql = """$selectSql,$t1.$t2"""
         else
             selectSql = """$t1.$t2"""
@@ -159,6 +179,8 @@ function createApiSelectSentence(json_d, mode::String)
     end
 
     selectSql = """select $selectSql from $tableName"""
+
+    subq_d = _addJetelinaDeleteFlg2Subquery(subq_d, tablename_arr)
 
     if mode != "pre"
         ck = ApiSqlListManager.sqlDuplicationCheck(selectSql, subq_d, "postgresql")

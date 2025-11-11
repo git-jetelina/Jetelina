@@ -107,8 +107,8 @@ function createIVMtable(conn, apino::String)
         end
     end
 
-    @info "ivmsubquery " ivmsubquery
-    @info "jvsubquery " jvsubquery
+#    @info "ivmsubquery " ivmsubquery
+#    @info "jvsubquery " jvsubquery
     
     sql::String = replace(string(target_api[!,:sql][1], " ", jvsubquery), "'" => "''")
     
@@ -158,7 +158,7 @@ function compareJsAndJv(conn, apino)
 function compareJsAndJv(conn, apino)
 #	apis::Array = collectIvmCandidateApis()
     ivmnized::String = "created ivm table for $apino"
-    
+
     #
     #   Tips:
     #       this function is called when the target sql(apino) is constructed by multi tables.

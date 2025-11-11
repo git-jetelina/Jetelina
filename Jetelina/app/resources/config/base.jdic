@@ -69,7 +69,7 @@
 @jdic db-not-determind-yet-msg:"not determind it yet, login first, please"
 
 # something inprogress 
-@jdic inprogress-msg:"I AM DOING","HAPPY WORKIN'","HUSTLE HUSTLE","I AM DOING THIS JUST FOR YOU","WAIT A MOMENT.."
+@jdic inprogress-msg:"I AM DOING","HAPPY WORKIN'","HUSTLE HUSTLE","I AM DOING THIS ONLY FOR YOU","WAIT A MOMENT.."
 
 # refreshing display message
 @jdi refreshing-msg:"REFRESHING...","REFRECTING..."
