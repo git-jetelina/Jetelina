@@ -567,11 +567,20 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 		# because sometimes the creating new ivm table is high cost execution.
 		#
 		if pgret[1]
-			ret = json(pgret[2])
 			@async PgDBController.compareJsAndJv(pgret[2])
-		else
-			ret = pgret[2]
 		end
+
+		#===
+			Tips:
+				pgret[2] is Dict(), because of making easy to do smth in compareJsAndjv().
+				but it needs to be fransformed to json form if 'mode' is not 'pre'. 
+		===#
+		ret = pgret[2]
+
+		if mode != "pre"
+			ret = json(ret)
+		end
+
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
 		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)
