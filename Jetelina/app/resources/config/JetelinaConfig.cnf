@@ -25,7 +25,7 @@
 #      operationhistoryfilesize: MB order ex. 10MB -> 10
 #      apiperformancedatapath: container path name of each api execution speed files
 @jdic version:"version"
-version = 3.0
+version = 3.1
 
 @jdic debug:"debug"
 debug = false
