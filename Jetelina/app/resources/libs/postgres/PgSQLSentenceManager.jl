@@ -109,17 +109,32 @@ function createApiSelectSentence(json_d, mode::String)
         because the js* api only manages living data. 
     ===#
     function _addJetelinaDeleteFlg2Subquery(subq_d,tarr)
+        #===
+            Tips:
+                add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
+                because "jetelina_delete_flg" is added later, then "where (a=b)and(jetelina_delte_flg=0)".
+                it's a gross if "where a=b and(jetelina...) were.
+        ===#
+        if subq_d != "ignore"
+            subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
+        end
+
         if 1<length(tarr)
             jdf = "jetelina_delete_flg=0 "
+            delfgstr::String = ""
+            andstr::String = ""
+
             for i ∈ 1:length(tarr)
                 if 1<i
-                    subq_d = string(subq_d,")and( ",tarr[i],".",jdf)
+                    andstr = ")and("
                 else
-                    subq_d = string(subq_d," and((",tarr[i],".",jdf)
+                    andstr = "(("
                 end
+
+                delfgstr = string(delfgstr,andstr,tarr[i],".",jdf)
             end
 
-            subq_d = string(subq_d,"))")
+            subq_d = replace(subq_d, "where " => "where $delfgstr ))and")
         else
         end
 

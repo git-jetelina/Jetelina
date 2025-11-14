@@ -785,6 +785,13 @@ function _executeApi(apino::String, sql_str::String)
         close_connection(conn)
     end
 
+#    if j_config.JC["debug"]
+        @info "---- PgDBController._executeApi----"
+        @info "apino " apino
+        @info "sql " sql_str
+        @info "-----------------------------------"
+#    end
+
     return ret
 end
 """
@@ -856,6 +863,11 @@ function doSelect(sql::String, mode::String)
             end
         end
 
+#    if j_config.JC["debug"]
+        @info "---- PgDBController.doSelect----"
+        @info "sql " sql
+        @info "-----------------------------------"
+#    end
         return json(Dict("result" => true, "message from Jetelina" => jmsg, "Jetelina" => copy.(eachrow(df))))
     catch err
         JLog.writetoLogfile("PgDBController.doSelect() with $mode $sql error : $err")

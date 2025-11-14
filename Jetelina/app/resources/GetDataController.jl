@@ -14,7 +14,8 @@ functions
 	getTableCombiVsAccessRelationData()  get JC["tablecombinationfile"] data file name. this file is analyzed data for table combination.
 	getPerformanceRealData()  get JC["sqlperformancefile"] data file name. this file is analyzed data for real sql execution speed.
 	getPerformanceTestData()  get JC["sqlperformancefile"] data file name but it is '.test' suffix. this file is analyzed data for sql execution speed on test db.
-	checkExistImproveApiFile()  get JC["improvesuggestionfile"] data file name. this file contains an improving suggestion data of a target api. 
+	checkExistImproveApiFile()  checking existing JC["improvesuggestionfile"] data file. 
+	getSuggestionData()	get suggestion data from JC["improvesuggestionfile"] data file.
 	getApiList()  get registering api list in json style.api list is refered in Df_JetelinaSqlList.
 	getConfigHistory() get configuration change history in json style.
 	getOperationHistory() get operation history in json style.
@@ -23,12 +24,12 @@ functions
 module GetDataController
 
 using Genie, Genie.Requests, Genie.Renderer.Json, DataFrames, Dates, JSON
-using Jetelina.JFiles, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession
+using Jetelina.JFiles, Jetelina.JLog, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export logout, getTableList, getTableCombiVsAccessRelationData, getPerformanceRealData, getPerformanceTestData, checkExistImproveApiFile, getApiList, getConfigHistory, getOperationHistory, getWorkingDBList
+export logout, getTableList, getTableCombiVsAccessRelationData, getPerformanceRealData, getPerformanceTestData, checkExistImproveApiFile, getSuggestionData, getApiList, getConfigHistory, getOperationHistory, getWorkingDBList
 
 """
 function logout()
@@ -95,7 +96,8 @@ function getApiAccessData()
 				ret = strip(ret, ',')
 				return string(ret, "],\"result\":true}")
 			catch err
-				@error "ConfigManager.getApiAccessData() error: $err"
+		        errnum = JLog.getLogHash()
+				JLog.writetoLogfile("[errnum:$errnum] GetDataController.getApiAccessData() error: $err")
 				return false
 			end
 		else
@@ -136,7 +138,8 @@ function getDBAccessData()
 				ret = strip(ret, ',')
 				return string(ret, "],\"result\":true}")
 			catch err
-				@error "ConfigManager.getDBAccessData() error: $err"
+				errnum = JLog.getLogHash()
+				JLog.writetoLogfile("[errnum:$errnum] GetDataController.getDBAccessData() error: $err")
 				return false
 			end
 		else
@@ -207,15 +210,24 @@ function getPerformanceTestData()
 		return false
 	end
 end
+"""
+function checkExistImproveApiFile()
 
+	checking existing JC["improvesuggestionfile"] data file.
+"""
 function checkExistImproveApiFile()
 	getImproveApiFile(false)
 end
+"""
+function getSuggestionData()
+
+	get suggestion data from JC["improvesuggestionfile"] data file.
+"""
 function getSuggestionData()
 	getImproveApiFile(true)
 end
 """
-function checkExistImproveApiFile()
+function getImproveApiFile()
 
 	get JC["improvesuggestionfile"] data file name. this file contains an improving suggestion data of a target api. 
 
@@ -257,13 +269,12 @@ function getImproveApiFile(flg::Bool)
 
 				isdata = true
 				ret = strip(ret, ',')
-#				return string(ret, "],\"result\":true}")
 			catch err
-				@error "ConfigManager.checkExistImproveApiFile() error: $err"
+				errnum = JLog.getLogHash()
+				JLog.writetoLogfile("[errnum:$errnum] GetDataController.getImproveApiFile() error: $err")
 				return false
 			end
 		else
-#			return string(ret,"{\"nothing\":\"everything fine\"}")
 			ret = "{\"nothing\":\"everything fine\"}"
 		end
 	else
@@ -324,7 +335,8 @@ function getConfigHistory()
 				ret = strip(ret, ',')
 				return string(ret, "],\"result\":true}")
 			catch err
-				@error "ConfigManager.getConfigHistory() error: $err"
+				errnum = JLog.getLogHash()
+				JLog.writetoLogfile("[errnum:$errnum] GetDataController.getConfigHistory() error: $err")
 				return false
 			end
 		else
@@ -360,7 +372,8 @@ function getOperationHistory()
 				ret = strip(ret, ',')
 				return string(ret, "],\"result\":true}")
 			catch err
-				@error "ConfigManager.getOperationHistory() error: $err"
+				errnum = JLog.getLogHash()
+				JLog.writetoLogfile("[errnum:$errnum] GetDataController.getOperationHistory() error: $err")
 				return false
 			end
 		else

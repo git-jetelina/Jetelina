@@ -13,5 +13,4 @@ jd18:people_1000:postgresql
 ji19:people_1000:mysql
 ju20:people_1000:mysql
 jd21:people_1000:mysql
-js22:ftest2,ftest3:postgresql
-js23:ftest2:postgresql
+js22:ftest2:postgresql
