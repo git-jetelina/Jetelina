@@ -19,6 +19,7 @@ module PgSQLSentenceManager
 using DataFrames, StatsBase
 using Genie, Genie.Requests, Genie.Renderer.Json
 using Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.JMessage
+import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
@@ -103,27 +104,27 @@ function createApiSelectSentence(json_d, mode::String)
     item_d = json_d["item"]
     subq_d = json_d["subquery"]
     multitable::Bool = false
+    ignore::String = "ignore" # protocol
 
     #===
         add "jetelina_delete_flg=0" (meaning alive data) to sub query string.
         because the js* api only manages living data. 
     ===#
     function _addJetelinaDeleteFlg2Subquery(subq_d,tarr)
+        jdf = "jetelina_delete_flg=0 "
+        delfgstr::String = ""
+        andstr::String = ""
         #===
             Tips:
                 add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
                 because "jetelina_delete_flg" is added later, then "where (a=b)and(jetelina_delte_flg=0)".
                 it's a gross if "where a=b and(jetelina...) were.
         ===#
-        if subq_d != "ignore"
+        if subq_d != ignore
             subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
         end
 
         if 1<length(tarr)
-            jdf = "jetelina_delete_flg=0 "
-            delfgstr::String = ""
-            andstr::String = ""
-
             for i ∈ 1:length(tarr)
                 if 1<i
                     andstr = ")and("
@@ -136,6 +137,8 @@ function createApiSelectSentence(json_d, mode::String)
 
             subq_d = replace(subq_d, "where " => "where $delfgstr ))and")
         else
+            delfgstr = string("where ", tarr[1], ".$jdf")
+            subq_d = replace(subq_d, ignore => delfgstr)
         end
 
         return subq_d
@@ -195,7 +198,18 @@ function createApiSelectSentence(json_d, mode::String)
 
     selectSql = """select $selectSql from $tableName"""
 
+    if j_config.JC["debug"]
+        @info "---------chk for ....-------------"
+        @info "before subq_d is " subq_d
+        @info "table array is " tablename_arr
+    end
+
     subq_d = _addJetelinaDeleteFlg2Subquery(subq_d, tablename_arr)
+
+    if j_config.JC["debug"]
+        @info "after subq_d is " subq_d
+        @info "----------------------------------"
+    end
 
     if mode != "pre"
         ck = ApiSqlListManager.sqlDuplicationCheck(selectSql, subq_d, "postgresql")
@@ -222,10 +236,10 @@ function createApiSelectSentence(json_d, mode::String)
         end
     else
         # pre execution sql sentence
-        keyword::String = "ignore" # protocol
-        if contains(subq_d,keyword)
-            subq_d = ""
-        end
+#        keyword::String = "ignore" # protocol
+#        if contains(subq_d,keyword)
+#            subq_d = ""
+#        end
 
         return (multitable, string(selectSql," ",subq_d));
     end
@@ -359,10 +373,16 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
                         subquery_str = replace.(subquery_str, kk => v)
                     end
 
+                    #===
+                        Attention: 2025/11/17
+                            below processes are undone, because j_del_flg is added at creating sql sentence in
+                            createApiSelectSentence() already.
+                            so, these private functions are unnecessary anymore, should be deleted later.
+                    ===#
                     # this private function __create_j_del_flg() is defined above.
-                    j_del_flg = __create_j_del_flg(df.sql[1])
+#                    j_del_flg = __create_j_del_flg(df.sql[1])
                     # this private function __create_subquery_str is defined above as well.
-                    subquery_str = __create_subquery_str(subquery_str, j_del_flg)
+#                    subquery_str = __create_subquery_str(subquery_str, j_del_flg)
                 end
             else
                 subquery_str = string("where ", j_del_flg)

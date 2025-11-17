@@ -1103,7 +1103,7 @@ const postSelectedColumns = (mode) => {
         }
 
         if (isVisibleGenelicPanel()) {
-          $(GENELICPANEL).hide();
+          showGenelicPanel(false);
         }
 
         m = chooseMsg('func-newapino-msg', `is ${result.apino}`, 'r');

@@ -203,7 +203,7 @@ function compareJsAndJv(conn, apino)
                         ApiSqlListManager.writeToMatchinglist(string(apino))
                     end
 
-                    JLog.writetoLogfile("PgIVMController.compareJsAndJv(): $ivmnized")
+                    JLog.writetoLogfile(string("PgIVMController.compareJsAndJv(): $ivmnized because speed(jv): ", jvspeed[3], " is faster than spped(js): ", jsspeed[3]))
                 end
     #       end
         catch err
