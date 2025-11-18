@@ -15,3 +15,11 @@ ju20:people_1000:mysql
 jd21:people_1000:mysql
 js22:ftest2:postgresql
 js23:ftest3,ftest2:postgresql
+ji24:ftest2:mysql
+ju25:ftest2:mysql
+jd26:ftest2:mysql
+ji27:ftest3:mysql
+ju28:ftest3:mysql
+jd29:ftest3:mysql
+js30:ftest2:mysql
+js31:ftest2,ftest3:mysql
