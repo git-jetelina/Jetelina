@@ -17,7 +17,7 @@
       cleanupContainers(s) clear screen in the detail zone showing when switching table list/api list 
       fileupload() CSV file upload
       getdataFromJson(o,k) aquire the ordered data from the ordered json object
-      listClick(p)   do something by clicking tble list or api list items  
+      listClick(p)   do something by clicking table list or api list items  
       setApiIF_In(t,s) Show Json of 'API　IN'
       setApiIF_Out(t,s) Show Json of 'API OUT'
       setApiIF_Sql(s) Show sample execution sql sentence
@@ -548,6 +548,24 @@ const listClick = (p) => {
       related_table = t;
       // get&show table columns
       getColumn(t);
+      /*
+        Tips:
+          ivm special.
+          ivm table has a chance to show in the table list at the moment after creating the api.
+          it will be not in there if the list were refreshed, but it has a change to be clicked by a user.
+          showing its columns by getColumn() is no problem, but its related api does not high lightend because the relation is not on JetelinaTableApiRelation.
+          so, make a trick at here.
+          if ivm table has been clickced, make high light the counter part api, i mean if 'jv23' has been clicked on the table list, then searching the name 'js23'
+          on the api list, and high light it if there were.  
+      */
+      if( t.startsWith("jv")){
+        let checkjvapi = t.replace("jv", "js")
+        $(`${APICONTAINER} span`).filter(".api").each(function(){
+          if( checkjvapi == $(this).text()){
+            $(this).addClass("relatedItem");            
+          }
+        });
+      }
     } else {
       /*
         Tips:
@@ -1844,14 +1862,32 @@ const functionPanelFunctions = (ut) => {
         // API test mode before registering
         // before hitting this command, should desplay 'func-api-test-msg' in anywhere.
         if (checkGenelicInput($(GENELICPANELINPUT).val())) {
-          if (loginuser.dbtype != "mongodb") {
-            postSelectedColumns("pre");
+          // check the subquery in case RDBMS
+          if ($.inArray(loginuser.dbtype,["postgresql","mysql"]) != -1) {
+            if(containsMultiTables()){
+              let subquerysentence = $.trim($(GENELICPANELINPUT).val());
+              // 'where sentence' is demanded if there were multi tables
+              if (subquerysentence.length < 6 || subquerysentence.indexOf("where") < 0 || subquerysentence == IGNORE) {
+                m = chooseMsg('func-postcolumn-where-indispensable-msg', "", "");
+                let p = subquerysentence.length;
+                $(GENELICPANELINPUT).focus().get(0).setSelectionRange(p, p)
+              } else {
+                if (checkGenelicInput(subquerysentence)) {
+                  postSelectedColumns("pre");
+                } else {
+                  m = chooseMsg('func-api-subquery-chk-error', '', '');
+                }
+              }
+
+            }else{
+              postSelectedColumns("pre");
+            }
           } else {
             let apitestsuggestion = "<h3>Hey, inhibt this execution before creating this api</h3>you can do the existing api. now you follow me as <br>　1. create api by typing 'create api'<br>　2. select the new api<br>　3. then type 'test api'";
             let p = $(`${APICONTAINER} span`);
             let hasjs = false;
             $.each(p, function (i, v) {
-              if ($(this).hasClass("relatedItem") || $(this).hasClass("activeandrelatedItem")) { console.log($(this).text());
+              if ($(this).hasClass("relatedItem") || $(this).hasClass("activeandrelatedItem")) {
                 if ($(this).text().startsWith("js")) {
                   hasjs = true;
                   return;
