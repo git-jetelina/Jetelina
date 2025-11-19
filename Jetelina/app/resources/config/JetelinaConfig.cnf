@@ -145,10 +145,10 @@ pg_testdbname = testdb
 @jdic pg_ivm:"postgresql ivm"
 pg_ivm = true
 
-@jdic pg_regulation:"ivm regulation, ivm ban sentences"
-pg_regulatedclauses = "having","union","intersect","except","distinct on","tablesample","value","tablesample","for update","share"
-@jdic pg_allowclauses:"ivm allow, ivm allow clauses, ivm available clauses"
-pg_allowclauses = "order by","limit","offset"
+@jdic pg_regulatedclauses:"ivm regulation","ivm ban sentences"
+pg_regulatedclauses = having,union,intersect,except,distinct on,tablesample,value,tablesample,for update,share,{
+@jdic pg_allowclauses:"ivm allow","ivm allow clauses","ivm available clauses"
+pg_allowclauses = order by,limit,offset
 #
 # mysql,oracle and so on are goin to do after postgre is done  2024/3/4
 #

@@ -544,10 +544,10 @@ const listClick = (p) => {
     let related_table = "";
     let related_api = "";
 
+    let isivmtable = false;
+
     if (c.indexOf("table") != -1) {
       related_table = t;
-      // get&show table columns
-      getColumn(t);
       /*
         Tips:
           ivm special.
@@ -557,14 +557,29 @@ const listClick = (p) => {
           so, make a trick at here.
           if ivm table has been clickced, make high light the counter part api, i mean if 'jv23' has been clicked on the table list, then searching the name 'js23'
           on the api list, and high light it if there were.  
+
+          and ignore showring table columns even if ivm table were clicked.
       */
       if( t.startsWith("jv")){
         let checkjvapi = t.replace("jv", "js")
         $(`${APICONTAINER} span`).filter(".api").each(function(){
           if( checkjvapi == $(this).text()){
-            $(this).addClass("relatedItem");            
+            $(this).addClass("relatedItem");
+            isivmtable = true;
+            /*
+              Tips:
+                this is a dummy process.
+                'relatedDataList' object is set in postAjaxData() with calling '/getrelatedlist', but in case of ivm, it does not be called.
+                so, this dummy setting is necessary to remove 'activeItem' class in the ivm table tag. 
+            */
+            relatedDataList[t] = [checkjvapi];
           }
         });
+      }
+
+      if(!isivmtable){
+        // get&show table columns
+        getColumn(t);
       }
     } else {
       /*
@@ -600,8 +615,14 @@ const listClick = (p) => {
       }
     }
 
-    let data = `{"table":"${related_table}","api":"${related_api}"}`;
-    postAjaxData(scenario["function-post-url"][8], data);
+    /*
+      Tips:
+        because ivm table is not listed in JetelinaTableApiRelation file
+    */
+    if(!isivmtable){
+      let data = `{"table":"${related_table}","api":"${related_api}"}`;
+      postAjaxData(scenario["function-post-url"][8], data);
+    }
 
     if (p.hasClass("relatedItem")) {
       p.addClass("activeandrelatedItem");

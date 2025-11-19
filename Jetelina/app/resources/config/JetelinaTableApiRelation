@@ -13,8 +13,6 @@ jd18:people_1000:postgresql
 ji19:people_1000:mysql
 ju20:people_1000:mysql
 jd21:people_1000:mysql
-js22:ftest2:postgresql
-js23:ftest3,ftest2:postgresql
 ji24:ftest2:mysql
 ju25:ftest2:mysql
 jd26:ftest2:mysql
@@ -23,3 +21,5 @@ ju28:ftest3:mysql
 jd29:ftest3:mysql
 js30:ftest2:mysql
 js31:ftest2,ftest3:mysql
+js32:ftest3,ftest2:postgresql
+js33:ftest2,ftest3:postgresql
