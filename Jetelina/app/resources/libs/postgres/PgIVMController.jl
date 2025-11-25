@@ -91,12 +91,12 @@ function createIVMtable(conn, apino::String)
     jvsubquery = string(target_api[!,:subquery][1])
     for ac in allowclauses
         if contains(jvsubquery,ac)
-            # もしsubにallow..があったら、それはjv*のsqlにも引き継がれる　　　ぞと。さて、どうやって？
+            # take over the allowclauses to jv*, if there were in js*
             ss = split(jvsubquery)
             if 0<length(ss)
                 for i in eachindex(ss)
                     if ss[i] ∈ allowclauses
-                        # ss[i] が"limit"だったらその次のss[i+1]はその変数である100もしくは{limit}を期待している
+                        # expecting the next (ss[i+1]) is integer number e.g. 100 or {limit} if ss[i] were "limit"
                         if !isnothing(ss[i+1])                            
                             push!(ivmsubquery, string(ss[i]," ",ss[i+1]))
                             jvsubquery = replace(jvsubquery, string(ss[i]," ",ss[i+1]) => "")
@@ -113,10 +113,11 @@ function createIVMtable(conn, apino::String)
     sql::String = replace(string(target_api[!,:sql][1], " ", jvsubquery), "'" => "''")
     
     # regulated...にある句が存在した場合、ivm化はしない
-    for rc in regulatedclauses
-        if contains(sql, rc)
-            ivmsafe = false
-        end
+#    for rc in regulatedclauses
+#        if contains(sql, rc)
+    if any(contains.(sql,rc))
+        ivmsafe = false
+#       end
     end
 
     if ivmsafe

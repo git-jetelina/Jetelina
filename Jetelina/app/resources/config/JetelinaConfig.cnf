@@ -121,6 +121,27 @@ jetelinadb = postgresql
 @jdic dbtype:"db","database","data base"
 dbtype = postgresql
 
+#
+#  RDMBS, notable strings in 'select' sentence
+#      Jetelina adds 'jetelina_delete_flg' to user's definition select sentence,
+#      but it maybe added in the head sentence, 
+#          e.g.
+#             select t1.a, t1.b from t1 as t1 where t1.a < {a} and t1.b between {b1} and {b2} limit {limit} offset {offse}
+#          -> select t1.a, t1.b from t1 as t1 where ((t1.jetelina_delete_flg = 0)and(t1.a < {a} and t1.b between {b1} and {b2})) limit {limit} offset {offse}
+#                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                         ^^
+#
+#      the 'limit' and 'offset' are be out of the 'jetelina_delete_flg' clausure.             
+#      not only 'limit' and 'offset', there are some strings that are be out of it.
+#      this 'not_include_to_jetelina_delete_flg' is defined them.
+#      and 'not_include...._user_definition is for the special strings for definding user's own subquery.
+#      i mean, Jetelina does not modify anything to it if these strings were in there.
+#          e.g.
+#             select t1.a, t1.b from t1 as t1 where @mydef_start ...... @mydef_end
+#          -> select t1.a, ...........where ....... 
+#
+not_include_to_jetelina_delete_flg = join,group by,having,distinct,order by,limit,offset,union,intersect,except
+not_include_to_jetelina_delete_flg_user_definition = @mydef_start,@mydef_end
+
 # PostgreSQL setting
 @jdic pg_work:"postgresql run","postgresql availability","start postgresql","postgresql start"
 pg_work = true
@@ -189,7 +210,7 @@ redis_password =
 
 # MongoDB setting
 @jdic mongodb_work:"mongodb run","mongodb availability","start mongodb","mongodb start"
-mongodb_work = false
+mongodb_work = true
 @jdic monogodb_host:"monogodb host"
 mongodb_host = 127.0.0.1
 @jdic mongodb_port:"monogodb port"

@@ -828,6 +828,8 @@ const setApiIF_Sql = (s) => {
     if (ret.startsWith("insert")) {
       ret = ret.replaceAll(`,{${reject_jetelina_delete_flg}}`, '').replaceAll(`,${reject_jetelina_delete_flg}`, '');
     }
+
+    ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
   } else {
     if (loginuser.dbtype == "redis") {
       let d = s.sql.split(":");
@@ -838,24 +840,29 @@ const setApiIF_Sql = (s) => {
       } else if (s.apino.startsWith("js")) {
         ret = `${d[0]} ${d[1]}`;
       }
+      
+      ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
     } else if (loginuser.dbtype == "mongodb") {
+      let ms = "";
       if (s.apino.startsWith("ji")) {
-        ret = "<span class='jetelina_suggestion'><p>Simply inserting</p></span>";
+        ms = "Simply inserting";
       } else if (s.apino.startsWith("ju")) {
-        ret = "<span class='jetelina_suggestion'><p>Find your ordered keys, then update them with your ordered values. Append them to the document if could not find it.</p></span>";
+        ms = "Find your ordered keys, then update them with your ordered values. Append them to the document if could not find it.";
       } else if (s.apino.startsWith("jd")) {
-        ret = "<span class='jetelina_suggestion'><p>Delete this document permanently.</p></span>";
+        ms = "Delete this document permanently.";
       } else if (s.apino.startsWith("js")) {
         if (-1 < s.sql.indexOf("{find}")) {
-          ret = "<span class='jetelina_suggestion'><p>Find your whole document data</p></span>";
+          ms = "Find your whole document data.";
         } else {
-          ret = "<span class='jetelina_suggestion'><p>Find your ordered values of keys.</p></span>"
+          ms = "Find your ordered values of keys."
         }
       }
+
+      ret = `<span class='jetelina_suggestion'><p>${ms}</p></span>`;
     }
   }
 
-  ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
+//  ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
   return ret;
 }
 /**

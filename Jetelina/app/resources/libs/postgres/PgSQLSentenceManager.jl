@@ -111,36 +111,65 @@ function createApiSelectSentence(json_d, mode::String)
         because the js* api only manages living data. 
     ===#
     function _addJetelinaDeleteFlg2Subquery(subq_d,tarr)
-        jdf = "jetelina_delete_flg=0 "
-        delfgstr::String = ""
-        andstr::String = ""
-        #===
-            Tips:
-                add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
-                because "jetelina_delete_flg" is added later, then "where (a=b)and(jetelina_delte_flg=0)".
-                it's a gross if "where a=b and(jetelina...) were.
-        ===#
-        if subq_d != ignore
-            subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
-        end
+        keyword_jdf::String = "jetelina_delete_flg"
+        keyword_subq::Array = split(j_config.JC["not_include_to_jetelina_delete_flg"],",")
+        keyword_ud::Array = split(j_config.JC["not_include_to_jetelina_delete_flg_user_definition"],",") 
+        insertat::Integer = 1
 
-        if 1<length(tarr)
-            for i ∈ 1:length(tarr)
-                if 1<i
-                    andstr = ")and("
-                else
-                    andstr = "(("
+        if !any(contains.(subq_d, keyword_ud))
+            if any(contains.(subq_d, keyword_subq))
+                for i in keyword_subq
+                    isit = findfirst(i,subq_d)
+                    if !isnothing(isit)
+                        insertat = first(isit)
+                        break
+                    end
                 end
-
-                delfgstr = string(delfgstr,andstr,tarr[i],".",jdf)
             end
 
-            subq_d = replace(subq_d, "where " => "where $delfgstr ))and")
+            jdf::String = string(keyword_jdf,"=0")
+            delfgstr::String = ""
+            andstr::String = ""
+            #===
+                Tips:
+                    add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
+                    because "jetelina_delete_flg" is added later, then "where (a=b)and(jetelina_delte_flg=0)".
+                    it's a gross if "where a=b and(jetelina...) were.
+            ===#
+            if subq_d != ignore
+#                subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
+                subq_d = replace(subq_d, "where " => "where (", count=1)
+                # insertatに")"を突っ込む
+                if 1<insertat
+                    @info "b sub " subq_d typeof(subq_d) length(subq_d) 
+                    @info "insertat " insertat
+                    subq_d = string(subq_d[1:insertat-1], ")", subq_d[insertat:end])
+                else
+                    subq_d = string(subq_d,")")
+                end
+            end
+
+            if 1<length(tarr)
+                for i ∈ 1:length(tarr)
+                    if 1<i
+                        andstr = ")and("
+                    else
+                        andstr = "(("
+                    end
+
+                    delfgstr = string(delfgstr,andstr,tarr[i],".",jdf)
+                end
+
+                subq_d = replace(subq_d, "where " => "where $delfgstr ))and")
+            else
+                delfgstr = string("where ", tarr[1], ".$jdf")
+                subq_d = replace(subq_d, ignore => delfgstr)
+            end
         else
-            delfgstr = string("where ", tarr[1], ".$jdf")
-            subq_d = replace(subq_d, ignore => delfgstr)
+            subq_d = replace(subq_d, keyword_ud[1] => "", keyword_ud[2] => "")
         end
 
+@info "show subq_d " subq_d
         return subq_d
     end
     #==
@@ -276,6 +305,8 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
    				table1.jetelina_delete_flg=0 and table2.jetelina_delete_flg=0 and....
 
    			Caution: any local variables are not be duplicated with global ones. 
+            
+            depricated in ver3.1
    	===#
     function __create_j_del_flg(sql::String)
         del_flg::String = "jetelina_delete_flg=0" # absolute select condition
@@ -314,6 +345,8 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
     			select .... where jetelina_delete_flg=0 and table1.something='aaa' limit 10 
 
     		Caution: any local variables are not be duplicated with global ones. 
+
+            depricated in ver3.1
     ===#
     function __create_subquery_str(sub_str::String, del_str::String)
         sub_ret::String = sub_str

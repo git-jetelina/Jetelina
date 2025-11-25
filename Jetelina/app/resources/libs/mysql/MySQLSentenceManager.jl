@@ -104,34 +104,39 @@ function createApiSelectSentence(json_d, mode::String)
         because the js* api only manages living data. 
     ===#
     function _addJetelinaDeleteFlg2Subquery(subq_d,tarr)
-        jdf = "jetelina_delete_flg=0 "
-        delfgstr::String = ""
-        andstr::String = ""
-        #===
-            Tips:
-                add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
-                because "jetelina_delete_flg" is added later, then "where (a=b)and(jetelina_delte_flg=0)".
-                it's a gross if "where a=b and(jetelina...) were.
-        ===#
-        if subq_d != ignore
-            subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
-        end
-
-        if 1<length(tarr)
-            for i ∈ 1:length(tarr)
-                if 1<i
-                    andstr = ")and("
-                else
-                    andstr = "(("
-                end
-
-                delfgstr = string(delfgstr,andstr,tarr[i],".",jdf)
+        keyword_jdf::String = "jetelina_delete_flg"
+        keyword_subq::String = "@@"
+#        if !contains(subq_d, keyword_jdf)
+        if !any(contains.(subq_d,[keyword_jdf,keyword_subq]))
+            jdf::String = string(keyword_jdf,"=0")
+            delfgstr::String = ""
+            andstr::String = ""
+            #===
+                Tips:
+                    add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
+                    because "jetelina_delete_flg" is added later, then "where (a=b)and(jetelina_delte_flg=0)".
+                    it's a gross if "where a=b and(jetelina...) were.
+            ===#
+            if subq_d != ignore
+                subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
             end
 
-            subq_d = replace(subq_d, "where " => "where $delfgstr ))and")
-        else
-            delfgstr = string("where ", tarr[1], ".$jdf")
-            subq_d = replace(subq_d, ignore => delfgstr)
+            if 1<length(tarr)
+                for i ∈ 1:length(tarr)
+                    if 1<i
+                        andstr = ")and("
+                    else
+                        andstr = "(("
+                    end
+
+                    delfgstr = string(delfgstr,andstr,tarr[i],".",jdf)
+                end
+
+                subq_d = replace(subq_d, "where " => "where $delfgstr ))and")
+            else
+                delfgstr = string("where ", tarr[1], ".$jdf")
+                subq_d = replace(subq_d, ignore => delfgstr)
+            end
         end
 
         return subq_d
@@ -266,6 +271,8 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
     			table1.jetelina_delete_flg=0 and table2.jetelina_delete_flg=0 and....
 
     		Caution: any local variables are not be duplicated with global ones. 
+
+            depricated in ver3.1
     ===#
     function __create_j_del_flg(sql::String)
         del_flg::String = "jetelina_delete_flg=0" # absolute select condition
@@ -304,6 +311,8 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
     			select .... where jetelina_delete_flg=0 and table1.something='aaa' limit 10 
 
     		Caution: any local variables are not be duplicated with global ones. 
+
+            depricated in ver3.1
     ===#
     function __create_subquery_str(sub_str::String, del_str::String)
         sub_ret::String = sub_str
