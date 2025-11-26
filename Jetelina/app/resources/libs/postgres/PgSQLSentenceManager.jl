@@ -137,12 +137,9 @@ function createApiSelectSentence(json_d, mode::String)
                     it's a gross if "where a=b and(jetelina...) were.
             ===#
             if subq_d != ignore
-#                subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
                 subq_d = replace(subq_d, "where " => "where (", count=1)
-                # insertatに")"を突っ込む
+                # input ")" into insertat
                 if 1<insertat
-                    @info "b sub " subq_d typeof(subq_d) length(subq_d) 
-                    @info "insertat " insertat
                     subq_d = string(subq_d[1:insertat-1], ")", subq_d[insertat:end])
                 else
                     subq_d = string(subq_d,")")
@@ -169,7 +166,6 @@ function createApiSelectSentence(json_d, mode::String)
             subq_d = replace(subq_d, keyword_ud[1] => "", keyword_ud[2] => "")
         end
 
-@info "show subq_d " subq_d
         return subq_d
     end
     #==
@@ -390,9 +386,9 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
                     sp = split(json_dict[keyword2], ",")
                     if !isnothing(sp)
                         for ii in eachindex(sp)
-                            if ii == 1 || ii == length(sp)
+#                            if ii == 1 || ii == length(sp)
                                 sp[ii] = replace.(sp[ii], "[" => "", "]" => "", "\"" => "", "'" => "")
-                            end
+#                            end
 
                             ssp = split(sp[ii], ":")
                             if !isnothing(ssp) && 1 < length(ssp)
@@ -405,7 +401,6 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
                         kk = string("{", k, "}")
                         subquery_str = replace.(subquery_str, kk => v)
                     end
-
                     #===
                         Attention: 2025/11/17
                             below processes are undone, because j_del_flg is added at creating sql sentence in
@@ -420,6 +415,7 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
             else
                 subquery_str = string("where ", j_del_flg)
             end
+
         elseif contains(json_dict["apino"], "ju") || contains(json_dict["apino"], "jd")
             # update/delete
             #   json_dict["subquery"] is always point to {jt_id}

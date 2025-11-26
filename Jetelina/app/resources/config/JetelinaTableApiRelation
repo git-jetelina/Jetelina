@@ -19,8 +19,6 @@ jd26:ftest2:mysql
 ji27:ftest3:mysql
 ju28:ftest3:mysql
 jd29:ftest3:mysql
-js30:ftest2:mysql
-js31:ftest2,ftest3:mysql
 js32:ftest3,ftest2:postgresql
 js33:ftest2,ftest3:postgresql
 ji34::redis
@@ -40,3 +38,7 @@ js47:jetelina-collection,mon_sample2:mongodb
 ju48:jetelina-collection,mon_sample3:mongodb
 jd49:jetelina-collection,mon_sample3:mongodb
 js50:jetelina-collection,mon_sample3:mongodb
+js51:ftest2,ftest3:postgresql
+js53:ftest2:postgresql
+js54:ftest2:mysql
+js55:ftest2:mysql

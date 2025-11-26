@@ -105,12 +105,24 @@ function createApiSelectSentence(json_d, mode::String)
     ===#
     function _addJetelinaDeleteFlg2Subquery(subq_d,tarr)
         keyword_jdf::String = "jetelina_delete_flg"
-        keyword_subq::String = "@@"
-#        if !contains(subq_d, keyword_jdf)
-        if !any(contains.(subq_d,[keyword_jdf,keyword_subq]))
+        keyword_subq::Array = split(j_config.JC["not_include_to_jetelina_delete_flg"],",")
+        keyword_ud::Array = split(j_config.JC["not_include_to_jetelina_delete_flg_user_definition"],",") 
+        insertat::Integer = 1
+
+        if !any(contains.(subq_d, keyword_ud))
+            if any(contains.(subq_d, keyword_subq))
+                for i in keyword_subq
+                    isit = findfirst(i,subq_d)
+                    if !isnothing(isit)
+                        insertat = first(isit)
+                        break
+                    end
+                end
+            end
+
             jdf::String = string(keyword_jdf,"=0")
             delfgstr::String = ""
-            andstr::String = ""
+            andstr::String = raw""
             #===
                 Tips:
                     add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
@@ -118,13 +130,19 @@ function createApiSelectSentence(json_d, mode::String)
                     it's a gross if "where a=b and(jetelina...) were.
             ===#
             if subq_d != ignore
-                subq_d = string(replace(subq_d, "where " => "where (", count=1), ")")
+                subq_d = replace(subq_d, "where " => "where (", count=1)
+                # input "(" into insertat
+                if 1<insertat
+                    subq_d = string(subq_d[1:insertat-1], ")", subq_d[insertat:end])
+                else
+                    subq_d = string(subq_d,raw")")
+                end
             end
 
             if 1<length(tarr)
                 for i ∈ 1:length(tarr)
                     if 1<i
-                        andstr = ")and("
+                        andstr = raw")and("
                     else
                         andstr = "(("
                     end
@@ -137,6 +155,8 @@ function createApiSelectSentence(json_d, mode::String)
                 delfgstr = string("where ", tarr[1], ".$jdf")
                 subq_d = replace(subq_d, ignore => delfgstr)
             end
+        else
+            subq_d = replace(subq_d, keyword_ud[1] => "", keyword_ud[2] => "")
         end
 
         return subq_d
@@ -356,9 +376,9 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
                     sp = split(json_dict[keyword2], ",")
                     if !isnothing(sp)
                         for ii in eachindex(sp)                            
-                            if ii == 1 || ii == length(sp)
+#                            if ii == 1 || ii == length(sp)
                                 sp[ii] = replace.(sp[ii], "[" => "", "]" => "", "\"" => "", "'" => "")
-                            end
+#                            end
 
                             ssp = split(sp[ii], ":")
                             if !isnothing(ssp) && 1 < length(ssp)
