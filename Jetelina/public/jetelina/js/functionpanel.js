@@ -840,7 +840,7 @@ const setApiIF_Sql = (s) => {
       } else if (s.apino.startsWith("js")) {
         ret = `${d[0]} ${d[1]}`;
       }
-      
+
       ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
     } else if (loginuser.dbtype == "mongodb") {
       let ms = "";
@@ -1525,7 +1525,7 @@ const functionPanelFunctions = (ut) => {
       break;
     case SELECTITEM:
       let findflg = false;
-      let t = ut.split(' ');
+      let t = ut.replaceAll(","," ").split(' ').filter(Boolean);
 
       // for opening table 
       $(CONTAINERNEWAPINO).remove();
@@ -1618,7 +1618,7 @@ const functionPanelFunctions = (ut) => {
 
       break;
     case TABLEAPIDELETE:
-      let utarray = ut.split(' ');
+      let utarray = ut.replaceAll(","," ").split(' ').filter(Boolean);
 
       if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
         /*
@@ -1778,7 +1778,7 @@ const functionPanelFunctions = (ut) => {
           also it may happen in file up loading, oh my.. in apitest as well.
        
           Attention:
-            in the case of cancel 'drop table' and 'delete api' are be canceld every selected tables and apis.
+            in the case of cancel 'drop table' and 'delete api' are be canceled every selected tables and apis.
             in the case of cancel 'itme(column)' is able to be canceled selectively: each 'cancel <column name>'.
       */
       // cancel table drop and/or api delete
@@ -1809,7 +1809,7 @@ const functionPanelFunctions = (ut) => {
         rejectCancelableCmdList(FILESELECTOROPEN);
         m = chooseMsg("cancel-msg", "", "");
       } else if (inCancelableCmdList([SELECTITEM])) {
-        let t = ut.split(' ');
+        let t = ut.replaceAll(","," ").split(' ').filter(Boolean);
         // cancel selected columns
         if (inScenarioChk(ut, "func-selecteditem-all-cancel-cmd")) {
           // cancel all items
@@ -1827,13 +1827,15 @@ const functionPanelFunctions = (ut) => {
           m = chooseMsg('cancel-msg', "", "");
         } else {
           // cancel each item
-          $(`${CONTAINERPANEL} span`).filter(".selectedItem").each(function (i, v) {
-            if (v.textContent.indexOf(t[1]) != -1) {
-              itemSelect($(this));
-              rejectSelectedItemsArr(v.textContent);
-              m = chooseMsg('cancel-msg', "", "");
-            }
-          });
+          for (cw in t){
+            $(`${CONTAINERPANEL} span`).filter(".selectedItem").each(function (i, v) {
+              if (v.textContent.indexOf(t[cw]) != -1) {
+                itemSelect($(this));
+                rejectSelectedItemsArr(v.textContent);
+                m = chooseMsg('cancel-msg', "", "");
+              }
+            });
+          }
         }
 
         if (!$(`${CONTAINERPANEL} span`).hasClass("selectedItem")) {

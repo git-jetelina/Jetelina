@@ -2167,7 +2167,7 @@ const apiTestAjax = () => {
     }).always(function () {
         // release it for allowing to input new command in the chatbox 
         inprogress = false;
-        preferent.apitestparams = [];
+//        preferent.apitestparams = [];
         preferent.apiparams_count = null;
     });
 }
