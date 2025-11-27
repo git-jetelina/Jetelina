@@ -45,7 +45,7 @@ const checkGenelicInput = (ss) => {
     }
 
     // 2nd: reject unexpected words
-    let unexpectedwords = ["delete", "drop", ";"];
+    let unexpectedwords = [" delete ", " drop ", ";"];
     for (i in unexpectedwords) {
       s = s.replaceAll(unexpectedwords[i], "");
     }

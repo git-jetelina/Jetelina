@@ -42,3 +42,12 @@ js51:ftest2,ftest3:postgresql
 js53:ftest2:postgresql
 js54:ftest2:mysql
 js55:ftest2:mysql
+js56:ftest2:mysql
+js57:ftest3:mysql
+js58:ftest3:mysql
+js59:ftest2:mysql
+js60:ftest2:mysql
+js61:ftest2,ftest3:mysql
+js62:ftest2,ftest3:mysql
+js63:ftest2,ftest3:mysql
+js64:ftest2,ftest3:mysql

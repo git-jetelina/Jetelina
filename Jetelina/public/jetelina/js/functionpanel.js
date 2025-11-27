@@ -1744,7 +1744,13 @@ const functionPanelFunctions = (ut) => {
               $(GENELICPANELINPUT).focus().get(0).setSelectionRange(p, p)
             }
           } else {
-            postSelectedColumns("");
+//            postSelectedColumns("");
+              if (checkGenelicInput(subquerysentence)) {
+                postSelectedColumns("");
+              } else {
+                m = chooseMsg('func-api-subquery-chk-error', '', '');
+              }
+
           }
         } else {
           if (containsMultiTables()) {
