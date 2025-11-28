@@ -51,3 +51,11 @@ js61:ftest2,ftest3:mysql
 js62:ftest2,ftest3:mysql
 js63:ftest2,ftest3:mysql
 js64:ftest2,ftest3:mysql
+js65:ftest2:mysql
+js66:palt,people_1000:postgresql
+js67:people_1000,palt:postgresql
+js68:palt,people_1000:postgresql
+js69:ftest2,ftest3:mysql
+js70:ftest2:mysql
+js71:ftest2:mysql
+js72:ftest2:mysql

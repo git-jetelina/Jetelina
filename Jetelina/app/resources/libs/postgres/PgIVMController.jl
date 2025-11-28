@@ -115,7 +115,7 @@ function createIVMtable(conn, apino::String)
     # regulated...にある句が存在した場合、ivm化はしない
 #    for rc in regulatedclauses
 #        if contains(sql, rc)
-    if any(contains.(sql,rc))
+    if any(contains.(sql,regulatedclauses))
         ivmsafe = false
 #       end
     end
