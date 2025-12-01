@@ -1,1 +1,790 @@
-const _0x3850ff=_0x1f28;(function(_0x411219,_0xe66a2c){const _0x1564e1=_0x1f28,_0x2e3890=_0x411219();while(!![]){try{const _0xa054ca=parseInt(_0x1564e1(0x1f8))/0x1+parseInt(_0x1564e1(0x1e7))/0x2*(parseInt(_0x1564e1(0x1f7))/0x3)+parseInt(_0x1564e1(0x1ec))/0x4*(parseInt(_0x1564e1(0x1df))/0x5)+parseInt(_0x1564e1(0x1da))/0x6*(parseInt(_0x1564e1(0x1d0))/0x7)+-parseInt(_0x1564e1(0x1cc))/0x8*(parseInt(_0x1564e1(0x1bf))/0x9)+parseInt(_0x1564e1(0x1ce))/0xa+-parseInt(_0x1564e1(0x1f0))/0xb*(parseInt(_0x1564e1(0x200))/0xc);if(_0xa054ca===_0xe66a2c)break;else _0x2e3890['push'](_0x2e3890['shift']());}catch(_0x5b6ddb){_0x2e3890['push'](_0x2e3890['shift']());}}}(_0xc6c7,0x1c566));function _0xc6c7(){const _0x5caa01=['next','react','rgba(109,\x2098,\x20226,\x200.15)','previous','analyzed-data-collect-url','length','stats-check-suggestion-cmd','214641hNzkYM','dbaccessnumbers','cond','stats-hide-jetelina-concern-img-cmd','waiting-next-msg','max','text','stats-apiaccessnumberslist-search-cmd','match','push','stats-graph-show-msg','draw','rgb(0,153,153)','24iMsGhK','search','512430LeTAsL','last','28nrVENI','execution\x20speed','apispeed_graph','rgb(39,\x2095,\x20214)','stats-api-exec-speed-show-cmd','DataTable','split','rgb(255,0,0)','min','apiaccessnumbers','132222irSWJX','#piechart','stats-apiaccessnumberslist-next-cmd','\x20[name=\x27apino\x27]','z-index','520JslODc','inArray','hide','piechart_graph','\x20[name=\x27between\x27]','#apispeedchart','stats-db-access-numbers-chart-show-cmd','css','2gnVaig','forEach','destroy','rgb(255,255,255)','\x20-\x20','7012FKKyaB','page','Jetelina','mean','55UBoEwY','#api_access_numbers','stats-apiaccessnumberslist-again-cmd','each','simple','scatter','cmd','109818Xfavxu','35023FCdJbl','apiexecutionspeed','apiaccesslistdata','access_numbers','#api_access_numbers_list',':visible','keys','stats-apiaccessnumberslist-prev-cmd','493716vNrKoy','italic','apino','stats-apiaccessnumberslist-first-cmd','show','combination','date'];_0xc6c7=function(){return _0x5caa01;};return _0xc6c7();}const APIACCESSNUMBERSLIST=_0x3850ff(0x1fc),APIACCESPANELTAGID=_0x3850ff(0x1f1),DBACCESSPANELTAGID=_0x3850ff(0x1db),APISPEEDPANELTAGID=_0x3850ff(0x1e4),APIACCESPANEL=$(APIACCESPANELTAGID),DBACCESSPANEL=$(DBACCESSPANELTAGID),APISPEEDPANEL=$(APISPEEDPANELTAGID),APIACCESSNUMBERSCOMMAND=_0x3850ff(0x1d9),DBACCESSNUMBERSCOMMAND=_0x3850ff(0x1c0),APIEXECUTIONSPEEDCOMMAND=_0x3850ff(0x1f9);function _0x1f28(_0xa5cea5,_0x20f909){const _0xc6c7db=_0xc6c7();return _0x1f28=function(_0x1f286b,_0x33e83a){_0x1f286b=_0x1f286b-0x1bd;let _0x3aeb43=_0xc6c7db[_0x1f286b];return _0x3aeb43;},_0x1f28(_0xa5cea5,_0x20f909);}let realPerformanceData;const openStatsPanel=(_0x23137a,_0x2988f8,_0x2b36db)=>{const _0x2cd273=_0x3850ff;if(_0x2988f8){const _0x1c3a62=scenario[_0x2cd273(0x20b)];if(_0x2b36db==APIACCESSNUMBERSCOMMAND)!APIACCESPANEL['is'](_0x2cd273(0x1fd))&&getAjaxData(_0x1c3a62[0x4]);else{if(_0x2b36db==DBACCESSNUMBERSCOMMAND)!DBACCESSPANEL['is'](':visible')&&getAjaxData(_0x1c3a62[0x5]);else{if(_0x2b36db==APIEXECUTIONSPEEDCOMMAND){let _0x287e2f=_0x23137a['split']('\x20');if(0x0<_0x287e2f[_0x2cd273(0x1bd)]){let _0x4be0f0='';for(let _0x58e28c in _0x287e2f){if(_0x287e2f[_0x58e28c][_0x2cd273(0x1c7)](/^ji\d+|^ju\d+|^jd\d+|^js\d+/)){_0x4be0f0=_0x287e2f[_0x58e28c];break;}}if(_0x4be0f0!=''){let _0x249232='{\x22apino\x22:\x22'+_0x4be0f0+'\x22}';postAjaxData(_0x1c3a62[0x6],_0x249232),$(LINECHARTPANEL+_0x2cd273(0x1dd))[_0x2cd273(0x1c5)](_0x4be0f0);}}}}}}else hideApiAccessNumbersList(),$(PIECHARTPANEL)[_0x2cd273(0x1e1)]();},isVisibleApiAccessNumbers=()=>{const _0x1cd054=_0x3850ff;let _0x3fc9e1=![];return $(APIACCESSNUMBERS)['is'](_0x1cd054(0x1fd))&&(_0x3fc9e1=!![]),_0x3fc9e1;},isVisibleChartPanel=()=>{const _0x183656=_0x3850ff;let _0x1df74d=![];return $(PIECHARTPANEL)['is'](_0x183656(0x1fd))&&(_0x1df74d=!![]),_0x1df74d;},isVisibleApiSpeedPanel=()=>{const _0x400f7c=_0x3850ff;let _0x38a543=![];return $(LINECHARTPANEL)['is'](_0x400f7c(0x1fd))&&(_0x38a543=!![]),_0x38a543;},isVisiblePerformanceReal=()=>{const _0x15da96=_0x3850ff;let _0x49c910=![];return $('#performance_real')['is'](_0x15da96(0x1fd))&&(_0x49c910=!![]),_0x49c910;},isVisiblePerformanceTest=()=>{const _0x6de5f5=_0x3850ff;let _0x32263b=![];return $('#performance_test')['is'](_0x6de5f5(0x1fd))&&(_0x32263b=!![]),_0x32263b;},statsPanelFunctions=_0x10daac=>{const _0x9f44a8=_0x3850ff;let _0xb6aefc=IGNORE;(presentaction==null||presentaction[_0x9f44a8(0x1bd)]==0x0)&&presentaction[_0x9f44a8(0x1c8)](_0x9f44a8(0x1c1));let _0x1f6c1c=getPreferentPropertie(_0x9f44a8(0x1f6)),_0x4891fe='',_0x15e904='';if(_0x1f6c1c==null||_0x1f6c1c[_0x9f44a8(0x1bd)]<=0x0){if(inScenarioChk(_0x10daac,'stats-api-access-numbers-list-show-cmd'))_0x1f6c1c=APIACCESSNUMBERSCOMMAND,_0x4891fe=APIACCESPANEL,_0x15e904=APIACCESSNUMBERS;else{if(inScenarioChk(_0x10daac,_0x9f44a8(0x1e5)))_0x1f6c1c=DBACCESSNUMBERSCOMMAND,_0x4891fe=DBACCESSPANEL,_0x15e904=PIECHARTPANEL;else{if(inScenarioChk(_0x10daac,_0x9f44a8(0x1d4)))_0x1f6c1c=APIEXECUTIONSPEEDCOMMAND,_0x4891fe=APISPEEDPANEL,_0x15e904=LINECHARTPANEL;else{if(inScenarioChk(_0x10daac,_0x9f44a8(0x1be)))getAjaxData(scenario[_0x9f44a8(0x20b)][0x7]);else inScenarioChk(_0x10daac,_0x9f44a8(0x1c2))&&(isVisibleSomethingMsgPanel()&&showSomethingMsgPanel(![]),changeChatGirlImage('chat'));}}}}return-0x1<$[_0x9f44a8(0x1e0)](_0x1f6c1c,[APIACCESSNUMBERSCOMMAND,DBACCESSNUMBERSCOMMAND,APIEXECUTIONSPEEDCOMMAND])&&(showSomethingMsgPanel(![]),openStatsPanel(_0x10daac,!![],_0x1f6c1c),!$(_0x4891fe)['is'](_0x9f44a8(0x1fd))&&$(_0x15e904)[_0x9f44a8(0x204)]()['draggable'](),statsGraphPanelControl(_0x4891fe),_0xb6aefc=chooseMsg(_0x9f44a8(0x1c9),'','')),_0xb6aefc;},setGraphData=(_0x2a4dbe,_0x48e428)=>{const _0x12c6ec=_0x3850ff;let _0xe80eee=![];const _0x4647f5='apino',_0x3f171b=_0x12c6ec(0x205),_0x4685c3=_0x12c6ec(0x1fb),_0x219edc=_0x12c6ec(0x1ef);return _0x2a4dbe!=null&&Object[_0x12c6ec(0x1fe)](_0x2a4dbe)[_0x12c6ec(0x1e8)](function(_0x4df332){const _0x54772f=_0x12c6ec;if(_0x4df332==_0x54772f(0x1ee)&&_0x2a4dbe[_0x4df332][_0x54772f(0x1bd)]>0x0){let _0x268a46=[],_0xdda17c=[],_0x12d2c8=[],_0x2e6ddd=[];preferent[_0x54772f(0x1fa)]=[];let _0x4622b3=[],_0x3f9299=[],_0x5b83d3=[],_0x43d51d=[],_0x191233=[],_0x40be30=[];$[_0x54772f(0x1f3)](_0x2a4dbe[_0x4df332],function(_0x2cbb14,_0x5b91ae){const _0x1bef09=_0x54772f;if(_0x5b91ae!=null){if($[_0x1bef09(0x1e0)](_0x48e428,['ac','db'])!=-0x1)$['each'](_0x5b91ae,function(_0x2a7e1b,_0x2b848c){const _0x460a1f=_0x1bef09;_0x2a7e1b==_0x460a1f(0x206)&&_0x40be30[_0x460a1f(0x1c8)](_0x2b848c);if(_0x2a7e1b==_0x460a1f(0x1ee))$['each'](_0x2b848c,function(_0x481488,_0x40d693){const _0x347c2a=_0x460a1f;if(_0x40d693!=null){if(_0x48e428=='ac'){let _0x2565b8=![];if(_0x40d693!=null){if(0x0<preferent['apiaccesslistdata']['length']){let _0x888e72=preferent[_0x347c2a(0x1fa)];for(let _0x48e671=0x0;_0x48e671<_0x888e72[_0x347c2a(0x1bd)];_0x48e671++){_0x888e72[_0x48e671][0x0]==_0x40d693[_0x347c2a(0x202)]&&(_0x888e72[_0x48e671][0x1]+=_0x40d693[_0x347c2a(0x1fb)],_0x2565b8=!![]);}}!_0x2565b8&&preferent[_0x347c2a(0x1fa)][_0x347c2a(0x1c8)]([_0x40d693[_0x347c2a(0x202)],_0x40d693[_0x347c2a(0x1fb)],_0x40d693['database']]);}}else{if(_0x48e428=='db'){if(_0x40d693!=null){let _0x249e7e=![];if(0x0<_0x2e6ddd[_0x347c2a(0x1bd)]){let _0x3bb404=_0x2e6ddd,_0x5b2bc1=_0x12d2c8;for(let _0x2dad94=0x0;_0x2dad94<_0x3bb404[_0x347c2a(0x1bd)];_0x2dad94++){_0x3bb404[_0x2dad94]==_0x40d693['database']&&(_0x5b2bc1[_0x2dad94]+=_0x40d693[_0x347c2a(0x1fb)],_0x249e7e=!![]);}}!_0x249e7e&&(_0x2e6ddd[_0x347c2a(0x1c8)](_0x40d693['database']),_0x12d2c8['push'](_0x40d693[_0x347c2a(0x1fb)]));}}else{if(_0x48e428=='sp'){}}}}});else{if(_0x2a7e1b=_0x460a1f(0x206)){}}});else _0x48e428=='as'&&$[_0x1bef09(0x1f3)](_0x5b91ae,function(_0x98efcd,_0x36d509){const _0x31a4b6=_0x1bef09;if(_0x98efcd==_0x31a4b6(0x206))_0x40be30[_0x31a4b6(0x1c8)](_0x36d509);else{if(_0x98efcd==_0x31a4b6(0x1ef))_0x5b83d3[_0x31a4b6(0x1c8)](_0x36d509);else{if(_0x98efcd==_0x31a4b6(0x1c4))_0x43d51d[_0x31a4b6(0x1c8)](_0x36d509);else _0x98efcd==_0x31a4b6(0x1d8)&&_0x191233[_0x31a4b6(0x1c8)](_0x36d509);}}});}});let _0x205b4f=[];for(let _0x212e0b=0x0;_0x212e0b<_0x40be30[_0x54772f(0x1bd)];_0x212e0b++){let _0x1dbdad=new Date(_0x40be30[_0x212e0b]);_0x205b4f['push'](_0x1dbdad);}let _0x2ba7ec=determindDateStart2End(_0x205b4f),_0x12f4d4=_0x2ba7ec[0x0],_0x31955b=_0x2ba7ec[0x1];_0x48e428=='ac'?($(APIACCESSNUMBERS+'\x20[name=\x27between\x27]')[_0x54772f(0x1c5)](_0x12f4d4+_0x54772f(0x1eb)+_0x31955b),showApiAccessNumbersList()):($(PIECHARTPANEL+_0x54772f(0x1e3))[_0x54772f(0x1c5)](_0x12f4d4+_0x54772f(0x1eb)+_0x31955b),setTimeout(function(){let _0x2cca81=[];if(_0x48e428=='db')_0x2cca81=[_0x2e6ddd,_0x12d2c8];else _0x48e428=='as'&&(_0x2cca81=[_0x40be30,_0x5b83d3,_0x43d51d,_0x191233]);viewPlotlyChart(_0x2cca81,_0x48e428);},0x3e8));}}),_0xe80eee;},showApiAccessNumbersList=()=>{const _0x12d8b2=_0x3850ff;let _0x119ff3={'paging':!![],'info':![],'searching':!![],'order':[0x1,'desc'],'pagingType':_0x12d8b2(0x1f4),'data':preferent[_0x12d8b2(0x1fa)]};$(APIACCESSNUMBERSLIST)[_0x12d8b2(0x1d5)](_0x119ff3);},hideApiAccessNumbersList=()=>{const _0x927845=_0x3850ff;$(APIACCESSNUMBERS)['hide'](),$(APIACCESSNUMBERSLIST)[_0x927845(0x1d5)]()['destroy']();},apiAccessNumbersListController=_0x41dfc3=>{const _0x1b31b9=_0x3850ff;let _0x2afbef=$(APIACCESSNUMBERSLIST)['DataTable'](),_0x2b9fa7='';if(inScenarioChk(_0x41dfc3,_0x1b31b9(0x1dc)))_0x2afbef[_0x1b31b9(0x1ed)](_0x1b31b9(0x207))[_0x1b31b9(0x1ca)](![]);else{if(inScenarioChk(_0x41dfc3,_0x1b31b9(0x1ff)))_0x2afbef['page'](_0x1b31b9(0x20a))[_0x1b31b9(0x1ca)](![]);else{if(inScenarioChk(_0x41dfc3,'stats-apiaccessnumberslist-last-cmd'))_0x2afbef[_0x1b31b9(0x1ed)](_0x1b31b9(0x1cf))['draw'](![]);else{if(inScenarioChk(_0x41dfc3,_0x1b31b9(0x203)))_0x2afbef[_0x1b31b9(0x1ed)]('first')[_0x1b31b9(0x1ca)](![]);else{if(inScenarioChk(_0x41dfc3,'stats-apiaccessnumberslist-search-clear-cmd'))_0x2afbef[_0x1b31b9(0x1cd)]('')[_0x1b31b9(0x1ca)](![]);else{if(inScenarioChk(_0x41dfc3,_0x1b31b9(0x1c6))){let _0x3a8c7a=_0x41dfc3[_0x1b31b9(0x1d6)]('\x20');for(let _0x1d839e=0x0;_0x1d839e<_0x3a8c7a[_0x1b31b9(0x1bd)];_0x1d839e++){_0x3a8c7a[_0x1d839e][_0x1b31b9(0x1c7)](/^ji|^js|^ju|^jd|^postgre|^mysq|^redi|^mongo/)&&_0x2afbef['search'](_0x3a8c7a[_0x1d839e])[_0x1b31b9(0x1ca)](![]);}}else inScenarioChk(_0x41dfc3,_0x1b31b9(0x1f2))?(_0x2afbef[_0x1b31b9(0x1e9)](),showApiAccessNumbersList()):_0x2b9fa7=chooseMsg('waiting-next-msg','','');}}}}}return!inScenarioChk(_0x2b9fa7,_0x1b31b9(0x1c3))&&(_0x2b9fa7=chooseMsg(_0x1b31b9(0x1c9),'','')),_0x2b9fa7;},viewPlotlyChart=(_0x234799,_0x12d87f)=>{const _0x14aabf=_0x3850ff;let _0x3b6926,_0x5ce969;if(_0x12d87f=='db')_0x3b6926=[{'labels':_0x234799[0x0],'values':_0x234799[0x1],'type':'pie'}],_0x5ce969={'height':0x190,'width':0x1f4,'font':{'color':'\x20#f1ef46','style':_0x14aabf(0x201),'size':0xa,'shadow':'0\x200\x2010px\x20rgb(193,\x20206,\x20194),\x200\x200\x2015px\x20#f1ef46'},'paper_bgcolor':'rgba(109,\x2098,\x20226,\x200.15)'},Plotly[_0x14aabf(0x208)]('piechart_graph',_0x3b6926,_0x5ce969);else{if(_0x12d87f=='as'){let _0x20a337={'type':'scatter','name':'mean','x':_0x234799[0x0],'y':_0x234799[0x1],'marker':{'color':_0x14aabf(0x1ea),'size':0xa}},_0x505385={'type':_0x14aabf(0x1f5),'name':_0x14aabf(0x1c4),'x':_0x234799[0x0],'y':_0x234799[0x2],'marker':{'color':'rgb(212,\x208,\x208)','size':0xa}},_0xc728d0={'type':'scatter','name':_0x14aabf(0x1d8),'x':_0x234799[0x0],'y':_0x234799[0x3],'marker':{'color':_0x14aabf(0x1d3),'size':0xa}},_0x5f5235=[_0x20a337,_0x505385,_0xc728d0],_0x1067fd={'height':0x190,'width':0x1f4,'plot_bgcolor':_0x14aabf(0x209),'paper_bgcolor':'rgba(109,\x2098,\x20226,\x200.15)','xaxis':{'backgroundcolor':_0x14aabf(0x1d7),'showbackground':![],'gridcolor':_0x14aabf(0x1cb),'color':_0x14aabf(0x1ea),'size':0x14,'title':_0x14aabf(0x206)},'yaxis':{'backgroundcolor':_0x14aabf(0x1d7),'showbackground':![],'gridcolor':_0x14aabf(0x1cb),'color':_0x14aabf(0x1ea),'size':0x14,'title':_0x14aabf(0x1d1)},'legend':{'font':{'color':_0x14aabf(0x1ea),'size':0xa}}};purgePlotlygraph('as'),Plotly[_0x14aabf(0x208)](_0x14aabf(0x1d2),_0x5f5235,_0x1067fd);}else{}}},purgePlotlygraph=_0x510ba7=>{const _0x413ef2=_0x3850ff;let _0x3c397b='';_0x510ba7=='db'?_0x3c397b=_0x413ef2(0x1e2):_0x3c397b='apispeed_graph',Plotly['purge'](_0x3c397b);},viewPerformanceGraph=(_0x5c89cb,_0x39a172,_0x2a088d)=>{},viewCombinationGraph=(_0x36690d,_0x9180bb,_0x44cfff,_0x5ad651)=>{},statsGraphPanelControl=_0x1670a4=>{const _0x4ca4e0=_0x3850ff;let _0x37bd3c=[APIACCESPANEL,DBACCESSPANEL,APISPEEDPANEL],_0x4ae453=0x1e,_0x7ad607=0x14,_0x5069f2=0xa;activePanel(_0x1670a4),_0x1670a4['css'](_0x4ca4e0(0x1de),_0x4ae453);for(let _0x485219 in _0x37bd3c){_0x1670a4!=_0x37bd3c[_0x485219]&&(inactivePanel(_0x37bd3c[_0x485219]),_0x37bd3c[_0x485219][_0x4ca4e0(0x1e6)](_0x4ca4e0(0x1de),_0x7ad607));}};
+
+/**
+    JS library for Jetelina Condition Panel
+    @author Ono Keiji
+
+    This js lib works with dashboard.js and jetelinalib.js for the Condition Panel.
+    
+    Functions:
+      openStatsPanel(b,type) visible or hide "APIACCESSNUMBERS" an "#piechart"
+      isVisibleApiAccessNumbers() checking "APIACCESSNUMBERS" is visible or not
+      isVisibleChartPanel() checking "#piechart" is visible or not
+      isVisibleApiSpeedPanel() checking "#apispeedchart" is visible or not
+      *isVisiblePerformanceReal() checking "#performance_real" is visible or not
+      *isVisiblePerformanceTest() checking "#performance_test" is visible or not
+      statsPanelFunctions(ut)  Exectute some functions ordered by user chat input message
+      setGraphData(o,type)  set data to a graph of creating by plot.js. data and 'type' are passed by getAjaxData() in jetelinalib.js 
+      purgePlotlygraph(gtype) purge the Plotly graph
+      showApiAccessNumbersList()  show api access number data in DataTable 
+      hideApiAccessNumbersList() hide APIACCESSNUMBERS and destroy the DataTable()
+      apiAccessNumbersListController(cmd) api access numbers list controller. paging and search api order by chat box
+      viewPlotlyChart(basedata, type) show plotly chart 
+      *viewPerformanceGraph(apino, data, type)  show 'performance graph'
+      *viewCombinationGraph(bname, bno, ct, ac)  show the 'combination graph'
+      statsGraphPanelControl(p) control the 'p' panel to bring up and focusing
+
+    Attenction: '*' functions are for experimental
+*/
+const APIACCESSNUMBERSLIST = "#api_access_numbers_list";
+const APIACCESPANELTAGID = "#api_access_numbers";
+const DBACCESSPANELTAGID = "#piechart";
+const APISPEEDPANELTAGID = "#apispeedchart";
+const APIACCESPANEL = $(APIACCESPANELTAGID);
+const DBACCESSPANEL = $(DBACCESSPANELTAGID);
+const APISPEEDPANEL = $(APISPEEDPANELTAGID);
+const APIACCESSNUMBERSCOMMAND = "apiaccessnumbers";
+const DBACCESSNUMBERSCOMMAND = "dbaccessnumbers";
+const APIEXECUTIONSPEEDCOMMAND = "apiexecutionspeed";
+/*
+    Tips:
+        the real sql execution performance data is stored in this parameter temporarily.
+        this stored real data is needed when the test data is rendered.
+        because the real data and test db performance data are packed in the same graph.
+ */
+let realPerformanceData;
+
+/**
+ *  @function openStatsPanel
+ *  @param {boolean} true -> visible false -> hide
+ * 
+ *  visible or hide "APIACCESSNUMBERS" and "#piechart"
+ */
+const openStatsPanel = (s, b, type) => {
+    if (b) {
+        const dataurls = scenario['analyzed-data-collect-url'];
+        /*
+            check for existing Jetelina's suggestion
+        */
+        if (type == APIACCESSNUMBERSCOMMAND) {
+            if (!APIACCESPANEL.is(":visible")) {
+                getAjaxData(dataurls[4]);
+            }
+        } else if (type == DBACCESSNUMBERSCOMMAND) {
+            if (!DBACCESSPANEL.is(":visible")) {
+                getAjaxData(dataurls[5]);
+            }
+        } else if (type == APIEXECUTIONSPEEDCOMMAND) {
+            let p = s.split(" ");
+            if (0 < p.length) {
+                let apino = "";
+                for (let i in p) {
+                    if (p[i].match(/^ji\d+|^ju\d+|^jd\d+|^js\d+/)) {
+                        apino = p[i];
+                        break;
+                    }
+                }
+
+                if (apino != "") {
+                    let data = `{"apino":"${apino}"}`;
+                    postAjaxData(dataurls[6], data);
+                    $(`${LINECHARTPANEL} [name='apino']`).text(apino);
+                }
+            }
+        }
+    } else {
+        hideApiAccessNumbersList();
+        $(PIECHARTPANEL).hide();
+    }
+}
+/**
+ * @function isVisibleApiAccessNumbers
+ * @returns {boolean}  true -> visible, false -> invisible
+ * 
+ * checking "APIACCESSNUMBERS" is visible or not
+ */
+const isVisibleApiAccessNumbers = () => {
+    let ret = false;
+    if ($(APIACCESSNUMBERS).is(":visible")) {
+        ret = true;
+    }
+
+    return ret;
+}
+/**
+ * @function isVisibleChartPanel
+ * @returns {boolean}  true -> visible, false -> invisible
+ * 
+ * checking "#piechart" is visible or not
+ */
+const isVisibleChartPanel = () => {
+    let ret = false;
+    if ($(PIECHARTPANEL).is(":visible")) {
+        ret = true;
+    }
+
+    return ret;
+}
+/**
+ * @function isVisibleApiSpeedPanel
+ * @returns {boolean}  true -> visible, false -> invisible
+ * 
+ * checking "#apispeedchart" is visible or not
+ */
+const isVisibleApiSpeedPanel = () => {
+    let ret = false;
+    if ($(LINECHARTPANEL).is(":visible")) {
+        ret = true;
+    }
+
+    return ret;
+}
+/**
+ * @function isVisiblePerformanceReal
+ * @returns {boolean}  true -> visible, false -> invisible
+ * 
+ * checking "#performance_real" is visible or not
+ */
+const isVisiblePerformanceReal = () => {
+    let ret = false;
+    if ($("#performance_real").is(":visible")) {
+        ret = true;
+    }
+
+    return ret;
+}
+/**
+ * @function isVisiblePerformanceTest
+ * @returns {boolean}  true -> visible, false -> invisible
+ * 
+ * checking "#performance_test" is visible or not
+ */
+const isVisiblePerformanceTest = () => {
+    let ret = false;
+    if ($("#performance_test").is(":visible")) {
+        ret = true;
+    }
+
+    return ret;
+}
+/**
+ * @function statsPanelFunctions
+ * @param {string} ut  chat message by user 
+ * @returns {string}  answer chat message by Jetelina
+ * 
+ * Exectute some functions ordered by user chat input message
+ */
+const statsPanelFunctions = (ut) => {
+    let m = IGNORE;
+
+    if (presentaction == null || presentaction.length == 0) {
+        presentaction.push('cond');
+    }
+
+    // use the prior command if it were
+    let cmd = getPreferentPropertie('cmd');
+    let panel = "";
+    let graphp = "";
+    if (cmd == null || cmd.length <= 0) {
+        if (inScenarioChk(ut, 'stats-api-access-numbers-list-show-cmd')) {
+            cmd = APIACCESSNUMBERSCOMMAND;
+            panel = APIACCESPANEL;
+            graphp = APIACCESSNUMBERS;
+        } else if (inScenarioChk(ut, 'stats-db-access-numbers-chart-show-cmd')) {
+            cmd = DBACCESSNUMBERSCOMMAND;
+            panel = DBACCESSPANEL;
+            graphp = PIECHARTPANEL;
+        } else if (inScenarioChk(ut, 'stats-api-exec-speed-show-cmd')) {
+            cmd = APIEXECUTIONSPEEDCOMMAND;
+            panel = APISPEEDPANEL;
+            graphp = LINECHARTPANEL;
+        } else if (inScenarioChk(ut, 'stats-check-suggestion-cmd')) {
+            // confirm the suggestion file existing
+            getAjaxData(scenario["analyzed-data-collect-url"][7]);
+        }else if(inScenarioChk(ut,'stats-hide-jetelina-concern-img-cmd')){
+            if(isVisibleSomethingMsgPanel()){
+                showSomethingMsgPanel(false);
+            }
+            
+            changeChatGirlImage("chat");
+        }
+
+    }
+
+    if (-1 < $.inArray(cmd, [APIACCESSNUMBERSCOMMAND, DBACCESSNUMBERSCOMMAND, APIEXECUTIONSPEEDCOMMAND])) {
+        showSomethingMsgPanel(false);
+        openStatsPanel(ut, true, cmd); // getAjaxData() is executed in this function
+        if (!$(panel).is(":visible")) {
+            $(graphp).show().draggable();
+        }
+
+        statsGraphPanelControl(panel);
+        m = chooseMsg('stats-graph-show-msg', "", "");
+    }
+
+    return m;
+}
+/**
+ * @function setGraphData
+ * @param {object} o   json object data
+ * @param {string} type  'ac'-> access numbers in each api  'db'-> access numbers in each database  'sp" -> access nubmers and execution speed in each api
+ * @return {boolean} true -> exists 'Access vs Combination data'  false-> not exists it
+ * set data to a graph of creating by plot.js. data and 'type' are passed by getAjaxData() in jetelinalib.js  
+ * 
+ * Attention:
+ *    this function expects the json data form alike
+ *      - api access numbers
+ *      {"Jetelina:[{"Jetelina":[{"apino":"js4","access_numbers":1},{"apino":"js24","access_numbers":1},...],"date":"2025-01-15","result":true},{"Jetelina":[{......}]},...],"result":true}
+ */
+const setGraphData = (o, type) => {
+    let ret = false;
+    const apino = "apino"; // ajax data field name
+    const combination = "combination"; // same above
+    const access_numbers = "access_numbers"; // same above
+    const mean = "mean"; // same above
+
+    if (o != null) {
+        Object.keys(o).forEach(function (key) {
+            // because a value of ’Jetelina’ is an object   name=>key value=>o[key]
+            if (key == "Jetelina" && o[key].length > 0) { // first json "Jetelina" name field
+                // access vs combination
+                let apino = [];
+                let access_count = [];
+                let dbaccessnumbers_chart_values = [];
+                let dbaccessnumbers_chart_labels = [];
+                /*
+                    Tips:
+                        api access data list has possibility to redraw sometimes, therefore the data should be holded.
+                */
+                preferent.apiaccesslistdata = [];
+                let base_table_no = [];
+                let combination_table = [];
+                /* performance
+                    apino,max,min,mean -> apino, use only 'mean' data
+                */
+                let apispeed_mean = [];
+                let apispeed_max = [];
+                let apispeed_min = [];
+                let datadate = [];
+
+                $.each(o[key], function (k, v) {
+                    if (v != null) {
+                        if ($.inArray(type, ["ac", "db"]) != -1) {
+                            $.each(v, function (name, value) {
+                                if (name == "date") {
+                                    datadate.push(value);
+                                }
+
+                                if (name == "Jetelina") { // in array field
+                                    $.each(value, function (na, va) {
+                                        if (va != null) {
+                                            if (type == "ac") {
+                                                let existflg = false;
+                                                /*
+                                                    Tips:
+                                                        access numbers in each api  -> list figure
+                                                */
+                                                if (va != null) {
+                                                    if (0 < preferent.apiaccesslistdata.length) {
+                                                        let ald = preferent.apiaccesslistdata;
+                                                        for (let i = 0; i < ald.length; i++) {
+                                                            if (ald[i][0] == va.apino) {
+                                                                ald[i][1] += va.access_numbers;
+                                                                existflg = true;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (!existflg) {
+                                                        preferent.apiaccesslistdata.push([va.apino, va.access_numbers, va.database]);
+                                                    }
+                                                }
+                                            } else if (type == "db") {
+                                                /*
+                                                    Tips:
+                                                        access numbers in each database -> pie chart
+                                                */
+                                                if (va != null) {
+                                                    let existflg = false;
+                                                    if (0 < dbaccessnumbers_chart_labels.length) {
+                                                        let dbcl = dbaccessnumbers_chart_labels;
+                                                        let dbcv = dbaccessnumbers_chart_values;
+                                                        for (let i = 0; i < dbcl.length; i++) {
+                                                            if (dbcl[i] == va.database) {
+                                                                dbcv[i] += va.access_numbers;
+                                                                existflg = true;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (!existflg) {
+                                                        dbaccessnumbers_chart_labels.push(va.database);
+                                                        dbaccessnumbers_chart_values.push(va.access_numbers);
+                                                    }
+                                                }
+                                            } else if (type == "sp") {
+                                                /*
+                                                    Tips:
+                                                        access numbers / execution speed in each api -> 3D scatter piechart
+                                                */
+                                            }
+                                        }
+                                    });
+                                } else if (name = "date") {
+
+                                }
+                            });
+                        } else if (type == "as") {
+                            /*
+                                Tips:
+                                    an api speed -> 2D line chart 
+                            */
+                            $.each(v, function (name, value) {
+                                if (name == "date") {
+                                    datadate.push(value);
+                                } else if (name == "mean") {
+                                    apispeed_mean.push(value);
+                                } else if (name == "max") {
+                                    apispeed_max.push(value);
+                                } else if (name == "min") {
+                                    apispeed_min.push(value);
+                                }
+                            });
+                        }
+                    }
+                });
+
+                /*
+                    Tips:
+                        showing the data of start date and end date.
+                */
+                let datadate2 = [];
+                for (let i = 0; i < datadate.length; i++) {
+                    let d = new Date(datadate[i]);
+                    datadate2.push(d);
+                }
+
+                let startdateEnddate = determindDateStart2End(datadate2);
+                let startdate = startdateEnddate[0];
+                let enddate = startdateEnddate[1];
+
+                if (type == "ac") {
+                    // list
+                    $(`${APIACCESSNUMBERS} [name='between']`).text(`${startdate} - ${enddate}`);
+                    showApiAccessNumbersList();
+                } else {
+                    // ploty graph
+                    $(`${PIECHARTPANEL} [name='between']`).text(`${startdate} - ${enddate}`);
+                    /*
+                        Tips:
+                        adjusting the plot.js execution time because it is depend on clients environment
+                    */
+                    setTimeout(function () {
+                        let d = [];
+                        if (type == "db") {
+                            // database access numbers data
+                            d = [dbaccessnumbers_chart_labels, dbaccessnumbers_chart_values];
+                        } else if (type == "as") {
+                            // api execution speed data
+                            d = [datadate, apispeed_mean, apispeed_max, apispeed_min];
+                        }
+
+                        // go to plotly, yey :)
+                        viewPlotlyChart(d, type);
+                    }, 1000);
+                }
+            }
+        });
+    }
+
+    return ret;
+}
+/**
+ * @function showApiAccessNumbersList
+ * 
+ * show api access number data in DataTable 
+ */
+const showApiAccessNumbersList = () => {
+
+    let tableoptions = {
+        "paging": true,
+        "info": false,
+        "searching": true,
+        "order": [1, 'desc'],
+        "pagingType": "simple",
+        "data": preferent.apiaccesslistdata
+    }
+
+    $(APIACCESSNUMBERSLIST).DataTable(tableoptions);
+}
+/**
+ * @function hideApiAccessNumbersList
+ * 
+ * hide APIACCESSNUMBERS and destroy the DataTable()
+ */
+const hideApiAccessNumbersList = () => {
+    $(APIACCESSNUMBERS).hide();
+    $(APIACCESSNUMBERSLIST).DataTable().destroy();
+}
+/**
+ * @function apiAccessNumbersListController
+ * @param {string} cmd   typed string in jetelina chat box 
+ * @returns {string} something message
+ * 
+ * api access numbers list controller. paging and search api order by chat box
+ */
+const apiAccessNumbersListController = (cmd) => {
+    let t = $(APIACCESSNUMBERSLIST).DataTable();
+    let ret = "";
+
+    if (inScenarioChk(cmd, 'stats-apiaccessnumberslist-next-cmd')) {
+        t.page("next").draw(false);
+    } else if (inScenarioChk(cmd, 'stats-apiaccessnumberslist-prev-cmd')) {
+        t.page("previous").draw(false);
+    } else if (inScenarioChk(cmd, 'stats-apiaccessnumberslist-last-cmd')) {
+        t.page("last").draw(false);
+    } else if (inScenarioChk(cmd, 'stats-apiaccessnumberslist-first-cmd')) {
+        t.page("first").draw(false);
+    } else if (inScenarioChk(cmd, 'stats-apiaccessnumberslist-search-clear-cmd')) {
+        t.search("").draw(false);
+    } else if (inScenarioChk(cmd, 'stats-apiaccessnumberslist-search-cmd')) {
+        let sar = cmd.split(" ");
+        for (let i = 0; i < sar.length; i++) {
+            /*
+                Tips:
+                    this searching in DataTable works with both the api name and database name.
+                    unfortunately, this code should be rewritten if new database were added.  :p
+            */
+            if (sar[i].match(/^ji|^js|^ju|^jd|^postgre|^mysq|^redi|^mongo/)) {
+                t.search(sar[i]).draw(false);
+            }
+        }
+    } else if (inScenarioChk(cmd, 'stats-apiaccessnumberslist-again-cmd')) {
+        t.destroy();
+        showApiAccessNumbersList();
+    } else {
+        ret = chooseMsg('waiting-next-msg', '', '');
+    }
+
+    if (!inScenarioChk(ret, 'waiting-next-msg')) {
+        ret = chooseMsg('stats-graph-show-msg', '', '');
+    }
+
+    return ret;
+}
+/**
+ * @function viewPlotlyChart
+ * @param {Float64Array} d  array of any data 
+ * @param {string} type  'db'-> database access numbers
+ *
+ * show plotly chart 
+ */
+const viewPlotlyChart = (basedata, type) => {
+    let data;
+    let layout;
+
+    if (type == "db") {
+        data = [
+            {
+                labels: basedata[0],
+                values: basedata[1],
+                type: 'pie'
+            }
+        ];
+
+        layout = {
+            height: 400,
+            width: 500,
+            font: {
+                color: ' #f1ef46',
+                style: 'italic',
+                size: 10,
+                shadow: '0 0 10px rgb(193, 206, 194), 0 0 15px #f1ef46'
+            },
+            paper_bgcolor: 'rgba(109, 98, 226, 0.15)'
+        };
+
+        /*
+            Tips:
+                don't purge the pie chart in V3 yet, because it may does not be repeated.
+                but should call purgePlotlygraph('db') alike 'as', if the time has come. 
+        */
+        Plotly.react('piechart_graph', data, layout);
+    } else if (type == "as") {
+        let smean = {
+            type: 'scatter',
+            name: 'mean',
+            x: basedata[0],
+            y: basedata[1],
+            marker: {
+                color: 'rgb(255,255,255)',
+                size: 10
+            }
+        };
+
+        let smax = {
+            type: 'scatter',
+            name: 'max',
+            x: basedata[0],
+            y: basedata[2],
+            marker: {
+                color: 'rgb(212, 8, 8)',
+                size: 10
+            }
+        };
+
+        let smin = {
+            type: 'scatter',
+            name: 'min',
+            x: basedata[0],
+            y: basedata[3],
+            marker: {
+                color: 'rgb(39, 95, 214)',
+                size: 10
+            }
+        };
+
+        let data = [smean, smax, smin];
+
+        let layout = {
+            height: 400,
+            width: 500,
+            plot_bgcolor: 'rgba(109, 98, 226, 0.15)',
+            paper_bgcolor: 'rgba(109, 98, 226, 0.15)',
+            xaxis: {
+                backgroundcolor: 'rgb(255,0,0)',
+                showbackground: false,
+                gridcolor: 'rgb(0,153,153)',
+                color: 'rgb(255,255,255)',
+                size: 20,
+                title: 'date'
+            },
+            yaxis: {
+                backgroundcolor: 'rgb(255,0,0)',
+                showbackground: false,
+                gridcolor: 'rgb(0,153,153)',
+                color: 'rgb(255,255,255)',
+                size: 20,
+                title: 'execution speed'
+            },
+            legend: {
+                font: {
+                    color: 'rgb(255,255,255)',
+                    size: 10,
+                }
+            }
+        };
+
+        purgePlotlygraph('as');
+        Plotly.react('apispeed_graph', data, layout);
+    } else {
+        /*
+        let real_data =
+        {
+            opacity: 0.5,
+            type: 'scatter',
+            text: apino,
+            x: apino,
+            y: realPerformanceData,
+            mode: 'markers',
+            name: 'real sql',
+            marker: {
+                color: 'rgb(255,255,255)',
+                size: 20
+            }
+        };
+
+        Plotly.newPlot('performance_test_graph', data, layout);
+        */
+    }
+}
+/**
+ * @function purgePlotlygraph
+ * @param {string} graph type 'db' -> pie chart, other(but expect 'as') -> line chart
+ * 
+ * purge the Plotly graph
+ */
+const purgePlotlygraph = (gtype) =>{
+    let tagid = "";
+
+    if(gtype == 'db'){
+        tagid = 'piechart_graph';
+    }else{
+        tagid = 'apispeed_graph';
+    }
+
+    Plotly.purge(tagid);
+}
+/**
+ * @function viewPerformanceGraph
+ * @param {string} apino 
+ * @param {Float64Array} d  array of any data 
+ * @param {string} type  'ac'-> access vs combination  'real'->real performance 'access'->sql access numbers 'test->test performance    this is ordered in jetelinalib.js
+ * 
+ * show 'performance graph'
+ */
+const viewPerformanceGraph = (apino, d, type) => {
+    /*
+    let data;
+
+    if (type == "real" || type == "access") {
+        data = [
+            {
+                opacity: 0.5,
+                type: 'scatter',
+                text: apino,
+                x: apino,
+                y: d,
+                mode: 'markers',
+                marker: {
+                    color: 'rgb(255,255,255)',
+                    size: 20
+                }
+            }
+        ];
+    } else {
+        let real_data =
+        {
+            opacity: 0.5,
+            type: 'scatter',
+            text: apino,
+            x: apino,
+            y: realPerformanceData,
+            mode: 'markers',
+            name: 'real sql',
+            marker: {
+                color: 'rgb(255,255,255)',
+                size: 20
+            }
+        };
+
+
+        let test_data =
+        {
+            opacity: 0.5,
+            type: 'scatter',
+            text: apino,
+            x: apino,
+            y: d,
+            mode: 'markers',
+            name: 'test sql',
+            marker: {
+                color: 'rgb(255,0,0)',
+                size: 20
+            }
+        };
+
+
+        data = [real_data, test_data];
+    }
+
+
+    let paper_bgc = 'rgb(112,128,144)';
+    let font_col = 'rgb(255,255,255)';
+    if (type == 'test') {
+        paper_bgc = 'rgb(0,129,104)';//'rgb(240,230,140)'
+        //        font_col = 'rgb(255,0,0)';
+    }
+
+    let title = "exection speed";
+    if (type == "access") {
+        title = "access numbers";
+    }
+
+    let layout = {
+        plot_bgcolor: 'rgb(0,0,0)',
+        paper_bgcolor: paper_bgc,
+        xaxis: {
+            backgroundcolor: 'rgb(255,0,0)',
+            showbackground: false,
+            gridcolor: 'rgb(0,153,153)',
+            color: font_col,
+            size: 20,
+            title: 'api no'
+        },
+        yaxis: {
+            backgroundcolor: 'rgb(255,0,0)',
+            showbackground: false,
+            gridcolor: 'rgb(0,153,153)',
+            color: font_col,
+            size: 20,
+            title: title
+        }
+    };
+
+    if (type == "access") {
+        $(APIACCESSNUMBERS).show();
+        Plotly.react('api_access_numbers_graph', data, layout);
+    } else if (type == "real") {
+        Plotly.newPlot('performance_real_graph', data, layout);
+    } else {
+        Plotly.newPlot('performance_test_graph', data, layout);
+    }
+    */
+}
+/**
+ * @function viewCombinationGraph
+ * @param {string} bname   api number
+ * @param {integre} bno   base table number 
+ * @param {string} ct   table name of combination 
+ * @param {integer} ac  sql access count number
+ * 
+ * show the 'combination graph' 
+ */
+const viewCombinationGraph = (bname, bno, ct, ac) => {
+    /*
+    var data = [
+        {
+            opacity: 0.5,
+            type: 'scatter3d',
+            text: bname,
+            x: bno,
+            y: ct,
+            z: ac,
+            mode: 'markers+text'
+        }
+    ];
+    var layout = {
+        plot_bgcolor: 'rgb(0,0,0)',
+        paper_bgcolor: 'rgb(112,128,144)',
+        xaxis: {
+            backgroundcolor: 'rgb(255,0,0)',
+            showbackground: false,
+            gridcolor: 'rgb(0,153,153)',
+            color: 'rgb(255,255,255)',
+            size: 20,
+            title: 'api no'
+        },
+        yaxis: {
+            backgroundcolor: 'rgb(255,0,0)',
+            showbackground: false,
+            gridcolor: 'rgb(0,153,153)',
+            color: 'rgb(255,255,255)',
+            size: 20,
+            title: 'combination'
+        },
+        zaxis: {
+            backgroundcolor: 'rgb(255,0,0)',
+            showbackground: false,
+            gridcolor: 'rgb(0,153,153)',
+            color: 'rgb(255,255,255)',
+            size: 20,
+            title: 'access'
+        }
+    };
+
+    Plotly.newPlot('piechart_graph', data, layout);
+    */
+}
+/**
+ * @function statsGraphPanelControl
+ * @param {string} p tag name
+ * 
+ * control the 'p' panel to bring up and focusing
+ *  
+ */
+const statsGraphPanelControl = (p) => {
+    let panels = [APIACCESPANEL, DBACCESSPANEL, APISPEEDPANEL];
+    let zindexTop = 30;
+    let zindexMid = 20;
+    let zindexBot = 10;
+
+    activePanel(p);
+    p.css("z-index", zindexTop);
+    for (let i in panels) {
+        if (p != panels[i]) {
+            inactivePanel(panels[i]);
+            panels[i].css("z-index", zindexMid);
+        }
+    }
+
+}

@@ -8,8 +8,8 @@
 @jdic function-post-url:"/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns"
 @jdic function-post-fileupload-url:"/postcsvfile"
 
-# this post url is as same as the WebAPI is provided to user
-@jdic function-apitest-url:"/apiactions"
+# this post url is as same as the Jetelina-API is provided to user
+@jdic function-japi-url:"/apiactions"
 
 # this post url is for searching 'errnum' in the log file
 @jdic function-search-log-errnum-url:"/searcherror"
@@ -69,7 +69,7 @@
 @jdic db-not-determind-yet-msg:"not determind it yet, login first, please"
 
 # something inprogress 
-@jdic inprogress-msg:"I AM DOING","HAPPY WORKIN'","HUSTLE HUSTLE","I AM DOING THIS JUST FOR YOU","WAIT A MOMENT.."
+@jdic inprogress-msg:"I AM DOING","HAPPY WORKIN'","HUSTLE HUSTLE","I AM DOING THIS ONLY FOR YOU","WAIT A MOMENT.."
 
 # refreshing display message
 @jdi refreshing-msg:"REFRESHING...","REFRECTING..."
@@ -133,8 +133,8 @@
 @jdic stats-api-exec-speed-hide-cmd:"for api speed","hide api speed","close api speed"
 @jdic stats-db-access-numbers-chart-show-cmd:"show db access","show me db access","display db access","show me database access","show database access","display database access","open database access"
 @jdic stats-db-access-numbers-chart-hide-cmd:"for db access","hide db access","close db access","hide database access","close database access"
-@jdic stats-all-graph-show-cmd:"show all stats","show me all stats","show me all graph","show all graph","display all stats","display all graph","show me every stat","show every stat","display every graph"
-@jdic stats-all-graph-hide-cmd:"hide all stats","hide every graph","clear all graphs","all graphs clear","every stats clear","clear every stats"
+@jdic stats-all-graph-show-cmd:"show all stats","show me all stats","show me all graph","show all graph","show all stats","display all stats","display all graph","show me every stat","show every stat","display every graph"
+@jdic stats-all-graph-hide-cmd:"hide all stats","hide every graph","clear all graphs","all graphs clear","every stat clear","clear every stat"
 
 # SQL Execution Time graph
 @jdic stats-sql-performance-graph-show-cmd:"your suggestion","suggest","improved performance"

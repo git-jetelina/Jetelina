@@ -20,11 +20,12 @@
 #      tableapifile: file name for relation between talbe name and api no
 #      experimentsqllistfile: sql list file for execution in test db
 #      improvesuggestionfile: suggestion file name due to execute test db
+#      jsjvmatchingfile: postgresql special. ivm-nized js* api list 
 #      operationhistoryfile: table/api create/delete history log file
 #      operationhistoryfilesize: MB order ex. 10MB -> 10
 #      apiperformancedatapath: container path name of each api execution speed files
 @jdic version:"version"
-version = 3.0
+version = 3.1
 
 @jdic debug:"debug"
 debug = false
@@ -67,6 +68,7 @@ sqlperformancefile = JetelinaSqlPerformance
 tableapifile = JetelinaTableApiRelation
 experimentsqllistfile = JetelinaExperimentSqlList
 improvesuggestionfile = JetelinaSuggestion.json
+jsjvmatchingfile = JetelinaJvmnizedJsApiList
 
 #
 # operation history log file 
@@ -105,7 +107,7 @@ file_column_api_execution_time = exectime
 #   defined database should be RDB, therefore postgresql org mysql so far
 #
 @jdic jetelnadb:"default db","default database","original db","original database","user db","user database"
-jetelinadb = database
+jetelinadb = postgresql
 
 #
 #  default database
@@ -117,11 +119,32 @@ jetelinadb = database
 #                MongoDB    -> mongodb
 #                Oracle     -> oracle
 @jdic dbtype:"db","database","data base"
-dbtype = database
+dbtype = postgresql
+
+#
+#  RDMBS, notable strings in 'select' sentence
+#      Jetelina adds 'jetelina_delete_flg' to user's definition select sentence,
+#      but it maybe added in the head sentence, 
+#          e.g.
+#             select t1.a, t1.b from t1 as t1 where t1.a < {a} and t1.b between {b1} and {b2} limit {limit} offset {offse}
+#          -> select t1.a, t1.b from t1 as t1 where ((t1.jetelina_delete_flg = 0)and(t1.a < {a} and t1.b between {b1} and {b2})) limit {limit} offset {offse}
+#                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                         ^^
+#
+#      the 'limit' and 'offset' are be out of the 'jetelina_delete_flg' clausure.             
+#      not only 'limit' and 'offset', there are some strings that are be out of it.
+#      this 'not_include_to_jetelina_delete_flg' is defined them.
+#      and 'not_include...._user_definition is for the special strings for definding user's own subquery.
+#      i mean, Jetelina does not modify anything to it if these strings were in there.
+#          e.g.
+#             select t1.a, t1.b from t1 as t1 where @mydef_start ...... @mydef_end
+#          -> select t1.a, ...........where ....... 
+#
+not_include_to_jetelina_delete_flg = join,group by,having,distinct,order by,limit,offset,union,intersect,except
+not_include_to_jetelina_delete_flg_user_definition = @mydef_start,@mydef_end
 
 # PostgreSQL setting
 @jdic pg_work:"postgresql run","postgresql availability","start postgresql","postgresql start"
-pg_work = false
+pg_work = true
 @jdic pg_host:"postgresql host"
 pg_host = localhost
 @jdic pg_port:"postgresql port"
@@ -136,14 +159,24 @@ pg_sslmode = prefer
 pg_dbname = postgres
 @jdic pg_testdbname:"postgresql test database"
 pg_testdbname = testdb
+#
+# params for incrementally materialized view
+#    pg_ivm: true -> the extension is installed, false -> not yet
+#
+@jdic pg_ivm:"postgresql ivm"
+pg_ivm = true
 
+@jdic pg_regulatedclauses:"ivm regulation","ivm ban sentences"
+pg_regulatedclauses = having,union,intersect,except,distinct on,tablesample,value,tablesample,for update,share,{
+@jdic pg_allowclauses:"ivm allow","ivm allow clauses","ivm available clauses"
+pg_allowclauses = order by,limit,offset
 #
 # mysql,oracle and so on are goin to do after postgre is done  2024/3/4
 #
 
 # MySQL setting
 @jdic my_work:"mysql run","mysql availability","start mysql","mysql start"
-my_work = false
+my_work = true
 @jdic my_host:"mysql host"
 my_host = localhost
 @jdic my_port:"mysql port"
@@ -156,7 +189,7 @@ my_password = userpasswd
 # Caution: the initial db name is 'mysql', then Jetelina will rewrite it to 'jetelina'
 # 
 @jdic my_dbname:"mysql database name","mysql db name","mysql dbname"
-my_dbname = mysql 
+my_dbname = jetelina 
 @jdic my_unix_socket:"mysql unix socket","mysql socket"
 my_unix_socket = /var/run/mysqld/mysqld.sock
 @jdic my_testdbname:"mysql test database"
@@ -164,7 +197,7 @@ my_testdbname = testdb
 
 # Redis setting
 @jdic redis_work:"redis run","redis availability","start redis","redis start"
-redis_work = false
+redis_work = true
 @jdic redis_host:"redis host"
 redis_host = 127.0.0.1
 @jdic redis_port:"redis port"
@@ -177,10 +210,10 @@ redis_password =
 
 # MongoDB setting
 @jdic mongodb_work:"mongodb run","mongodb availability","start mongodb","mongodb start"
-mongodb_work = false
+mongodb_work = true
 @jdic monogodb_host:"monogodb host"
 mongodb_host = 127.0.0.1
-@jdic redis_port:"monogodb port"
+@jdic mongodb_port:"monogodb port"
 mongodb_port = 27017
 @jdic mongodb_dbname:"mongodb database name","mongodb db name","monbodb dbname"
 mongodb_dbname = jetelina

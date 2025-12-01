@@ -206,6 +206,20 @@ function configParamUpdate(d::Dict)
 	configfile_tmp = string(configfile, ".tmp")
 	configChangeHistoryFile = JFiles.getFileNameFromLogPath(JC["config_change_history_file"])
 
+	#===
+		Tips:
+			exceptionkeywords are for avoiding to require JSession
+			isexeckey contains '0' or '1' as much as numbers of dn
+			indeed '0' is true(yes matching), '1' is false(nop)
+			then you could judge by studying isexckey later
+	===#
+	exceptionkeywords = ["jetelinadb","pg_ivm"]
+	isexckey = exceptionkeywords .∉ Ref(dn)
+	needJsession = true
+	if 1 in isexckey
+		needJsession = false
+	end
+
 	try
 		f = open(configfile, "r+")
 		tf = open(configfile_tmp, "w")
@@ -232,7 +246,8 @@ function configParamUpdate(d::Dict)
 						if "jetelinadb" parameter exists in dn, this is the initialize process.
 						therefore there is no session data, skip it.
 				===#
-				if "jetelinadb" ∉ dn
+#				if "jetelinadb" ∉ dn
+				if needJsession
 					# also rewrite the session data
 					if(param == "dbtype")
 						JSession.setDBType(var)
@@ -278,7 +293,8 @@ function configParamUpdate(d::Dict)
 			
 			# ref. around 242
 			operator = ""
-			if "jetelinadb" ∉ dn
+#			if "jetelinadb" ∉ dn
+			if needJsession
 				operator = JSession.get()[1];
 			else
 				operator = "it is me"

@@ -28,7 +28,7 @@ function getDataType(c_type::String)
 function getDataType(c_type::String)
 	ret::String = ""
 
-	c_type = string(c_type)
+#	c_type = string(c_type)
 	if startswith(c_type, "Int")
 		ret = "integer"
 	elseif startswith(c_type, "Float")

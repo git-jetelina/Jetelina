@@ -292,7 +292,7 @@ function dataInsertFromCSV(fname::String)
     column_name = names(df)
 
     column_type = eltype.(eachcol(df))
-    column_type_string = Array{Union{Nothing,String}}(nothing, length(column_name)) # using for creating table
+#    column_type_string = Array{Union{Nothing,String}}(nothing, length(column_name)) # using for creating table
     #==
         Tips:
             apply 'auto_increment' to 'jt_id' column.
@@ -315,15 +315,15 @@ function dataInsertFromCSV(fname::String)
         		the reason for this connection, see in doSelect()
         ===#
         cn = column_name[i]
-        column_type_string[i] = MyDataTypeList.getDataType(string(column_type[i]))
+        column_type_string = MyDataTypeList.getDataType(string(column_type[i]))
         if contains(cn, keyword2)
-            column_str = string(column_str, " ", cn, " ", column_type_string[i], " ", keyword3)
+            column_str = string(column_str, " ", cn, " ", column_type_string, " ", keyword3)
         else
-            column_str = string(column_str, " ", cn, " ", column_type_string[i])
+            column_str = string(column_str, " ", cn, " ", column_type_string)
         end
 
         insert_column_str = string(insert_column_str, "$cn")
-        if startswith(column_type_string[i], "varchar")
+        if any(x -> startswith(lowercase(column_type_string),x), ["varchar","text","date"])
             #string data
             insert_data_str = string(insert_data_str, "'{$cn}'")
             update_str = string(update_str, "$cn='{$cn}'")

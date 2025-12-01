@@ -446,6 +446,15 @@ function deleteApi()
 
     if DBDataController.refStichWort(stichwort)
         if (ApiSqlListManager.deleteApiFromList(apis))
+            # postgresql special
+            if j_config.JC["dbtype"] == "postgresql" 
+                #===
+                    Tips:
+                        wanted to do this here, because as much as synchrolize with the above
+                ===#
+                DBDataController.dropIVMtable(apis)
+            end
+
             ret = json(Dict("result" => true, "apiname" => "$retapis", "message from Jetelina" => jmsg))
         else
             ret = json(Dict("result" => false, "apiname" => "$retapis", "errmsg" => "Oh my, failed the deleting. Type 'show error' to show somethin' if you're lucky."))

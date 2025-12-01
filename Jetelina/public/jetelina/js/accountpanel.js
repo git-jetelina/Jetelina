@@ -1,1 +1,50 @@
-(function(_0x450fcf,_0x544919){const _0x1dc6c5=_0x3617,_0x1e4208=_0x450fcf();while(!![]){try{const _0x5d836b=parseInt(_0x1dc6c5(0xcd))/0x1+-parseInt(_0x1dc6c5(0xd2))/0x2+-parseInt(_0x1dc6c5(0xc8))/0x3+-parseInt(_0x1dc6c5(0xcf))/0x4+-parseInt(_0x1dc6c5(0xd8))/0x5+parseInt(_0x1dc6c5(0xd9))/0x6*(-parseInt(_0x1dc6c5(0xd0))/0x7)+parseInt(_0x1dc6c5(0xca))/0x8;if(_0x5d836b===_0x544919)break;else _0x1e4208['push'](_0x1e4208['shift']());}catch(_0x416ba9){_0x1e4208['push'](_0x1e4208['shift']());}}}(_0x118d,0x7df03));function _0x118d(){const _0x31c995=['3934976RZgQwX','31052iTYfZp','{\x22username\x22:\x22','1063632UHdPge','\x22,\x20\x22id\x22=>\x22','roll','logoutdate','user-manage-add-cmd',',\x20\x22last\x20logout\x22=>\x22','424515hXnoTf','522YITODq','admin','nickname','\x22,\x20\x22generation\x22=>\x22','text','user-manage-username-msg','user-add','logincount','user-manage-profile-msg','470097eALEdf','inArray','15391560vINCfI','user-manage-swing-missing-msg','firstname','734992lfJzLC',',\x20and\x20sometimes\x20I\x20call\x20you\x20\x22'];_0x118d=function(){return _0x31c995;};return _0x118d();}function _0x3617(_0x5c1128,_0x3efca2){const _0x118d2d=_0x118d();return _0x3617=function(_0x361763,_0x38331c){_0x361763=_0x361763-0xc2;let _0x1b06ec=_0x118d2d[_0x361763];return _0x1b06ec;},_0x3617(_0x5c1128,_0x3efca2);}const accountManager=_0x5a7173=>{const _0x1e0e2f=_0x3617;let _0x509bf2=chooseMsg(_0x1e0e2f(0xcb),'','');if((inScenarioChk(_0x5a7173,_0x1e0e2f(0xd6))||presentaction['um']==_0x1e0e2f(0xc5))&&loginuser[_0x1e0e2f(0xd4)]==_0x1e0e2f(0xda)){presentaction['um']==null&&(presentaction['um']=_0x1e0e2f(0xc5));if(-0x1<$[_0x1e0e2f(0xc9)](whatJetelinaTold,scenario[_0x1e0e2f(0xc4)])){let _0x3f30ca=_0x1e0e2f(0xd1)+_0x5a7173+'\x22}';postAjaxData(scenario['function-post-url'][0x7],_0x3f30ca);}_0x509bf2=chooseMsg(_0x1e0e2f(0xc4),'','');}else{if(inScenarioChk(_0x5a7173,'user-manage-show-profile-cmd')){let _0x5d9b74='\x22'+loginuser['lastname']+'\x20'+loginuser[_0x1e0e2f(0xcc)]+'\x22\x20with\x20\x22roll\x22=>\x22'+loginuser[_0x1e0e2f(0xd4)]+_0x1e0e2f(0xd3)+loginuser['user_id']+_0x1e0e2f(0xd7)+loginuser[_0x1e0e2f(0xd5)]+'\x22,\x20\x22total\x20logins\x22=>\x22'+loginuser[_0x1e0e2f(0xc6)]+_0x1e0e2f(0xc2)+loginuser['generation']+'\x22';loginuser[_0x1e0e2f(0xdb)]!=null&&0x0<loginuser[_0x1e0e2f(0xdb)]['length']&&(_0x5d9b74=_0x5d9b74+(_0x1e0e2f(0xce)+loginuser[_0x1e0e2f(0xdb)]+'\x22')),_0x5d9b74=chooseMsg(_0x1e0e2f(0xc7),_0x5d9b74,'m'),$(SOMETHINGMSGPANELMSG)[_0x1e0e2f(0xc3)](_0x5d9b74),showSomethingMsgPanel(!![]),_0x509bf2=IGNORE;}else _0x509bf2=chooseMsg('no-authority-js-msg','','');}return _0x509bf2;};
+/**
+    JS library for Jetelina Account Manage Panel
+    @author Ono Keiji
+
+    This js lib works with dashboard.js and jetelinalib.js for the Account Mange Panel.
+
+    Fucntions:
+ */
+/**
+ * @function accountManager
+ * 
+ * @param {string} s user input string in the chatbox
+ * 
+ * manage user account  
+ */
+const accountManager = (s) =>{
+    let ret = chooseMsg('user-manage-swing-missing-msg',"","");
+    /*
+        Tips:
+            'whatJetelinaTold' is contained Jetelina's message.
+            by comparing this and expected scenario message, may could take an correct action. :)
+    */
+    if((inScenarioChk(s,'user-manage-add-cmd') ||(presentaction.um == 'user-add')) && loginuser.roll == "admin" ){
+        // add new user/account
+        if(presentaction.um == null){
+            presentaction.um = 'user-add';
+        }
+
+        if(-1<$.inArray(whatJetelinaTold, scenario['user-manage-username-msg'])){
+                let data = `{"username":"${s}"}`;
+                postAjaxData(scenario["function-post-url"][7],data);
+        }
+
+        ret = chooseMsg('user-manage-username-msg',"","");
+    }else if(inScenarioChk(s,'user-manage-show-profile-cmd')){
+        let prof = `"${loginuser.lastname} ${loginuser.firstname}" with "roll"=>"${loginuser.roll}", "id"=>"${loginuser.user_id}, "last logout"=>"${loginuser.logoutdate}", "total logins"=>"${loginuser.logincount}", "generation"=>"${loginuser.generation}"`;
+        if(loginuser.nickname != null && 0<loginuser.nickname.length){
+            prof = prof + `, and sometimes I call you "${loginuser.nickname}"`;
+        }
+        
+        prof = chooseMsg('user-manage-profile-msg',prof,'m');
+        $(SOMETHINGMSGPANELMSG).text(prof);
+        showSomethingMsgPanel(true);
+        ret = IGNORE;
+    }else{
+        ret = chooseMsg('no-authority-js-msg',"","");
+    }
+
+    return ret;
+}

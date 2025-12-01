@@ -19,6 +19,7 @@ module MySQLSentenceManager
 using DataFrames, StatsBase
 using Genie, Genie.Requests, Genie.Renderer.Json
 using Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.JMessage
+import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
@@ -96,7 +97,70 @@ function createApiSelectSentence(json_d::Dict,mode::String)
 function createApiSelectSentence(json_d, mode::String)
     item_d = json_d["item"]
     subq_d = json_d["subquery"]
+    ignore::String = "ignore" # protocol
 
+    #===
+        add "jetelina_delete_flg=0" (meaning alive data) to sub query string.
+        because the js* api only manages living data. 
+    ===#
+    function _addJetelinaDeleteFlg2Subquery(subq_d,tarr)
+        keyword_jdf::String = "jetelina_delete_flg"
+        keyword_subq::Array = split(j_config.JC["not_include_to_jetelina_delete_flg"],",")
+        keyword_ud::Array = split(j_config.JC["not_include_to_jetelina_delete_flg_user_definition"],",") 
+        insertat::Integer = 1
+
+        if !any(contains.(subq_d, keyword_ud))
+            if any(contains.(subq_d, keyword_subq))
+                for i in keyword_subq
+                    isit = findfirst(i,subq_d)
+                    if !isnothing(isit)
+                        insertat = first(isit)
+                        break
+                    end
+                end
+            end
+
+            jdf::String = string(keyword_jdf,"=0")
+            delfgstr::String = ""
+            andstr::String = raw""
+            #===
+                Tips:
+                    add '()' in subq_d, i mean, e.g. "where a=b" -> "where (a=b)",
+                    because "jetelina_delete_flg" is added later, then "where (a=b)and(jetelina_delte_flg=0)".
+                    it's a gross if "where a=b and(jetelina...) were.
+            ===#
+            if subq_d != ignore
+                subq_d = replace(subq_d, "where " => "where (", count=1)
+                # input "(" into insertat
+                if 1<insertat
+                    subq_d = string(subq_d[1:insertat-1], ")", subq_d[insertat:end])
+                else
+                    subq_d = string(subq_d,raw")")
+                end
+            end
+
+            if 1<length(tarr)
+                for i ∈ 1:length(tarr)
+                    if 1<i
+                        andstr = raw")and("
+                    else
+                        andstr = "(("
+                    end
+
+                    delfgstr = string(delfgstr,andstr,tarr[i],".",jdf)
+                end
+
+                subq_d = replace(subq_d, "where " => "where $delfgstr ))and")
+            else
+                delfgstr = string("where ", tarr[1], ".$jdf")
+                subq_d = replace(subq_d, ignore => delfgstr)
+            end
+        else
+            subq_d = replace(subq_d, keyword_ud[1] => "", keyword_ud[2] => "")
+        end
+
+        return subq_d
+    end
     #==
     		Tips:
     			item_d:column post data from dashboard.html is expected below json style
@@ -153,6 +217,19 @@ function createApiSelectSentence(json_d, mode::String)
 
     selectSql = """select $selectSql from $tableName"""
 
+    if j_config.JC["debug"]
+        @info "---------chk for ....-------------"
+        @info "before subq_d is " subq_d
+        @info "table array is " tablename_arr
+    end
+
+    subq_d = _addJetelinaDeleteFlg2Subquery(subq_d, tablename_arr)
+
+    if j_config.JC["debug"]
+        @info "after subq_d is " subq_d
+        @info "----------------------------------"
+    end
+
     if mode != "pre"
         ck = ApiSqlListManager.sqlDuplicationCheck(selectSql, subq_d, "mysql")
         if ck[1]
@@ -174,10 +251,10 @@ function createApiSelectSentence(json_d, mode::String)
         end
     else
         # pre execution sql sentence
-        keyword::String = "ignore" # protocol
-        if contains(subq_d,keyword)
-            subq_d = ""
-        end
+#        keyword::String = "ignore" # protocol
+#        if contains(subq_d,keyword)
+#            subq_d = ""
+#        end
 
         return string(selectSql," ",subq_d);
     end
@@ -214,6 +291,8 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
     			table1.jetelina_delete_flg=0 and table2.jetelina_delete_flg=0 and....
 
     		Caution: any local variables are not be duplicated with global ones. 
+
+            depricated in ver3.1
     ===#
     function __create_j_del_flg(sql::String)
         del_flg::String = "jetelina_delete_flg=0" # absolute select condition
@@ -252,6 +331,8 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
     			select .... where jetelina_delete_flg=0 and table1.something='aaa' limit 10 
 
     		Caution: any local variables are not be duplicated with global ones. 
+
+            depricated in ver3.1
     ===#
     function __create_subquery_str(sub_str::String, del_str::String)
         sub_ret::String = sub_str
@@ -295,9 +376,9 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
                     sp = split(json_dict[keyword2], ",")
                     if !isnothing(sp)
                         for ii in eachindex(sp)                            
-                            if ii == 1 || ii == length(sp)
+#                            if ii == 1 || ii == length(sp)
                                 sp[ii] = replace.(sp[ii], "[" => "", "]" => "", "\"" => "", "'" => "")
-                            end
+#                            end
 
                             ssp = split(sp[ii], ":")
                             if !isnothing(ssp) && 1 < length(ssp)
@@ -311,10 +392,16 @@ function createExecutionSqlSentence(json_dict::Dict, df::DataFrame)
                         subquery_str = replace.(subquery_str, kk => v)
                     end
 
+                    #===
+                        Attention: 2025/11/17
+                            below processes are undone, because j_del_flg is added at creating sql sentence in
+                            createApiSelectSentence() already.
+                            so, these private functions are unnecessary anymore, should be deleted later.
+                    ===#
                     # this private function __create_j_del_flg() is defined above.
-                    j_del_flg = __create_j_del_flg(df.sql[1])
+ #                   j_del_flg = __create_j_del_flg(df.sql[1])
                     # this private function __create_subquery_str is defined above as well.
-                    subquery_str = __create_subquery_str(subquery_str, j_del_flg)
+#                    subquery_str = __create_subquery_str(subquery_str, j_del_flg)
                 end
             else
                 subquery_str = string("where ", j_del_flg)

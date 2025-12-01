@@ -35,6 +35,11 @@ functions
 	checkTheRoll(roll::String) check the ordered user's authority in order to 'roll'.
 	refStichWort(stichwort::String)	reference and matching with user_info->stichwort
     prepareDbEnvironment(mode::String) database connection checking, and initializing database if needed
+
+-- special functions for IVM ---
+    checkIVMExistence() checkin' ivm is availability
+    compareJsAndJv(json) compare max/min/mean execution speed between js* and jv*.
+    deleteIVMApi(apino::String) delete api in ivm, indeed ivm table
 """
 module PgDBController
 
@@ -47,6 +52,7 @@ JMessage.showModuleInCompiling(@__MODULE__)
 
 include("PgDataTypeList.jl")
 include("PgSQLSentenceManager.jl")
+include("PgIVMController.jl")
 
 export create_jetelina_database, create_jetelina_table, create_jetelina_id_sequence, open_connection, close_connection,
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, dropTable, getColumns,
@@ -215,8 +221,8 @@ function _getTableList()
     table_str = """select tablename from pg_tables where schemaname='public'"""
     try
         df = DataFrame(columntable(LibPQ.execute(conn, table_str)))
-        # do not include usertable in the return
-        DataFrames.filter!(row -> row.tablename != "jetelina_user_table", df)
+        # do not include usertable and ivm table in the return
+        DataFrames.filter!(row -> row.tablename != "jetelina_user_table" && row.tablename ∉ Df_JsJvList[!,:jv] , df)
     catch err
         JLog.writetoLogfile("PgDBController._getTableList() error: $err")
         return DataFrame() # return empty DataFrame if got fail
@@ -400,7 +406,6 @@ function dataInsertFromCSV(fname::String)
     column_name = names(df)
 
     column_type = eltype.(eachcol(df))
-    column_type_string = Array{Union{Nothing,String}}(nothing, length(column_name)) # using for creating table
     column_str = string(keyword2, " serial primary key,") # using for creating table
     insert_column_str = string() # columns definition string
     insert_data_str = string() # data string
@@ -416,15 +421,15 @@ function dataInsertFromCSV(fname::String)
         		the reason for this connection, see in doSelect()
         ===#
         cn = column_name[i]
-        column_type_string[i] = PgDataTypeList.getDataType(string(column_type[i]))
+        column_type_string = PgDataTypeList.getDataType(string(column_type[i]))
         if contains(cn, keyword2)
-            column_str = string(column_str, " ", cn, " ", column_type_string[i], " ", keyword3)
+            column_str = string(column_str, " ", cn, " ", column_type_string, " ", keyword3)
         else
-            column_str = string(column_str, " ", cn, " ", column_type_string[i])
+            column_str = string(column_str, " ", cn, " ", column_type_string)
         end
 
         insert_column_str = string(insert_column_str, "$cn")
-        if startswith(column_type_string[i], "varchar")
+        if any(x -> startswith(lowercase(column_type_string),x), ["varchar","text","date"])
             #string data
             insert_data_str = string(insert_data_str, "'{$cn}'")
             update_str = string(update_str, "$cn='{$cn}'")
@@ -532,7 +537,6 @@ function dataInsertFromCSV(fname::String)
     insertStartid::Integer = nrow(df0) + 1
     # append data into the exists table, and take care '+1' and '-1'
     insertEndid::Integer = insertStartid + nrow(df) -1
-#    @info "n_df0, n_df start end " nrow(df0) nrow(df) insertStartid insertEndid
     insertcols!(df,1,keyword2=>insertStartid:insertEndid)
 
     select!(df, cols)
@@ -611,7 +615,7 @@ function dropTable(tableName::Vector)
     try
         for i in eachindex(tableName)
             # drop the tableName
-            drop_table_str = string("drop table ", tableName[i],";")
+            drop_table_str = string("drop table if exists ", tableName[i],";")
             execute(conn, drop_table_str)
         end
 
@@ -684,9 +688,34 @@ function executeApi(json_d::Dict,target_api::DataFrame)
 """
 function executeApi(json_d::Dict, target_api::DataFrame)
     ret = ""
-    sql_str = PgSQLSentenceManager.createExecutionSqlSentence(json_d, target_api)
+    ivmflg::Bool = false
+    #===
+        Tips:
+            at the first, check json_d["apino"] has jv* in Df_JsJvList
+            execute jv* if it exsisted.
+            execute js* if it did not exsisted in the list.
+    ===#
+    apino = string(json_d["apino"])
+
+    if startswith(apino, "js")
+        jsjv = subset(ApiSqlListManager.Df_JsJvList, :js => ByRow(==(apino)), skipmissing = true)
+        if 0<nrow(jsjv)
+            # there is jv* in there, let's use ivm
+            apino = replace(apino,"js" => "jv")
+            ivmflg = true
+        end
+    end
+
+    if !ivmflg
+        # in case js*, ji*, ju*, jd*
+        sql_str = PgSQLSentenceManager.createExecutionSqlSentence(json_d, target_api)
+    else
+        # in case only jv*
+        sql_str = PgIVMController.jvSqlSentence(apino)
+    end
+
     if 0 < length(sql_str)
-        ret = _executeApi(json_d["apino"], sql_str)
+        ret = _executeApi(apino, sql_str)
     end
 
     return ret
@@ -711,17 +740,17 @@ function _executeApi(apino::String, sql_str::String)
     try
         sql_ret = LibPQ.execute(conn, sql_str)
         #===
-        			Tips:
-        				case in insert/update/delete, we cannot see if it got success or not by .execute().
-        				using .num_affected_rows() to see the worth.
-        					in insert -> 0: normal end, the fault is caught in 'catch'
-        					in update/delete -> 0: swing and miss
-        									 -> 1: hit the ball
-        		===#
+        	Tips:
+        		case in insert/update/delete, we cannot see if it got success or not by .execute().
+        		using .num_affected_rows() to see the worth.
+        			in insert -> 0: normal end, the fault is caught in 'catch'
+        			in update/delete -> 0: swing and miss
+        							 -> 1: hit the ball
+    	===#
         affected_ret = LibPQ.num_affected_rows(sql_ret)
         jmsg::String = string("compliment me!")
 
-        if startswith(apino, "js")
+        if any(x -> startswith(apino,x), ["js","jv"])
             # select 
             df = DataFrame(sql_ret)
             pagingnum = parse(Int, j_config.JC["paging"])
@@ -756,6 +785,13 @@ function _executeApi(apino::String, sql_str::String)
         close_connection(conn)
     end
 
+    if j_config.JC["debug"]
+        @info "---- PgDBController._executeApi----"
+        @info "apino " apino
+        @info "sql " sql_str
+        @info "-----------------------------------"
+    end
+
     return ret
 end
 """
@@ -776,7 +812,6 @@ function doSelect(sql::String,mode::String)
 		'mesure' mode -> exectution time of tuple(max,min,mean) 
 """
 function doSelect(sql::String, mode::String)
-#    @info "PgD... doSelect: " mode sql
     conn = open_connection()
     ret = ""
     try
@@ -826,6 +861,12 @@ function doSelect(sql::String, mode::String)
                 df = DataFrame(columntable(LibPQ.execute(conn, sql)))
                 jmsg = "this return is limited in 10 because the true result is $dfmax"
             end
+        end
+
+        if j_config.JC["debug"]
+            @info "---- PgDBController.doSelect----"
+            @info "sql " sql
+            @info "-----------------------------------"
         end
 
         return json(Dict("result" => true, "message from Jetelina" => jmsg, "Jetelina" => copy.(eachrow(df))))
@@ -1081,6 +1122,10 @@ function chkUserExistence(s::String)
         ret = Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum")
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.chkUserExistence() with $s error : $err")
     finally
+        # checking ivm abailability in every login
+        # because who knows when ivm would be abailable, so check it every time when someone login to there 
+        PgIVMController.checkIVMExistence(conn)
+
         close_connection(conn)
     end
 
@@ -1545,5 +1590,66 @@ function prepareDbEnvironment(mode::String)
     finally
     end
 end
+"""
+function checkIVMExistence()
 
+	checkin' ivm is availability
+		
+# Arguments
+- return: available -> true, not available -> false error -> Tuple(false, error number)
+"""
+function checkIVMExistence()
+    conn = open_connection()
+    ret::Bool = false
+
+    try
+        return PgIVMController.checkIVMExistence(conn)
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.checkIVMExistence() error : $err")
+        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+end
+"""
+function compareJsAndJv(json)
+
+    compare max/min/mean execution speed between js* and jv*.
+
+# Arguments
+- `json`: json data that contains the target apino
+- return: error -> Tuple(false, error number)
+"""
+function compareJsAndJv(json)
+    conn = open_connection()
+    ret::Bool = false
+
+    try
+        PgIVMController.compareJsAndJv(conn, json["apino"])
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+end
+"""
+    function deleteIVMApi(apino::String) 
+        
+    delete api in ivm, indeed ivm table
+    this function is called with synchrolizing delete api
+
+    Attention:
+        this function is calling PgIV..dropIVMtable(), in fact, it is calling PgDBController.dropTable()
+        why hire such a trouble some calling, becaue wanna gather procedures related ivm in PgIVMController
+
+#Arguments
+-`apino::String`: apino for deleting
+- return: tuple (boolean: true -> success/false -> get fail, JSON)
+"""
+function deleteIVMApi(apinos::Vector) 
+    return dropTable(apinos)
+end
 end

@@ -10,11 +10,16 @@ Description:
 functions
 	getApiSequenceNumber()  get api sequence number from apisequencenumber in dataframe then update it +1
 	readSqlList2DataFrame() import registered SQL sentence list in JC["sqllistfile"] to DataFrame.this function set the sql list data in the global variable 'Df_JetelinaSqlList' as DataFrame object.
-	writeTolist(sql::String, tablename_arr::Vector{String}, db::String) create api no and write it to JC["sqllistfile"] order by SQL sentence.
+	writeTolist(sql::String, subquery::String, tablename_arr::Vector{String}, db::String) create api no and write it to JC["sqllistfile"] order by SQL sentence.
 	deleteTableFromlist(tablename::Vector) delete tables name from JC["sqllistfile"] synchronized with dropping table.
 	deleteApiFromList(apis:Vector) delete api by ordering from JC["sqllistfile"] file, then refresh the DataFrame.
 	getRelatedList(searchKey::String,target::String) earch in JetelinaTableApiRelation file to find 'target' due to 'searchKey'
 	sqlDuplicationCheck(nsql::String, subq::String)  confirm duplication, if 'nsql' exists in JC["sqllistfile"].but checking is in Df_JetelinaSqlList, not the real file, because of execution speed. 
+
+-- special funcs for ivm in postgresql---
+    jsjvmatching2DataFrame() import js* jv* api matching list in JC["jsjvmatchingfile"] to DataFrame.this function set the matching list data in the global variable 'Df_jsJvList' as DataFrame object.
+    writeToMatchinglist(apino::String) write js* and jv* matching to JC["jsjvmatchingfile"].
+    deleteJvApiFromMatchingList(apis:Vector) delete api by ordering from JC["jsjvmatchingfile"] file, then refresh the DataFrame.
 """
 module ApiSqlListManager
 
@@ -24,7 +29,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export Df_JetelinaSqlList, readSqlList2DataFrame, writeTolist, deleteTableFromlist, sqlDuplicationCheck
+export Df_JetelinaSqlList, readSqlList2DataFrame, writeTolist, deleteTableFromlist, sqlDuplicationCheck, jsjvmatching2DataFrame, Df_JsJvList
 
 """
 function __init__()
@@ -51,28 +56,40 @@ function _setApiSequenceNumber
 """
 function _setApiSequenceNumber()
     global Df_JetelinaSqlList = DataFrame()
-    p = readSqlList2DataFrame(); 
+    p = readSqlList2DataFrame()
     if p[1]
         df = p[2]
         #===
-        			Tips:
-        				Df_JetelinaSqlList is a global data.
-        				this data has a possibility be accessed by other program, 
-        				therefore it is listed in the export list 
-        		===#
+        	Tips:
+        		Df_JetelinaSqlList is a global data.
+        		this data has a possibility be accessed by other program, 
+        		therefore it is listed in the export list 
+        ===#
         Df_JetelinaSqlList = df
         existapino::Array = chop.(df.apino, head=2, tail=0)
         nextapino::Int = 1
-        if 0<nrow(df)
+        if 0 < nrow(df)
             nextapino = maximum(parse.(Int, existapino)) + 1
         end
-        
+
         global apisequencenumber = DataFrame(apino=nextapino)
 
         if j_config.JC["debug"]
             @info apisequencenumber
         end
     end
+
+    #===
+        Tips:
+            these are special for ivm in postgresql.
+            jsjvmatching2DataFrame() retuns false if the target file were not, in case not postgresql.
+            but set Df_Js... if the file existed, even if not postgresql. any problems?
+    ===#
+    pp = jsjvmatching2DataFrame()
+    if pp[1]
+        global Df_JsJvList = pp[2]
+    end
+
 end
 """
 function getApiSequenceNumber()
@@ -117,7 +134,7 @@ function readSqlList2DataFrame()
     return false, nothing
 end
 """
-function writeTolist(sql::String, tablename_arr::Vector{String}, db::String)
+function writeTolist(sql::String, subquery::String, tablename_arr::Vector{String}, db::String)
 
 	create api no and write it to JC["sqllistfile"] order by SQL sentence.
 	
@@ -185,10 +202,10 @@ function writeTolist(sql::String, subquery::String, tablename_arr::Vector{String
             suffix = "ju"
         else
             suffix = "js"
-            sql = replace.(sql,"\""=>"\"\"")
+            sql = replace.(sql, "\"" => "\"\"")
         end
     end
-    
+
     seq_no = getApiSequenceNumber()
     sqlsentence = """$suffix$seq_no,\"$sql\",\"$subquery\",\"$db\""""
 
@@ -204,7 +221,7 @@ function writeTolist(sql::String, subquery::String, tablename_arr::Vector{String
                 println(f, string(j_config.JC["file_column_apino"], ',', j_config.JC["file_column_sql"], ',', j_config.JC["file_column_subquery"]), ',', j_config.JC["file_column_db"])
             end
 
-#            CSV.write(f, Tables.table([sqlsentence]); append=true)
+            #            CSV.write(f, Tables.table([sqlsentence]); append=true)
             println(f, sqlsentence)
         end
     catch err
@@ -415,6 +432,16 @@ function deleteApiFromList(apis::Vector)
     mv(apiFile_tmp, apiFile, force=true)
     mv(tableapiTmpFile, tableapiFile, force=true)
 
+    # postgresql special
+    if j_config.JC["dbtype"] == "postgresql" 
+        # delete apis from js* vs jv* matching file as well 
+        #===
+            Tips:
+                wanted to do this here, because as much as synchrolize with the above
+        ===#
+        deleteJvApiFromMatchingList(apis)
+    end
+
     # update DataFrame
     readSqlList2DataFrame()
 
@@ -500,11 +527,11 @@ function sqlDuplicationCheck(nsql::String, subq::String)
 """
 function sqlDuplicationCheck(nsql::String, subq::String, dbtype::String)
     if 0 < nrow(Df_JetelinaSqlList)
-        df = subset(ApiSqlListManager.Df_JetelinaSqlList, :db => ByRow(==(dbtype)), skipmissing = true)
+        df = subset(ApiSqlListManager.Df_JetelinaSqlList, :db => ByRow(==(dbtype)), skipmissing=true)
 
         for i ∈ 1:nrow(df)
             if dbtype != "mongodb"
-                if df[!, :sql][i] == nsql && coalesce(df[!, :subquery][i],"") == subq
+                if df[!, :sql][i] == nsql && coalesce(df[!, :subquery][i], "") == subq
                     return true, df[!, :apino][i]
                 end
             else
@@ -512,8 +539,8 @@ function sqlDuplicationCheck(nsql::String, subq::String, dbtype::String)
                     Tips:
                         only one 'ji*' api for mongodb
                 ===#
-                if startswith("ji",df[!,:apino][i])
-                    return true, df[!,:apino][i]
+                if startswith("ji", df[!, :apino][i])
+                    return true, df[!, :apino][i]
                 end
             end
         end
@@ -522,4 +549,126 @@ function sqlDuplicationCheck(nsql::String, subq::String, dbtype::String)
     # consequently, not exist.
     return false
 end
+"""
+function jsjvmatching2DataFrame()
+
+	import js* jv* api matching list in JC["jsjvmatchingfile"] to DataFrame.
+	this function set the matching list data in the global variable 'Df_jsJvList' as DataFrame object.
+
+# Arguments
+- return: Tuple: suceeded (true::Boolean, list of api/sql::DataFrames)
+				 failed   (false::Boolean, nothing)
+
+"""
+function jsjvmatching2DataFrame()
+    global Df_JsJvList = DataFrame()
+    jsjvFile = JFiles.getFileNameFromConfigPath(j_config.JC["jsjvmatchingfile"])
+    if isfile(jsjvFile)
+        df = CSV.read(jsjvFile, DataFrame)
+        if j_config.JC["debug"]
+            @info "ApiSqlListManager.jsjvmatching2DataFrame() list in DataFrame: ", df
+        end
+
+        Df_JsJvList = df
+
+        return true, df
+    end
+
+    return false, nothing
+end
+"""
+function writeToMatchinglist(apino::String)
+
+	write js* and jv* matching to JC["jsjvmatchingfile"].
+	
+# Arguments
+- `apino::String`: js* apino
+- return: Boolean: true -> suceeded false -> failed
+"""
+function writeToMatchinglist(apino::String)
+    jsjvFile = JFiles.getFileNameFromConfigPath(j_config.JC["jsjvmatchingfile"])
+    ivmapino::String = replace(apino, "js" => "jv")
+
+    # write the sql to the file
+    thefirstflg = true
+    if !isfile(jsjvFile)
+        thefirstflg = false
+    end
+
+    # write the sql to the file
+    try
+        open(jsjvFile, "a") do f
+            if !thefirstflg
+                println(f, "js,","jv")
+            end
+
+            println(f, string(apino, ",", ivmapino))
+        end
+    catch err
+        JLog.writetoLogfile("ApiSqlListManager.writeToMatchinglist() $apino error: $err")
+        return false
+    end
+
+    # update DataFrame
+    jsjvmatching2DataFrame()
+
+    return true
+end
+"""
+function deleteJvApiFromMatchingList(apis:Vector)
+
+	delete api by ordering from JC["jsjvmatchingfile"] file, then refresh the DataFrame.
+	
+# Arguments
+- `apis::Vector`: target apis name
+- return: boolean: true -> all done ,  false -> something failed
+"""
+function deleteJvApiFromMatchingList(apis::Vector)
+    #===
+    	Tips:
+    		apis is Array. ex. apino:["js100","js102"]
+    		insert(ji*),update(ju*),delete(jd*) api are forbidden to delete.
+    		only select(js*) is able to be rejected from api list.
+    ===#
+    for a in apis
+        if (!startswith(a, "js"))
+            return false
+        end
+    end
+
+    jsjvFile = JFiles.getFileNameFromConfigPath(j_config.JC["jsjvmatchingfile"])
+    jsjvFile_tmp = string(jsjvFile, ".tmp")
+
+    # take the backup file
+    JFiles.fileBackup(jsjvFile)
+
+    try
+        open(jsjvFile_tmp, "w") do tf
+            open(jsjvFile, "r") do f
+                for ss in eachline(f, keep=false)
+                    p = split(ss, ",")
+                    if p[1] ∉ apis
+                        # remain others in the file
+                        println(tf, ss)
+                    end
+                end
+            end
+        end
+    catch err
+        JLog.writetoLogfile("ApiSqlListManager.deleteJvApiFromMatchingList() error: $err")
+        return false
+    end
+
+    # change the file name.
+    mv(jsjvFile_tmp, jsjvFile, force=true)
+
+    # update DataFrame
+    jsjvmatching2DataFrame()
+
+    # write to operationhistoryfile
+    JLog.writetoOperationHistoryfile(string("delete jv api", ",", join(apis, ",")))
+
+    return true
+end
+
 end

@@ -28,6 +28,10 @@
 		createApiSelectSentence(json_d::Dict,mode::String) create API and SQL select sentence from posting data.
 		refStichWort(stichwort::String)	reference and matching with user_info->stichwort
 		prepareDbEnvironment(db::String,mode::String) database connection checking, and initializing database if needed
+
+-- special functions for IVM ---
+		dropIVMtable(apis::Vector) special func for PostgreSQL, synchronized droppping ivm table with deleting api
+
 """
 
 module DBDataController
@@ -40,7 +44,7 @@ JMessage.showModuleInCompiling(@__MODULE__)
 
 #===
 	Note: 
-		wanna these include() in init(), but not alll DBData.. is been included(), thus sometimes 'not found method ..' happen.
+		wanna these include() in init(), but not all DBData.. are been included(), thus sometimes 'not found method ..' happen.
 		guess should have a procedure alike JTimer.jl, I mean should include these in a dummy file to kick init(). :P  2024/2/10
 ===#
 include("libs/postgres/PgDBController.jl")
@@ -551,7 +555,32 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 
 	if j_config.JC["dbtype"] == "postgresql"
 		# Case in PostgreSQL
-		ret = PgSQLSentenceManager.createApiSelectSentence(json_d, mode)
+		pgret = PgSQLSentenceManager.createApiSelectSentence(json_d, mode)
+		#
+		# v3.1 ivm special
+		#    gpret is tuple (boolean, json)
+		#    the first param is where for using multi tables or not,
+		#              true -> using multi tables  false -> single table
+		#    the secound param is for json data of including new sql sentence
+		#
+		# kick compare..() if it were multi tables. this task should be executed in parallel,
+		# because sometimes the creating new ivm table is high cost execution.
+		#
+		if pgret[1]
+			@async PgDBController.compareJsAndJv(pgret[2])
+		end
+
+		#===
+			Tips:
+				pgret[2] is Dict(), because of making easy to do smth in compareJsAndjv().
+				but it needs to be fransformed to json form if 'mode' is not 'pre'. 
+		===#
+		ret = pgret[2]
+
+		if mode != "pre"
+			ret = json(ret)
+		end
+
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
 		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)
@@ -639,5 +668,17 @@ function prepareDbEnvironment(db::String, mode::String)
 
 	return ret
 end
+"""
+function dropIVMtable(apis::Vector)
 
+	special func for PostgreSQL, synchronized droppping ivm table with deleting api
+
+# Arguments
+- `apis::Vector` deleting apinos
+- return 
+"""
+function dropIVMtable(apis::Vector)
+	ivmapis = replace.(apis,"js"=>"jv")
+	return PgDBController.dropTable(ivmapis)
+end
 end

@@ -26,8 +26,12 @@ Vagrantfile
 *~
 *.sass-cache
 *.log.*
+JetelinaTableApiRelation
+JetelinaSqlList
+JetelinaJvmnizedJsApiList
 JetelinaTableApiRelation*
 JetelinaSqlList*
+JetelinaJvmnizedJsApiList*
 *.out
 
 # OS or Editor folders

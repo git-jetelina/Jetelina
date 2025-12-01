@@ -12,8 +12,8 @@ ApiAccessCounter.jl
 JTimer.jl
 
 -#'these are neglected in auto loading'
--ApiAccessCounter.jl
 -SQLAnalyzer.jl
+-ApiAccessCounter.jl
 -ConfigManager.jl
 -ApiSqlListManager.jl
 -TimerExecuter.jl
