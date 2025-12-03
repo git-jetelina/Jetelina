@@ -164,7 +164,7 @@ pg_testdbname = testdb
 #    pg_ivm: true -> the extension is installed, false -> not yet
 #
 @jdic pg_ivm:"postgresql ivm"
-pg_ivm = true
+pg_ivm = false
 
 @jdic pg_regulatedclauses:"ivm regulation","ivm ban sentences"
 pg_regulatedclauses = having,union,intersect,except,distinct on,tablesample,value,tablesample,for update,share,{
