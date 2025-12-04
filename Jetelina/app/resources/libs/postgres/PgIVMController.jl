@@ -121,7 +121,7 @@ function createIVMtable(conn, apino::String)
     end
 
     if ivmsafe
-        executesql::String = """select create_immv('$ivmapino','$sql');""" 
+        executesql::String = """select pgivm.create_immv('$ivmapino','$sql');""" 
 
         try
             LibPQ.execute(conn, executesql)
