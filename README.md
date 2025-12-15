@@ -5,8 +5,7 @@ Jetelina can manage PostgreSQL, MySQL, redis and MongoDB so far, and you can use
 System requirements
 
 -Julia = v11.7 (confirmed in Jetelina v3.1)
-
-　v12.* has not been confirmed yet
+v12.* has not been confirmed yet
  
 -RDBMS is mandatry: PostgreSQL or MySQL
 
