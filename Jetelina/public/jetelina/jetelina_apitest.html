@@ -1,0 +1,334 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="js/genie/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link type="text/css" rel="stylesheet" href="css/tablelist.css">
+
+    <link rel="icon" href="img/jetelina.ico">
+    <title>Jetelina WebApis test page</title>
+</head>
+
+<body>
+    <h3 style="color: aliceblue;">This is the test page for Jetelina Jetelina-API</h3>
+    <div style="color: aliceblue;">
+        Set your Jetelina-API name, e.g js100, in the 'Api Name' field, then put the parameters 'Key' and 'Value' name due to the
+        interface.<br>
+        This page send these params to Jetelina in JSON form.<br>
+        The result is shown in the 'Result' filed.<br>
+        Feel free to try 'select' and 'update' apis, but take care in 'insert' and 'delete' apis.
+        <p></p>
+        See: <a href="https://jetelina.org/tips/#1" target="_blank">Call your Jetelina-API through Web Service</a>
+        <p></p>
+    </div>
+    <hr />
+    <table>
+        <tr>
+            <td valign="top">
+                <div style="color: aliceblue;">
+                    <p>
+                        <text style="font-size: larger">for example</text>
+                        <text style="font-size: smaller;">see these 'IN' in each 'API' on Jetelina</text>
+                    </p>
+                    <p>'{}' data should be set your own data.</p>
+                    <ul>
+                        <li>simple</li>
+                        IN: {"apino":"js100"}<br>
+                        <text style="font-style: italic;">'Api Name' should be 'js100'</text><br>
+                        'Key' and 'Value' columns are kept as blank<br><br>
+                        <li>has some params</li>
+                        IN: {"apino":"js100","age":{age},"name":"{name}"}<br>
+                        <text style="font-style: italic;">'Key' should be 'age','name'</text><br>
+                        <text style="font-style: italic;">'Value' is '{age}','{name}' and it is set by your
+                            own</text><br><br>
+
+                        <li>CAUTION in PostgreSQL/MySql</li>
+                        <ol>
+                            <li>in case of <text
+                                    style="color: rgb(186, 202, 40); font-weight:bold; font-size: larger;">'ju'</text>
+                                or <text
+                                    style="color: rgb(186, 202, 40); font-weight:bold; font-size: larger;">'jd'</text>
+                                api that has a subquery sentence</li>
+                            <text style="font-size: larger;">IN:{"apino":"jd99","subquery":"{age}"}</text><br><br>
+                            <text style="font-style: italic;">'Api Name' should be 'jd99'</text><br>
+                            <text style="font-style: italic;">'Key' should be 'subquery', </text><br>
+                            <text style="font-style: italic;">'Value' is '{age}' and it is set by your own</text><br>
+                            <text style="font-style: italic;color:yellowgreen;">e.g 'Key'->'subquery'
+                                'Value'->32</text><br><br>
+
+                            <li>in case of <text
+                                    style="color: rgb(186, 202, 40); font-weight:bold; font-size: larger;">'js'</text>
+                                api that has a subquery sentecen</li>
+                            <text style="font-size: larger;">IN:{"apino":"js100","subquery":"['age':{age},'sex':'{sex}'']"}</text><br><br>
+                            <text style="font-style: italic;">'Api Name' should be 'js100'</text><br>
+                            <text style="font-style: italic;">'Key' should be 'subquery'</text><br>
+                            <text style="font-style: italic;">'Value' is "'age':{age},'sex':'{sex}'" and they are set by
+                                your own</text><br>
+                            <text style="font-style: italic;color:yellowgreen;">e.g 'Key'->'subquery'
+                                'Value'->'age':32,'sex':'male'</text><br>
+                        </ol>
+                        <br>
+                    </ul>
+                    Don't care the remaining blank columns.<br><br>
+
+                </div>
+            </td>
+            <td width="5%"></td>
+            <td valign="top">
+                <div name="database" style="color: aliceblue; font-size: larger;">
+                    <input type="radio" name="db" value="rdbms" checked>PostgreSQL/MySql
+                    <input type="radio" name="db" value="redis">Redis
+                    <input type="radio" name="db" value="mongodb">MongoDB
+                </div>
+                <p></p>
+                <div name="apino" style="color: aliceblue;">
+                    <p name="apiname">Api Name(apino)<input type="text" name="apiname" class="keyvalin"></p>
+                </div>
+                <div name="mongodbdocument" style="color: aliceblue;" hidden>
+                    <p name="mongodbdocument">Document Name<input type="text" name="mongodbdocument" class="keyvalin">
+                    </p>
+                </div>
+                <div name="params" style="color: aliceblue;">
+                    <p name="p1">1: Key<input type="text" name="k" class="keyvalin"> Value<input type="text" name="v"
+                            class="keyvalin">
+                    </p>
+                    <p name="p2">2: Key<input type="text" name="k" class="keyvalin"> Value<input type="text" name="v"
+                            class="keyvalin">
+                    </p>
+                    <p name="p3">3: Key<input type="text" name="k" class="keyvalin"> Value<input type="text" name="v"
+                            class="keyvalin">
+                    </p>
+                    <p name="p4">4: Key<input type="text" name="k" class="keyvalin"> Value<input type="text" name="v"
+                            class="keyvalin">
+                    </p>
+                    <p name="p5">5: Key<input type="text" name="k" class="keyvalin"> Value<input type="text" name="v"
+                            class="keyvalin">
+                    </p>
+                </div>
+                <a href="#" onclick="morePara()" style="font-size: smaller;">more parameter field</a>
+                <p></p>
+                <p></p>
+                <div>
+                    <button onclick="getAjaxData()">EXEC TEST</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div id="apitest">
+        <div name="api-test-msg">
+        </div>
+        <div name="api-test-data">
+        </div>
+    </div>
+
+    <div style="color: aliceblue;">
+        <text>Message From Jetelina:</text>
+        <text id="mfj" style="font-size: smaller;color: rgb(221, 106, 106);"></text>
+    </div>
+    <hr />
+    <div name="postdata" style="color: aliceblue;">
+        <text>IN(post data):</text>
+    </div>
+    <div name="result" style="color: aliceblue;">
+        <text>OUT(result):</text>
+    </div>
+</body>
+
+</html>
+<style>
+    .defbg {
+        background: #000;
+    }
+
+    input:read-only {
+        background: gray;
+    }
+
+    .keyvalin {
+        outline: none;
+        border: none;
+        color: #fff;
+        size: 20;
+        background: #084d4d;
+    }
+</style>
+<script type="text/javascript">
+    let selecteddatabase = $("input[name='db']:checked").val();
+    let apinumber = "";
+    let paranum = 5; // default for the parameter filed number
+
+    $(document).on("change", "div[name='apino'] p[name='apiname'] input[name='apiname'], input[name='db']:checked", function (e) {
+        // reset the parameter filed
+        resetParams();
+    });
+
+    $(document).on("change", "input[name='k']", function (e) {
+        if ($(this).val().toLowerCase() == "subquery") {
+            // change the size for subquery
+            $(this).siblings().attr("size", 100);
+        } else {
+            // reset the sizse, defined in .keyvalin
+            $(this).siblings().attr("size", 20);
+        }
+    });
+
+    $(document).on("focus", "div[name='params'] p[name='p1']", function (e) {
+        apinumber = $("div[name='apino'] p[name='apiname'] input[name='apiname']").val().toLowerCase();
+
+        if (selecteddatabase == "redis") {
+            /*
+                ji -> key name is defined as 'key1' and 'key2'
+                ju -> key name is defined as 'key'
+                js -> no params
+                jd -> ---
+            */
+            let hidestart_number = 2;
+            if (apinumber.startsWith("ji")) {
+                $("#mfj").text("inhibit insertion to redis with this page, sorry, you shoud do it on me.");
+                return;
+                //                hidestart_number = 1;
+                //                for (let i = 1; i < 3; i++) {
+                //                    $(`div p[name='p${i}'] input[name='k']`).val(`key${i}`).prop('readonly', true);
+                //                }
+            } else if (apinumber.startsWith("ju")) {
+                hidestart_number = 2;
+                $("div p[name='p1'] input[name='k']").val("key").prop('readonly', true);
+            } else if (apinumber.startsWith("js")) {
+                hidestart_number = 1;
+            }
+
+            for (let i = hidestart_number; i <= paranum; i++) {
+                $(`div p[name='p${i}']`).hide();
+            }
+        } else if (selecteddatabase == "mongodb") {
+            /*
+                ji -> document 
+                js/jd -> no params
+                ju -> key/val
+            */
+            if (apinumber.startsWith("js") || apinumber.startsWith("jd")) {
+                hidestart_number = 1;
+            } else {
+                hidestart_number = paranum + 1;
+            }
+
+            for (let i = hidestart_number; i <= paranum; i++) {
+                $(`div p[name='p${i}']`).hide();
+            }
+        } else {
+            /*
+                ji/js/jd/ju -> key/val
+            */
+            for (let i = 1; i <= paranum; i++) {
+                $(`div p[name='p${i}']`).show();
+            }
+        }
+    });
+
+    $("div[name='database'] input[name='db']").on('click', function () {
+        selecteddatabase = $("input[name='db']:checked").val();
+        if (selecteddatabase != "mongodb") {
+            $("div[name='mongodbdocument']").hide();
+        } else {
+            $("div[name='mongodbdocument']").show();
+        }
+    });
+
+    const resetParams = () => {
+        $("#mfj").text("");
+
+        for (let i = 1; i <= paranum; i++) {
+            $(`div p[name='p${i}']`).show();
+            $(`div p[name='p${i}'] input[name='k']`).val("").prop('readonly', false).attr("size",20);
+            $(`div p[name='p${i}'] input[name='v']`).val("").attr("size",20);
+        }
+    }
+
+    const morePara = () => {
+        paranum += 1;
+        let str = `<p name="p${paranum}">${paranum}: Key<input type="text" name="k" class="keyvalin"> Value<input type="text" name="v" class="keyvalin"></p>`;
+        $(`p[name='p${paranum - 1}']`).after(str);
+    }
+
+    const getAjaxData = () => {
+        apinumber = $("div[name='apino'] p[name='apiname'] input[name='apiname']").val().toLowerCase();
+        if (apinumber == "") {
+            let msg = "No Api Name";
+            $("div[name='result']").append(`<p>${msg}</p>`);
+            return;
+        } else {
+            $("div[name='result'] p").remove();
+            $("#mfj").text("");
+        }
+
+        if (selecteddatabase == "redis" && apinumber.startsWith("ji")) {
+            $("#mfj").text("inhibit insertion to redis with this page, sorry, you shoud do it on me.");
+            return;
+        }
+
+        let key = [];
+        let value = [];
+        for (let ii = 0, i = 1; i <= paranum; i++) {
+            let k = $(`div p[name='p${i}'] input[name='k']`).val().toLowerCase();
+            let v = $(`div p[name='p${i}'] input[name='v']`).val().toLowerCase();
+            if (k != "" && v != "") {
+                key[ii] = k;
+                value[ii++] = v;
+            }
+        }
+
+        let jstr = `{"apino":"${apinumber}",`;
+        if (selecteddatabase == "mongodb" && apinumber.startsWith("ji")) {
+            let docname = $("div[name='mongodbdocument'] p[name='mongodbdocument'] input[name='mongodbdocument']").val();
+            jstr += `"new document":{"j_table":"${docname}",`;
+        }
+
+        for (let i in key) {
+            jstr += `"${key[i]}":"${value[i]}",`;
+        }
+
+        jstr = jstr.slice(0, -1) + "}";
+
+        // special for mongodb inserting :)
+        if (selecteddatabase == "mongodb" && apinumber.startsWith("ji")) {
+            jstr += "}";
+        }
+
+        $("div[name='postdata'] p").remove();
+        $("div[name='postdata']").append(`<p name="postdata">${jstr}</p>`);
+
+        $.ajax({
+            url: "/apiactions",
+            type: "post",
+            data: jstr,
+            contentType: 'application/json',
+            dataType: "json"
+        }).done(function (result, textStatus, jqXHR) {
+            $(".re").remove();
+            if (result.result) {
+                let s = apinumber.slice(0, 2);
+                if (-1 < $.inArray(s, ['js'])) {
+                    Object.keys(result).forEach(function (key) {
+                        if (key == "Jetelina") {
+                            $.each(result[key], function (k, v) {
+                                vv = JSON.stringify(v);
+                                $("div[name='result']").append(`<p>${vv}</p>`);
+                            });
+                        }
+                    });
+
+                } else if (-1 < $.inArray(s, ['ji', 'ju', 'jd'])) {
+                    let msg = result["message from Jetelina"]
+                    $("div[name='result']").append(`<p>${msg}</p>`);
+                }
+            } else {
+                let error = JSON.stringify(result.errmsg);
+                $("#mfj").text(error);
+            }
+        }).fail(function (result) {
+            let error = JSON.stringify(result);
+            $("#mfj").text(error);
+        }).always(function (result) {
+        });
+    }
+</script>
