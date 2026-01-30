@@ -1,3 +1,0 @@
-#!/bin/sh
-
-/usr/bin/nohup ./server -l 0.0.0.0 &
