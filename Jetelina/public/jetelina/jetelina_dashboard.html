@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+	<link rel="stylesheet" href="css/dashboard.css">
+	<link rel="stylesheet" href="css/tablelist.css">
+	<link rel="stylesheet" href="css/datatables/datatables.min.css">
+
+	<script type="text/javascript" src="js/genie/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.13.2/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="js/plotly-2.26.0.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/datatables/datatables.min.js"></script>
+
+	<link rel="icon" href="img/jetelina.ico">
+	<title>Jetelina</title>
+</head>
+
+<body>
+	<div id="thxfavicon">
+		<text style="color:lightgreen">thank you for the favicon by </text><a href="https://www.freepik.com/"
+			target="_blank" rel="noreferrer noopener">freepik</a>
+	</div>
+	<!--
+		Jetelina initialize page. only one time using, maybe. :)
+	-->
+	<div id="initialize" style="left:20%;top:20%;" class="functionpanel-parts commonpanel box_text initializepanel"
+		hidden>
+		<div name="initialalert" class="initial_alert_text"></div>
+		<pre>
+			Welcome to Jetelina.
+			
+			You dive into the new web development world. I bet this provide you incredible comfortable environment.
+			Let's start to use ME.
+			
+			The first of all, please select my primary database that is contained our user profile. 
+			Your data is available to store whichever, but 'user table' should be determined which.
+
+			<input type="radio" name="primarydb" value="postgresql">PostgreSQL</input>
+			<input type="radio" name="primarydb" value="mysql">MySql</input>
+
+
+			<div name="params4postgres" hidden>
+				<span>PostgreSQL connection parameters. The defaults are my guess. :)</span><br>
+				　　host:　<input type="text" name="pg_host" value="localhost">
+				　　port:　<input type="text" name="pg_port" value="5432">
+				　　user:　<input type="text" name="pg_user">
+				password:　<input type="text" name="pg_password">
+				　dbname:　<input type="text" name="pg_dbname" value="postgres">
+			</div>
+			<div name="params4mysql" hidden>
+				<span>MySQL connection parameters. The defaults are my guess. :)</span><br>
+				　　host:　<input type="text" name="my_host" value="localhost">
+				　　port:　<input type="text" name="my_port" value="3306">
+				　　user:　<input type="text" name="my_user">
+				password:　<input type="text" name="my_password">
+				　dbname:　<input type="text" name="my_dbname" value="mysql">
+				unix_socket:　<input type="text" name="my_unix_socket" value="/var/run/mysqld/mysqld.sock">
+			</div>
+			<div name="firstusers" hidden>
+				<span>Original 10 Users: type alike 'Jhon Ron'. This name is to be login account.</span><br>
+				1:<input type="text" name="pu1" value="Jhon Ron">
+				2:<input type="text" name="pu2">
+				3:<input type="text" name="pu3">
+				4:<input type="text" name="pu4">
+				5:<input type="text" name="pu5">
+				6:<input type="text" name="pu6">
+				7:<input type="text" name="pu7">
+				8:<input type="text" name="pu8">
+				9:<input type="text" name="pu9">
+				10:<input type="text" name="pu10">
+			</div>
+			<div>
+				<button name="paramsetbutton" hidden>SET & Try to connect</button>
+				<button name="userregbutton" hidden>Register Users</button>
+				<button name="gologinbutton" hidden>GO LOGIN</button>
+				<button name="cancelbutton" hidden>CANCEL</button>
+			</div>
+			<div name="message" class="box_text">
+			</div>
+	</pre>
+	</div>
+	<!-- 
+			function panel
+	-->
+	<div id="function_panel" class="functionpanel-parts commonpanel squarepanel" hidden>
+		<div id="fileup" style="width:15%;height:2%;" class="functionpanel-parts commonpanel squarepanel">
+			<form id="my_form">
+				<!-- caution:
+                    should change the parameter of 'name' in FileUploadController.jl
+                    if it's changed to other. 
+                -->
+				<label name="filelabel">
+					<input type="file" name="upfile" style="display: none;" accept=".csv,.json"><span
+						style="font-size: 14px;">Upload CSV File</span>
+				</label>
+			</form>
+		</div>
+
+		<div id="left_panel" style="width:16%;height:80%"
+			class="functionpanel-parts commonpanel squarepanel right_left_panel_scroll">
+			<label id="table_list_title">Table List</label>
+			<br><br>
+			<div id="table_container"></div>
+			<!--div id="api_container" hidden></div-->
+		</div>
+
+		<div id="right_panel" style="width:16%;height:81%"
+			class="functionpanel-parts commonpanel squarepanel right_left_panel_scroll">
+			<label id="api_list_title">API List</label>
+			<br><br>
+			<div id="api_container"></div>
+		</div>
+
+		<div id="columns" style="width:59%;height:60%" class="functionpanel-parts commonpanel squarepanel itempanel">
+			<label id="columns_title"></label>
+			<br><br>
+			<div name="columns_area" class="item_area"></div>
+		</div>
+
+		<!-- tooltip for columns list -->
+		<div id="pop-up" class="tooltip">
+			<text></text>
+		</div>
+		<!-- selected columns list area -->
+		<div id="container" style="width:59%;height:16%" class="functionpanel-parts commonpanel squarepanel itempanel">
+			<div id="genelic_panel" hidden>
+				<text name="genelic_text" class="box_text"></text>
+				<textarea name="genelic_input" class="user-input"></textarea>
+				<!--input type="text" name="genelic_input" class="user-input"></input-->
+				<p class="jetelina_subquery_note">writing the sub query is on your own responsibility. I'll check it
+					simply.:)</p>
+			</div>
+		</div>
+		<!-- desplya the API test result area-->
+		<div id="apitest" style="width:60%;height:15%;top:80%;left:20%;"
+			class="functionpanel-parts commonpanel squarepanel" hidden>
+			<div name="api-test-msg">
+			</div>
+			<div name="api-test-data" style="height: 50%;" class="msg_scroll">
+			</div>
+		</div>
+	</div>
+	<!--
+            stats panel
+    -->
+	<div id="api_access_numbers" style="top:20%;left:10%;position:fixed;z-index:10;" class="functionpanel-parts commonpanel squarepanel" hidden>
+		<div><text style="font-size: large;color:lightgreen;">API Access Numbers　</text><text style="font-size:small;color:lightgreen;"name="between"></text></div>
+		<div id="api_access_numbers_graph">
+			<table id="api_access_numbers_list" style="color:lightgreen;">
+				<thead>
+					<tr>
+						<th>apino</th>
+						<th>access numbers</th>
+						<th>data base</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<!-- pie chart of each database access rate data -->
+	<div id="piechart" style="top:20%;left:50%;position:fixed;z-index:20;" class="functionpanel-parts commonpanel squarepanel" hidden>
+		<div><text style="font-size: large;color:lightgreen;">Rate of DataBase access numbers　</text><text style="font-size:small;color:lightgreen;"name="between"></text></div>
+		<div id="piechart_graph"></div>
+	</div>
+	<!-- line chart of an api execution speed data -->
+	<div id="apispeedchart" style="top:30%;left:30%;position:fixed;z-index:30;" class="functionpanel-parts commonpanel squarepanel" hidden>
+		<div><text style="font-size: large;color:lightgreen;">Execution Speed of　</text><text name="apino" style="font-size:large;color:lightgreen;"></text><text style="font-size:small;color:lightgreen;" name="between"></text></div>
+		<div id="apispeed_graph"></div>
+	</div>
+
+	<div id="performance_real" style="width:50%;height:50%" hidden>
+		<div><text style="font-size: large;color:white;">SQL Execution Time (sec)</text></div>
+		<div id="performance_real_graph"></div>
+	</div>
+	<div id="performance_test" style="width:30%;height:30%" hidden>
+		<div><text style="font-size: large;color:red;">TEST SQL Execution Time (sec)</text></div>
+		<div id="performance_test_graph"></div>
+	</div>
+	<!--
+			configuration panel
+	-->
+	<div id="config_panel" style="width:30%;height:30%;top:30%;left:40%;"
+		class="commonpanel squarepanel genelic_panel msg_scroll" hidden>
+		<label>Server Configuration</label>
+		<br><br>
+		<div name="config_list">
+		</div>
+	</div>
+	<!--
+			something message panels
+	-->
+	<div id="jetelina_teach_you_smg" class="commonpanel squarepanel genelic_panel jetelina_teach_you" hidden>
+		<div name="precious_word" style="text-align: left;" class="box_text"></div>
+	</div>
+	<div id="something_msg" class="commonpanel squarepanel genelic_panel something_msg_def msg_scroll" hidden>
+		<text name="jetelina_message" class="jetelina_message"></text>
+		<div id="something_input_field" hidden>
+			<text name="something_text" class="box_text"></text>
+			<input type="text" name="something_input" class="user-input" autocomplete="off"></input>
+		</div>
+	</div>
+	<!--
+			available dataase icons panel
+	-->
+	<div id="databaselist" class="commonpanel dblist" hidden>
+		<span name="postgresql" class="databasename" hidden>
+			<img src="img/postgresql.png" style="width:60px;height:40px;">
+		</span>
+		<span name="mysql" class="databasename" hidden>
+			<img src="img/mysql.png" style="width:40px;height:40px;">
+		</span>
+		<span name="redis" class="databasename" hidden>
+			<img src="img/redis.png" style="width:40px;height:40px;">
+		</span>
+		<span name="mongodb" class="databasename" hidden>
+			<img src="img/mongodb.png" style="width:40px;height:40px;">
+		</span>
+	</div>
+	<!--
+		manual, another word 'help'
+	-->
+	<div id="guidance" class="functionpanel-parts commonpanel squarepanel" style="z-index:100;" hidden>
+		<div style="font-size: large;color:#a8ce49;width:80%;height:50%; font-size: large; font-family: sans-serif;">
+			<div name="page1" style="margin:auto;text-align:left;">
+				<pre>
+	    Hi, I am Jetelina that is your helper to create database tables and Web-APIs (here is called Jetelina-API) that are related with the created database.
+	The databases that I can manage so far are PostgreSQL, MySQL, Redis and MongoDB.
+	You should visit my website <a href="https://jetelina.org" target="_blank">jetelina.org</a> if you want to know my overview.Type 'go jetelina.org' in the below chat box.
+	This guidance only introduces 'HOW TO USE ME' to you.
+	To out of this guidance, type 'thx', 'thank you', etc in there.
+	You may wonder about my reactions sometimes due to your typo. To check what did you type with 'what did i type?' or 'what did i say to you?' in there,
+	also you can see them with puting your mouse cursor on the tiny font between my words and your input field in there.
+
+	In case of this is your first access to here, the belows are the login steps. ref <span name="m1"><a href="https://jetelina.org/functions/#1" target="_blank">M1:Login and Logout</a></span>
+		step 1. type 'hi' into the chatbox, we always start with a greeting, 'hello' is good as well
+		step 2. chat with me till i ask your name
+		step 3. type your 'name' that is registered as your account when i finally ask to you
+				</pre>
+				<pre style="color: rgb(238, 234, 232);font-style: italic;font-size: smaller;">
+			IMPORTANT: If you are installing me on your system the first time, 'it is me' is the initial acccount on you. 
+				</pre>
+				<pre>
+		step 4. then we start to work something together
+		step 5. type 'exit','logout','bye'...etc to logout from me
+
+	And to confirm your account power, type 'who am i' after login in there.
+
+	These are the basic operations from starting to use a database to create DBI then publish it as Jetelina-API,
+		<span name="m2"><a href="https://jetelina.org/functions/#2" target="_blank">M2: Upload your CSV file for creating a new table in your database</a></span>
+		<span name="m3"><a href="https://jetelina.org/functions/#3" target="_blank">M3: See your tables and Jetelina-API</a></span>
+		<span name="m4"><a href="https://jetelina.org/functions/#4" target="_blank">M4: Select columns in your tables for creating your Jetelina-API</a></span>
+		<span name="m5"><a href="https://jetelina.org/functions/#5" target="_blank">M5: Test your new SQL that is to be Jetelina-API</a></span>
+		<span name="m6"><a href="https://jetelina.org/functions/#6" target="_blank">M6: Create Jetelina-API</a></span>
+		<span name="m7"><a href="https://jetelina.org/functions/#7" target="_blank">M7: Test Jetelina-API</a></span>
+		<span name="m8"><a href="https://jetelina.org/functions/#8" target="_blank">M8: Delete Jeteina-API</a></span>
+		<span name="m9"><a href="https://jetelina.org/functions/#9" target="_blank">M9: Drop table in your database</a></span>
+		<span name="m10"><a href="https://jetelina.org/functions/#10" target="_blank">M10: Switch a database</a></span>
+		<span name="m11"><a href="https://jetelina.org/functions/#11" target="_blank">M11: Some statistical data</a></span>
+
+	you can operate the belows if you have 'admin' power.
+		<span name="m12"><a href="https://jetelina.org/account-management/#3" target="_blank">M12: user management</a></span>
+		<span name="m13"><a href="https://jetelina.org/configuration-parameters/#2" target="_blank">M13: change system parameters</a></span>
+	
+    OK, type the manual number what you want to see,'go M1'.... or 'thank you' to exit in the chat box, thank you.
+			</pre>
+			</div>
+		</div>
+	</div>
+	<!--
+        Jetelina chat panel
+    -->
+	<div id="jetelina_panel" class="commonpanel squarepanel" style="width:30%;height:7%;top:40%;left:40%;z-index: 110;">
+		<span style="position:absolute;left:2%;">
+			<img name="chat_girl_image" src="img/jetelina-concern.png" class="chatImg" hidden>
+		</span>
+		<text name="jetelina_tell" class="box_text"></text>
+	<div>
+			&nbsp;
+		</div>
+		<div>
+			<text name="your_tell" class="yourText"></text>
+			<br>
+			<input type="text" name="chat_input" class="user-input" placeholder="always 'guide me' :) "></input>
+		</div>
+	</div>
+</body>
+<!-- these libs shoud be here -->
+<script type="text/javascript" src="js/dashboard.js"></script>
+<script type="text/javascript" src="js/scenario.js"></script>
+<script type="text/javascript" src="js/jetelinalib.js"></script>
+<script type="text/javascript" src="js/initialprocess.js"></script>
+<script type="text/javascript" src="js/functionpanel.js"></script>
+<script type="text/javascript" src="js/statspanel.js"></script>
+<script type="text/javascript" src="js/accountpanel.js"></script>
+<script type="text/javascript" src="js/subquery.js"></script>
+<script>
+	const page = (n) => {
+//		guidancePageFootLinkController(n);
+	}
+</script>
+</html>
