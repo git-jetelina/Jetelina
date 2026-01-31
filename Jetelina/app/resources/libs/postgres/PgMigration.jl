@@ -1,5 +1,5 @@
 """
-module: PgDBController
+module: PgMigration
 
 Author: Ono keiji
 
@@ -7,7 +7,7 @@ Description:
 	Migrate existing tables to Jetelina tables for PostgreSQL
 
 functions
-    function getTableList() collect the existing table's column data type
+    function getTableList(conn) collect the existing table's column data type
     function collect_columns_data_type(String::tablename) collect the existing table's column data type
 
 """
@@ -20,23 +20,19 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-include("PgDataTypeList.jl")
-include("PgSQLSentenceManager.jl")
-include("PgIVMController.jl")
-
 export getTableList, collect_columns_data_type
 
 """
-function getTableList()
+function getTableList(conn)
 
 	collect the existing table's column data type
 
     # Arguments
+- `conn::LibPQ.Connection`: postgresql connection 
 - return: table list in json or DataFrame	
 """
-function getTableList()
+function getTableList(conn)
     df = DataFrame()
-    conn = PgDBController.open_connection()
     # Fixing as 'public' in schemaname. This is the protocol.
     table_str = """select tablename from pg_tables where schemaname='public'"""
     try
@@ -52,7 +48,6 @@ function getTableList()
         JLog.writetoLogfile("PgMigration.getTableList() error: $err")
         return DataFrame() # return empty DataFrame if got fail
     finally
-        PgDBController.close_connection(conn)
     end
 
     return df
@@ -67,15 +62,15 @@ function collect_columns_data_type(String::tablename)
 - `tablename:String`: existing table name
 - return: columns data type list in json or DataFrame	
 """
-function collect_columns_data_type(String::tablename)
+function collect_columns_data_type()
 end
 
 """
-function createDummyTable()
+function createDummyTable(conn)
 
     create a dummy table for testing
 """
-function createDummyTable()
+function createDummyTable(conn)
     result::Bool = true
     tablename::String = "mig_dum"
     column_str::String = """
@@ -88,36 +83,31 @@ function createDummyTable()
     	);
     """
 
-    conn = PgDBController.open_connection()
-
     try
         LibPQ.execute(conn, createStr)
     catch err
         @info "PgMigration.createDummyTable() error:: $err"
         result = false
     finally
-        PgDBController.close_connection(conn)
     end
 
     if result
         @info "success to create $tablename"
     end
 
-
+    return result
 end
 """
-function dropDummyTable()
+function dropDummyTable(conn)
 
     drop the dummy table
 """
-function dropDummyTable()
+function dropDummyTable(conn)
     result::Bool = true
     tablename::String = "mig_dum"
     dropStr::String = """
         drop table if exists $tablename;
     """
-
-    conn = PgDBController.open_connection()
 
     try
         LibPQ.execute(conn, dropStr)
@@ -125,13 +115,13 @@ function dropDummyTable()
         @info "PgMigration.dropDummyTable() error:: $err"
         result = false
     finally
-        PgDBController.close_connection(conn)
     end
 
     if result
         @info "success to delete $tablename"
     end
 
+    return result
 end
 
 end

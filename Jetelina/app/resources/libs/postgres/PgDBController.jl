@@ -53,6 +53,7 @@ JMessage.showModuleInCompiling(@__MODULE__)
 include("PgDataTypeList.jl")
 include("PgSQLSentenceManager.jl")
 include("PgIVMController.jl")
+include("PgMigration.jl")
 
 export create_jetelina_database, create_jetelina_table, create_jetelina_id_sequence, open_connection, close_connection,
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, dropTable, getColumns,
@@ -1652,4 +1653,45 @@ end
 function deleteIVMApi(apinos::Vector) 
     return dropTable(apinos)
 end
+
+
+#
+# test programs for migration
+#
+function createDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.createDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.createDummyTable " ret
+end
+
+function dropDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.dropDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.dropDummyTable " ret
+end
+
 end
