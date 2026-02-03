@@ -1,0 +1,277 @@
+#
+#  Jetelina configuration
+#
+
+#
+#  section of system configuration
+#      debug  : define debug mode  true->debug mode false->run mode
+#      logfile: logfile name path is fixed in lib/jetelina/log
+#      logfilesize: MB order  ex. 10MB -> 10
+#      fileuploadpath: define csv file upload path
+#      sqllogfile: be executed SQL sentences log file
+#      sqllogfilesize: MB order ex. 10MB -> 10
+#      time1_logfile_rotation: log file rotation execute time "from"
+#      time2_logfile_rotation: log file rotation execute time "till"
+#           *log file rotation executes between "time1_logfile_rotation" and "time2_logfile_rotation"
+#           *the watching interval time is default 1hr
+#      tablecombinationfile: real sql execution test data file name in json form
+#      sqllistfile: real sql list file name
+#      sqlperformancefile: sql execution speed data file
+#      tableapifile: file name for relation between talbe name and api no
+#      experimentsqllistfile: sql list file for execution in test db
+#      improvesuggestionfile: suggestion file name due to execute test db
+#      jsjvmatchingfile: postgresql special. ivm-nized js* api list 
+#      operationhistoryfile: table/api create/delete history log file
+#      operationhistoryfilesize: MB order ex. 10MB -> 10
+#      apiperformancedatapath: container path name of each api execution speed files
+@jdic version:"version"
+version = 3.1
+
+@jdic debug:"debug"
+debug = false
+
+@jdic logfile:"log name","log file name","log-name"
+logfile = log.log
+
+@jdic logfilesize:"log file size","log size","log-size"
+logfilesize = 10
+
+@jdic fileuploadpath:"upload file path","up load file","file path","repository"
+fileuploadpath = repo
+
+@jdic sqllogfile:"sql log file","sql log name","sql-name","sql-log"
+sqllogfile = sql.log
+
+@jdic sqllogfilesize:"sql log file size","sqllog file size","sql log size","sql log size","sqllog-size"
+sqllogfilesize = 10
+
+@jdic logfile_rotation_open:"rotation start","rotation open"
+logfile_rotation_open = 13:30
+
+@jdic logfile_rotation_close:"rotation end","rotation close"
+logfile_rotation_close = 14:00
+
+#
+# the period days of data in reading 'JetelinaSuggestion.json' file
+#     10 days
+period_collect_data = 10
+
+#
+# analized data file names
+# these file names are unchangeable
+#
+tablecombinationfile = JetelinaTableCombiVsAccessRelation.json
+sqllistfile = JetelinaSqlList
+apiaccesscountfile = JetelinaApiAccess
+dbaccesscountfile = JetelinaDBAccess
+sqlperformancefile = JetelinaSqlPerformance
+tableapifile = JetelinaTableApiRelation
+experimentsqllistfile = JetelinaExperimentSqlList
+improvesuggestionfile = JetelinaSuggestion.json
+jsjvmatchingfile = JetelinaJvmnizedJsApiList
+
+#
+# operation history log file 
+#
+@jdic operationhistoryfile:"history file","history log","who did"
+operationhistoryfile = JetelinaOperationHistory.log
+
+@jdic operationhistoryfilesize:"history length","hisotry file size","history size"
+operationhistoryfilesize = 10
+
+@jdic operationhistoryreadlinecount:"history line count"
+operationhistoryreadlinecount = 100
+
+@jdic apiperformancedatapath:"api performance file path"
+apiperformancedatapath = apiperformancefiles
+
+#
+# column title of sqllogfile/sqllistfile/experimentalsqllistfile
+# these column titles are unchangeable
+# 
+file_column_apino = apino
+file_column_sql = sql
+file_column_subquery = subquery
+file_column_db = db
+file_column_max = max
+file_column_min = min
+file_column_mean = mean
+file_column_time = time
+file_column_username = username
+file_column_userid = userid
+file_column_operation = operation
+file_column_api_execution_time = exectime
+#
+# jetelina user table database
+#   this parameter is defined at installing
+#   defined database should be RDB, therefore postgresql org mysql so far
+#
+@jdic jetelnadb:"default db","default database","original db","original database","user db","user database"
+jetelinadb = postgresql
+
+#
+#  default database
+#      this parameter is used in calling api if db type were not specified
+#      dbtype: type of database   
+#                PostgreSQL -> portgresql
+#                MySQL      -> mysql
+#                Redis      -> redis
+#                MongoDB    -> mongodb
+#                Oracle     -> oracle
+@jdic dbtype:"db","database","data base"
+dbtype = postgresql
+
+#
+#  RDMBS, notable strings in 'select' sentence
+#      Jetelina adds 'jetelina_delete_flg' to user's definition select sentence,
+#      but it maybe added in the head sentence, 
+#          e.g.
+#             select t1.a, t1.b from t1 as t1 where t1.a < {a} and t1.b between {b1} and {b2} limit {limit} offset {offse}
+#          -> select t1.a, t1.b from t1 as t1 where ((t1.jetelina_delete_flg = 0)and(t1.a < {a} and t1.b between {b1} and {b2})) limit {limit} offset {offse}
+#                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                                         ^^
+#
+#      the 'limit' and 'offset' are be out of the 'jetelina_delete_flg' clausure.             
+#      not only 'limit' and 'offset', there are some strings that are be out of it.
+#      this 'not_include_to_jetelina_delete_flg' is defined them.
+#      and 'not_include...._user_definition is for the special strings for definding user's own subquery.
+#      i mean, Jetelina does not modify anything to it if these strings were in there.
+#          e.g.
+#             select t1.a, t1.b from t1 as t1 where @mydef_start ...... @mydef_end
+#          -> select t1.a, ...........where ....... 
+#
+not_include_to_jetelina_delete_flg = join,group by,having,distinct,order by,limit,offset,union,intersect,except
+not_include_to_jetelina_delete_flg_user_definition = @mydef_start,@mydef_end
+
+# PostgreSQL setting
+@jdic pg_work:"postgresql run","postgresql availability","start postgresql","postgresql start"
+pg_work = true
+@jdic pg_host:"postgresql host"
+pg_host = localhost
+@jdic pg_port:"postgresql port"
+pg_port = 5432
+@jdic pg_user:"postgresql user","postgresql login"
+pg_user = postgres
+@jdic pg_password:"postgresql password","password in postgresql"
+pg_password = postgres
+@jdic pg_sslmode:"postgresql sslmode","postgresql ssl mode","postgresql ssl"
+pg_sslmode = prefer
+@jdic pg_dbname:"postgresql database name","postgresql db name","postgresql dbname"
+pg_dbname = postgres
+@jdic pg_testdbname:"postgresql test database"
+pg_testdbname = testdb
+#
+# params for incrementally materialized view
+#    pg_ivm: true -> the extension is installed, false -> not yet
+#
+@jdic pg_ivm:"postgresql ivm"
+pg_ivm = true
+
+@jdic pg_regulatedclauses:"ivm regulation","ivm ban sentences"
+pg_regulatedclauses = having,union,intersect,except,distinct on,tablesample,value,tablesample,for update,share,{
+@jdic pg_allowclauses:"ivm allow","ivm allow clauses","ivm available clauses"
+pg_allowclauses = order by,limit,offset
+#
+# mysql,oracle and so on are goin to do after postgre is done  2024/3/4
+#
+
+# MySQL setting
+@jdic my_work:"mysql run","mysql availability","start mysql","mysql start"
+my_work = true
+@jdic my_host:"mysql host"
+my_host = localhost
+@jdic my_port:"mysql port"
+my_port = 3306
+@jdic my_user:"mysql user","mysql login"
+my_user = user 
+@jdic my_password:"mysql password","password in mysql"
+my_password = userpasswd 
+#
+# Caution: the initial db name is 'mysql', then Jetelina will rewrite it to 'jetelina'
+# 
+@jdic my_dbname:"mysql database name","mysql db name","mysql dbname"
+my_dbname = jetelina 
+@jdic my_unix_socket:"mysql unix socket","mysql socket"
+my_unix_socket = /var/run/mysqld/mysqld.sock
+@jdic my_testdbname:"mysql test database"
+my_testdbname = testdb
+
+# Redis setting
+@jdic redis_work:"redis run","redis availability","start redis","redis start"
+redis_work = true
+@jdic redis_host:"redis host"
+redis_host = 127.0.0.1
+@jdic redis_port:"redis port"
+#redis_port = 6379
+redis_port = 6379
+@jdic redis_dbname:"redis database name","redis db name","redis dbname"
+redis_dbname = 0
+@jdic redis_password:"redis password","password in redis"
+redis_password =
+
+# MongoDB setting
+@jdic mongodb_work:"mongodb run","mongodb availability","start mongodb","mongodb start"
+mongodb_work = true
+@jdic monogodb_host:"monogodb host"
+mongodb_host = 127.0.0.1
+@jdic mongodb_port:"monogodb port"
+mongodb_port = 27017
+@jdic mongodb_dbname:"mongodb database name","mongodb db name","monbodb dbname"
+mongodb_dbname = jetelina
+@jdic mongodb_collection:"mongodb collection name","mongodb collection"
+mongodb_collection = jetelina-collection
+@jdic mongodb_user:"mongodb user","mongodb login"
+mongodb_user =  
+@jdic mongodb_password:"mongodb password","password in mongodb"
+mongodb_password =
+
+# Oracle setting
+or_host = localhost
+or_port = 
+or_user = 
+or_password = 
+or_sslmode = prefer
+or_dbname = 
+or_testdbname = testdb
+
+#
+# execution limit number of select sentence in test db
+#
+@jdic selectlimit:"limit"
+selectlimit = 10
+
+#
+# paging number
+#    recomend for managing paging if the return overs this number
+paging = 100
+
+# 
+# maxmum lines to read "sqllogfile"
+# not sure what number is the best, but this is for secure the system
+#
+@jdic reading_max_lines:"read line numbers for analyzing","analyzing lines","analyzing line numbers","analyzing line number"
+reading_max_lines = 1000
+
+# 
+# maxmum lines to read "JetelinaApiAccess", "JetelinaDBAccess", and use for reading daily api execution speed data to calc its standard deviation
+# this number points to yearly
+# the number changing is banned by using Jetelina chatting, that why no '@jdic'.
+#
+json_max_lines = 365
+
+#
+# sql analyze execute interval 
+#   this param is used in SQLAnalyzer.jl for repeat analyzing processing
+#   this number is be hour unit  ex. 10hr interval -> 10 
+#@jdic analyze_interval:"analyze interval","analyzing interval"
+#analyze_interval = 48
+
+#
+# configuration change history file
+#   this is an archive file of changing history in configuration parameters.
+#   the file name changing is banned by using Jetelina chatting, that why no '@jdic'.
+#   the file size is not limited therefore it would not be big, it should be set and also its rotating time if it would be a big file. 
+#
+config_change_history_file = config_history.log
+
+@jdic configchangehistoryreadlinecount:"config change history line count", "config histroy line","config history count"
+configchangehistoryreadlinecount = 100
