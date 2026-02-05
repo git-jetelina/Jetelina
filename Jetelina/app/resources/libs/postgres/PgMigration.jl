@@ -74,8 +74,20 @@ function createDummyTable(conn)
     result::Bool = true
     tablename::String = "mig_dum"
     column_str::String = """
-        id integer,
-        name varchar
+        small smallint,
+        intg integer,
+        big bigint,
+        decim decimal,
+        num numeric,
+        rea real,
+        mone money,
+        name varchar,
+        day date,
+        timezone time,
+        jsonstr json,
+        jsonbstr jsonb,
+        xmlstr xml,
+        booleanstr boolean
     """
     createStr::String = """
     	create table if not exists $tablename(
