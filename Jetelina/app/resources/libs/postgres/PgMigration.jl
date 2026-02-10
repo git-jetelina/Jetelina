@@ -136,4 +136,30 @@ function dropDummyTable(conn)
     return result
 end
 
+function columntypeofDummyTable(conn)
+    result::Bool = true
+    tablename::String = "jetelina_user_table" #"mig_dum"
+    selectStr::String = """
+        select * from $tablename;
+    """
+
+    try
+        dd = LibPQ.execute(conn, selectStr)
+#        df = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
+        df = DataFrame(columntable(dd))
+        columns = names(df)
+        @info column_type = nonmissingtype.(eltype.(eachcol(df)))
+        @info DataFrame(dd)
+    catch err
+        @info "PgMigration.columntypeofDummyTable() error:: $err"
+        result = false
+    finally
+    end
+
+    if result
+        @info "success to columntypeofDummyTable $tablename"
+    end
+
+    return result
+end
 end
