@@ -1694,6 +1694,42 @@ function dropDummyTable()
     @info "PgMigration.dropDummyTable " ret
 end
 
+function dumdatainsert()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.dumdatainsert(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.dumdatainsert " ret
+end
+
+function selectDummyTable(colname::String)
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.selectDummyTable(conn,colname)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.selectDummyTable " ret
+end
+
 function columntypeofDummyTable()
     conn = open_connection()
     ret::Bool = true

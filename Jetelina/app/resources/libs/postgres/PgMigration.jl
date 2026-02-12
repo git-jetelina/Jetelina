@@ -136,6 +136,62 @@ function dropDummyTable(conn)
     return result
 end
 
+function dumdatainsert(conn)
+    result::Bool = true
+    tablename::String = "mig_dum"
+
+    column_str::String = """
+        small,intg,big,decim,num,rea,mone,name,day,timezone,jsonstr,jsonbstr,xmlstr,booleanstr
+    """
+    value_str::String = """
+        1,20,100,0.11,1.1,1.001,-1,'keiji','1962-05-25',now(),'{"json":"json data"}','{"jsonb":"json b data"}','<xml>XML Data</xml>',true
+    """
+    insertStr::String = """
+    	insert into $tablename ( $column_str
+            ) 
+            values(
+                $value_str
+    	    );
+    """
+
+    try
+        LibPQ.execute(conn, insertStr)
+    catch err
+        @info "PgMigration.dumdatainsert() error:: $err"
+        result = false
+    finally
+    end
+
+    if result
+        @info "success to dumdatainsert $tablename"
+    end
+
+    return result
+end
+
+function selectDummyTable(conn,colname::String)
+    result::Bool = true
+    tablename::String = "mig_dum"
+    selectStr::String = """
+        select $colname from $tablename;
+    """
+
+    try
+        df = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
+        @info string(colname," -> ", df)
+    catch err
+        @info "PgMigration.selectDummyTable() error:: $err"
+        result = false
+    finally
+    end
+
+    if result
+        @info "success to selectDummyTable $colname"
+    end
+
+    return result
+end
+
 function columntypeofDummyTable(conn)
     result::Bool = true
     tablename::String = "jetelina_user_table" #"mig_dum"
@@ -149,7 +205,7 @@ function columntypeofDummyTable(conn)
         df = DataFrame(columntable(dd))
         columns = names(df)
         @info column_type = nonmissingtype.(eltype.(eachcol(df)))
-        @info DataFrame(dd)
+        @info LibPQ.column_types(dd)
     catch err
         @info "PgMigration.columntypeofDummyTable() error:: $err"
         result = false
