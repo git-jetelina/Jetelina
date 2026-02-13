@@ -1655,6 +1655,11 @@ function deleteIVMApi(apinos::Vector)
 end
 
 
+"""
+    migration functions
+    PgMigration.jl
+    Feb 2026
+"""
 #
 # test programs for migration
 #
@@ -1748,4 +1753,62 @@ function columntypeofDummyTable()
     @info "PgMigration.columntypeofDummyTable " ret
 end
 
+"""
+function mig_getTableList()
+
+    get the table list of targeting migration.
+    the target table which has not been migrated yet are found by checking 
+      (1) wether exist its sequence table ex. ftest -> ftest_ftest_jt_id_seq
+      (2) wether exist unique column ex. ftest_jt_id or jetelina_delete_flg
+    mayby hiring (2)'jetelina_delete_flg' is the best.
+
+# Arguments
+- return: error -> Tuple(false, error number)
+"""
+function mig_getTableList()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        @info tlist = PgMigration.getTableList(conn)
+    catch err
+        ret = false
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_getTableList() error : $err")
+        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    return ret, 0
+#    @info "PgMigration.mig_getTableList " tlist
+end
+
+"""
+function mig_collect_columns_data_type(tablename::String)
+
+    get the data type in the target table.
+
+
+# Arguments
+- `tablename:String`: target table name
+- return: error -> Tuple(false, error number)
+"""
+function mig_collect_columns_data_type(tablename::String)
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        @info dd = PgMigration.collect_columns_data_type(conn, tablename)
+    catch err
+        ret = false
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data_type() error : $err")
+        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.mig_collect_columns_data_type " ret
+end
 end

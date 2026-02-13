@@ -7,8 +7,8 @@ Description:
 	Migrate existing tables to Jetelina tables for PostgreSQL
 
 functions
-    function getTableList(conn) collect the existing table's column data type
-    function collect_columns_data_type(String::tablename) collect the existing table's column data type
+    getTableList(conn) collect the existing table's column data type
+    collect_columns_data_type(conn, tablename::String) collect the existing table's column data type
 
 """
 module PgMigration
@@ -54,15 +54,39 @@ function getTableList(conn)
 end
 
 """
-function collect_columns_data_type(String::tablename)
+function collect_columns_data_type(conn, tablename::String)
 
 	collect the existing table's column data type
 
     # Arguments
+- `conn::LibPQ.Connection`: postgresql connection 
 - `tablename:String`: existing table name
 - return: columns data type list in json or DataFrame	
 """
-function collect_columns_data_type()
+function collect_columns_data_type(conn, tablename::String)
+    result::Bool = true
+    selectStr::String = """
+        select * from $tablename;
+    """
+
+    try
+        dd = LibPQ.execute(conn, selectStr)
+#        df = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
+        df = DataFrame(columntable(dd))
+        columns = names(df)
+        @info column_type = nonmissingtype.(eltype.(eachcol(df)))
+        @info LibPQ.column_types(dd)
+    catch err
+        @info "PgMigration.collect_columns_data_type() error:: $err"
+        result = false
+    finally
+    end
+
+    if result
+        @info "success to collect_columns_data_type $tablename"
+    end
+
+    return result
 end
 
 """
