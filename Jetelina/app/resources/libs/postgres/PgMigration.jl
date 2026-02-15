@@ -32,6 +32,29 @@ function getTableList(conn)
 - return: table list in json or DataFrame	
 """
 function getTableList(conn)
+    #===
+        checking "jetelina_delete_flg" exsists in the table
+            is     -> false
+            is not -> true
+    ===#
+    function _chkJetelina(tablename::String)
+        isjdf::Bool = true
+        targetcolumnaname::String = "jetelina_delete_flg"
+        selectStr = """
+            select * from $tablename
+        """
+
+        dff = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
+        
+        if 0<size(dff)[1]            
+            if targetcolumnaname ∈ names(dff)
+                isjdf = false
+            end
+        end
+
+        return isjdf
+    end
+
     df = DataFrame()
     # Fixing as 'public' in schemaname. This is the protocol.
     table_str = """select tablename from pg_tables where schemaname='public'"""
@@ -44,6 +67,17 @@ function getTableList(conn)
             Tips:
                 select tables that does not have 'jetelina_delete_flg' in it among df
         ===#
+        if 1 < size(df)[1]
+            for i in 1:size(df, 1)
+                tn = string(df[!,:tablename][i])
+                if _chkJetelina(tn)
+                    @info "migration table: " tn
+                    #===
+                        tn is for migrating table because it has not "jetelina_delete_flg" column in there yet
+                    ===#
+                end
+            end
+        end
     catch err
         JLog.writetoLogfile("PgMigration.getTableList() error: $err")
         return DataFrame() # return empty DataFrame if got fail
