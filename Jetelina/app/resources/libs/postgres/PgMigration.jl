@@ -75,6 +75,11 @@ function getTableList(conn)
                     #===
                         tn is for migrating table because it has not "jetelina_delete_flg" column in there yet
                     ===#
+                    keyword1::String = "jt_id"
+                    keyword2::String = "jetelina_delete_flg"
+                    addjtid::String = """alter table $tn add column $keyword1 serial primary key"""
+                    addjtdelflg::String = """alter table $tn add column $keyword2 integer;alter table $tn alter column $keyword2 set default 0;update $tn set $keyword2 = 0"""
+                    @info "mig " LibPQ.execute(conn, """$addjtid;$addjtdelflg""")
                 end
             end
         end
