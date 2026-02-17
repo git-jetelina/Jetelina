@@ -1770,7 +1770,8 @@ function mig_getTableList()
     ret::Bool = true
 
     try
-        @info tlist = PgMigration.getTableList(conn)
+        tlist = PgMigration.getTableList(conn)
+        return ret, json(Dict("result" => true, "Jetelina" => copy.(eachrow(reverse(tlist)))))
     catch err
         ret = false
         errnum = JLog.getLogHash()
@@ -1779,16 +1780,42 @@ function mig_getTableList()
     finally
         close_connection(conn)
     end
+end
 
-    return ret, 0
-#    @info "PgMigration.mig_getTableList " tlist
+"""
+function mig_execute_migration(tablelist)
+
+    execute the migration
+
+    the target table names are passed as json/array by user
+
+# Arguments
+- return: error -> Tuple(false, error number)
+"""
+function mig_execute_migration(tablelist)
+    conn = open_connection()
+    ret = ""
+
+    try
+        # tablelist expects in array
+        PgMigration.execute_migration(conn, tablelist)
+        jmsg = "complement me."
+        ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+    finally
+        close_connection(conn)
+    end
+
+    return ret
 end
 
 """
 function mig_collect_columns_data_type(tablename::String)
 
     get the data type in the target table.
-
 
 # Arguments
 - `tablename:String`: target table name

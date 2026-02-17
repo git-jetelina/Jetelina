@@ -75,11 +75,7 @@ function getTableList(conn)
                     #===
                         tn is for migrating table because it has not "jetelina_delete_flg" column in there yet
                     ===#
-                    keyword1::String = "jt_id"
-                    keyword2::String = "jetelina_delete_flg"
-                    addjtid::String = """alter table $tn add column $keyword1 serial primary key"""
-                    addjtdelflg::String = """alter table $tn add column $keyword2 integer;alter table $tn alter column $keyword2 set default 0;update $tn set $keyword2 = 0"""
-                    @info "mig " LibPQ.execute(conn, """$addjtid;$addjtdelflg""")
+                    DataFrames.filter!(row -> row.tablename == tn , df)
                 end
             end
         end
@@ -90,6 +86,39 @@ function getTableList(conn)
     end
 
     return df
+end
+
+"""
+function execute_migration(conn, tablearray::Array)
+
+	migration execution
+
+    # Arguments
+- `conn::LibPQ.Connection`: postgresql connection 
+- `tablearray:Array`: target table name list
+- return: success -> true, fail -> false	
+"""
+function execute_migration(cnn, tablearray::Array)
+    keyword1::String = string(tn,"_jt_id")
+    keyword2::String = "jetelina_delete_flg"
+    ret::Bool = true
+
+    try
+        for i in 1:length(tablearray)
+            tn::String = string(tablearray[i])
+            addjtid::String = """alter table $tn add column $keyword1 serial primary key"""
+            addjtdelflg::String = """alter table $tn add column $keyword2 integer;alter table $tn alter column $keyword2 set default 0;update $tn set $keyword2 = 0"""
+
+            LibPQ.execute(conn, """$addjtid;$addjtdelflg""")
+        end
+    catch err
+        ret = false
+        JLog.writetoLogfile("PgMigration.execute_migration() error: $err")
+    finally
+        close_connection(conn)
+    end
+
+    return ret
 end
 
 """
