@@ -29,6 +29,7 @@ functions
 	searchErrorLog() searching orderd log as 'errnum' in log file
 	prepareDbEnvironment() database connection checking, and initializing database if needed
 	getApiExecutionSpeed()	get api execution speed data.
+    mig_execute_migration() execute DB migration.
 """
 module PostDataController
 
@@ -39,7 +40,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 JMessage.showModuleInCompiling(@__MODULE__)
 
 export initialDb, initialUser, getConfigData, handleApipostdata, createApi, getColumns, deleteTable, userRegist, login, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo,
-    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed
+    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed, mig_execute_migration
 
 """
 	function initialDb() 
@@ -674,6 +675,27 @@ function getApiExecutionSpeed()
     end
 
     return ret
+end
+"""
+function mig_execute_migration()
+
+	execute DB migration.
+	ordered table name is posted as the name 'tablename' in jsonpayload().
+
+"""
+function mig_execute_migration()
+    if !isnothing(JSession.get())
+        ret = ""
+        tableName::Vector = jsonpayload("tablename")
+
+        if !isnothing(tableName)
+            ret = DBDataController.mig_execute_migration(tableName)
+        end
+
+        return ret
+    else
+        return nothing
+    end
 end
 
 end

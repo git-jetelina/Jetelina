@@ -131,3 +131,8 @@ route("/getconfigdata", PostDataController.getConfigData, method = POST)
 route("/changeconfigdata", PostDataController.configParamUpdate, method = POST)
 route("/getconfigchangehistory", GetDataController.getConfigHistory)
 route("/getoperationhistory", GetDataController.getOperationHistory)
+#===
+    -Handle DB Migration
+===#
+route("/getmigrationtablelist",GetDataController.mig_getTableList)
+route("/executedbmigration", PostDataController.mig_execute_migration, method = POST)

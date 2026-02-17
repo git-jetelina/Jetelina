@@ -31,6 +31,9 @@
 
 -- special functions for IVM ---
 		dropIVMtable(apis::Vector) special func for PostgreSQL, synchronized droppping ivm table with deleting api
+-- special functions for RDBMS migration
+		mig_getTableList() Get the ordered table list by executing *.mig_getTable() depend on DB type
+		mig_execute_migration(tableName::Vector) execute db migration
 
 """
 
@@ -681,4 +684,46 @@ function dropIVMtable(apis::Vector)
 	ivmapis = replace.(apis,"js"=>"jv")
 	return PgDBController.dropTable(ivmapis)
 end
+"""
+function mig_getTableList()
+
+	Get the ordered table list by executing *.mig_getTable() depend on DB type
+	this function is only for RDBMS
+"""
+function mig_getTableList()
+	if j_config.JC["dbtype"] == "postgresql"
+		# Case in PostgreSQL
+		PgDBController.mig_getTableList()
+	elseif j_config.JC["dbtype"] == "mysql"
+		# Case in MySQL
+#		if j_config.JC["my_dbname"] == "mysql"
+#			createJetelinaDatabaseinMysql()
+#		end
+		
+#		MyDBController.getTableList(s)
+	elseif j_config.JC["dbtype"] == "oracle"
+	end
+end
+"""
+function mig_execute_migration(tableName::Vector)
+		
+	execute db migration
+	this function is only for RDBMS	
+# Arguments
+- `tableName: Vector`: name of the tables
+"""
+function mig_execute_migration(tableName::Vector)
+	ret::Any = ""
+
+	if j_config.JC["dbtype"] == "postgresql"
+		# Case in PostgreSQL
+		ret = PgDBController.mig_execute_migration(tableName)
+	elseif j_config.JC["dbtype"] == "mysql"
+		# Case in MySQL
+#		ret = MyDBController.mig_execute_migration(tableName)
+	elseif j_config.JC["dbtype"] == "oracle"
+	end
+
+end
+
 end

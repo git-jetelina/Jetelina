@@ -40,6 +40,11 @@ functions
     checkIVMExistence() checkin' ivm is availability
     compareJsAndJv(json) compare max/min/mean execution speed between js* and jv*.
     deleteIVMApi(apino::String) delete api in ivm, indeed ivm table
+
+-- special functions for RDBMS migration
+    mig_getTableList() get the table list of targeting migration.
+    mig_execute_migration(tablelist) execute the migration
+    mig_collect_columns_data_type(tablename::String) get the data type in the target table.
 """
 module PgDBController
 
@@ -58,7 +63,8 @@ include("PgMigration.jl")
 export create_jetelina_database, create_jetelina_table, create_jetelina_id_sequence, open_connection, close_connection,
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
-    refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment
+    refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data_type
 
 """
 function create_jetelina_database()
@@ -1792,15 +1798,19 @@ function mig_execute_migration(tablelist)
 # Arguments
 - return: error -> Tuple(false, error number)
 """
-function mig_execute_migration(tablelist)
+function mig_execute_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
 
     try
         # tablelist expects in array
-        PgMigration.execute_migration(conn, tablelist)
-        jmsg = "complement me."
-        ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        if PgMigration.execute_migration(conn, tablelist)
+            jmsg = "complement me."
+            ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        else
+            jmsg = "someting wrong"
+            ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        end
     catch err
         errnum = JLog.getLogHash()
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")

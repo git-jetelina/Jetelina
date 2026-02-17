@@ -9,6 +9,7 @@ Description:
 functions
     getTableList(conn) collect the existing table's column data type
     collect_columns_data_type(conn, tablename::String) collect the existing table's column data type
+    execute_migration(conn, tablearray::Vector)	migration execution
 
 """
 module PgMigration
@@ -20,7 +21,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export getTableList, collect_columns_data_type
+export getTableList, collect_columns_data_type, execute_migration
 
 """
 function getTableList(conn)
@@ -89,7 +90,7 @@ function getTableList(conn)
 end
 
 """
-function execute_migration(conn, tablearray::Array)
+function execute_migration(conn, tablearray::Vector)
 
 	migration execution
 
@@ -98,16 +99,16 @@ function execute_migration(conn, tablearray::Array)
 - `tablearray:Array`: target table name list
 - return: success -> true, fail -> false	
 """
-function execute_migration(cnn, tablearray::Array)
-    keyword1::String = string(tn,"_jt_id")
-    keyword2::String = "jetelina_delete_flg"
+function execute_migration(conn, tablearray::Vector)
+    delflg::String = "jetelina_delete_flg"
     ret::Bool = true
 
     try
         for i in 1:length(tablearray)
             tn::String = string(tablearray[i])
-            addjtid::String = """alter table $tn add column $keyword1 serial primary key"""
-            addjtdelflg::String = """alter table $tn add column $keyword2 integer;alter table $tn alter column $keyword2 set default 0;update $tn set $keyword2 = 0"""
+            jtid::String = string(tn,"_jt_id")
+            addjtid::String = """alter table $tn add column $jtid serial primary key"""
+            addjtdelflg::String = """alter table $tn add column $delflg integer;alter table $tn alter column $delflg set default 0;update $tn set $delflg = 0"""
 
             LibPQ.execute(conn, """$addjtid;$addjtdelflg""")
         end
@@ -115,7 +116,7 @@ function execute_migration(cnn, tablearray::Array)
         ret = false
         JLog.writetoLogfile("PgMigration.execute_migration() error: $err")
     finally
-        close_connection(conn)
+#        close_connection(conn)
     end
 
     return ret
