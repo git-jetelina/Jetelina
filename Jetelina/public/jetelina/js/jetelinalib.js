@@ -466,7 +466,7 @@ const getAjaxData = (url) => {
                 Tips:
                     this 'result' gets 'syntax error {object Object} in json form' error sometimes,
                     because unmatch specific, maybe, who knows, therefore convert to a correct json object 
-                    by using .sstringify() -> .parse()    :p
+                    by using .stringify() -> .parse()    :p
             */
             result = JSON.stringify(result);
             result = JSON.parse(result);
@@ -629,6 +629,64 @@ const getAjaxData = (url) => {
         typingControll(chooseMsg("unknown-msg", "", ""));
     }
 }
+
+
+/**
+ * 
+ * @function getMigAjax
+ * 
+ * get I/f ajax function for database migration
+ */
+const getMigAjax = () => {
+    url = scenario['function-mig-get-url'];
+    if (!url.startsWith("/")) url = "/" + url;
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        data: "",
+        dataType: "json",
+        xhr: function () {
+            ret = $.ajaxSettings.xhr();
+            inprogress = true;// in progress. for priventing accept a new command.
+            typingControll(chooseMsg('inprogress-msg', "", ""));
+            return ret;
+        }
+    }).done(function (result, textStatus, jqXHR) {
+        /*
+            Tips:
+                this 'result' gets 'syntax error {object Object} in json form' error sometimes,
+                because unmatch specific, maybe, who knows, therefore convert to a correct json object 
+                by using .stringify() -> .parse()    :p
+        */
+        result = JSON.stringify(result);
+        result = JSON.parse(result);
+
+        let m = "";
+        // go data parse
+        if (checkResult(result)) {
+            //getdata(result, 6);
+            showConfigPanel(true);
+            m = 'success-msg';
+        } else {
+            cmdCandidates = [];
+            m = 'fail-msg';
+        }
+
+        typingControll(chooseMsg(m, '', ''));
+    }).fail(function (result) {
+        checkResult(result);
+        cmdCandidates = [];
+        console.error("getMigAjax() fail: ", url);
+        typingControll(chooseMsg("fail-msg", "", ""));
+    }).always(function () {
+        // release it for allowing to input new command in the chatbox 
+        inprogress = false;
+    });
+}
+
+
+
 /**
  * @function postAjaxData
  * @param {string} url execute url

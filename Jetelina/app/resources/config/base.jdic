@@ -7,6 +7,7 @@
 # post urls for function panel 
 @jdic function-post-url:"/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns"
 @jdic function-post-fileupload-url:"/postcsvfile"
+@jdic function-mig-post-url:"/executedbmigration"
 
 # this post url is as same as the Jetelina-API is provided to user
 @jdic function-japi-url:"/apiactions"
@@ -16,6 +17,7 @@
 
 # get urls for function panel 
 @jdic function-get-url:"/getapilist","/getalldbtable","/getconfigchangehistory","/goodbyenow","/getdbsavailability","/getoperationhistory"
+@jdic function-mig-get-url:"/getmigrationtablelist"
 
 # null 
 @jdic null-msg:"",""
@@ -218,6 +220,10 @@
 @jdic func-use-mysql-cmd:"mysql"
 @jdic func-use-redis-cmd:"redis"
 @jdic func-use-mongodb-cmd:"mongodb"
+
+# migration in database table
+@jdic func-db-mig-show-tables:"migration list","migration table","mig table","mig list","migration"
+@jdic func-db-mig-hide-tables:"hide migration list","delete migration table","hide mig list","hide mig table"
 
 #
 #  account management
