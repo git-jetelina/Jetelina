@@ -48,7 +48,7 @@ function getTableList(conn)
         dff = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
         
         if 0<size(dff)[1]            
-            if targetcolumnaname ∈ names(dff)
+            if targetcolumnaname ∉ names(dff)
                 isjdf = false
             end
         end
@@ -69,16 +69,18 @@ function getTableList(conn)
                 select tables that does not have 'jetelina_delete_flg' in it among df
         ===#
         if 1 < size(df)[1]
+            dff = copy(df)
             for i in 1:size(df, 1)
                 tn = string(df[!,:tablename][i])
-                if _chkJetelina(tn)
-                    @info "migration table: " tn
+                if !_chkJetelina(tn)
                     #===
                         tn is for migrating table because it has not "jetelina_delete_flg" column in there yet
                     ===#
-                    DataFrames.filter!(row -> row.tablename == tn , df)
+                    DataFrames.filter!(row -> row.tablename == tn , dff)
                 end
             end
+            
+            df = copy(dff)
         end
     catch err
         JLog.writetoLogfile("PgMigration.getTableList() error: $err")

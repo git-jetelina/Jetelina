@@ -1773,16 +1773,16 @@ function mig_getTableList()
 """
 function mig_getTableList()
     conn = open_connection()
-    ret::Bool = true
 
     try
         tlist = PgMigration.getTableList(conn)
-        return ret, json(Dict("result" => true, "Jetelina" => copy.(eachrow(reverse(tlist)))))
+        return json(Dict("result" => true, "Jetelina" => copy.(eachrow(reverse(tlist)))))
     catch err
         ret = false
         errnum = JLog.getLogHash()
+        ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_getTableList() error : $err")
-        return ret, errnum
+        return ret
     finally
         close_connection(conn)
     end

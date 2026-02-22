@@ -638,7 +638,7 @@ const getAjaxData = (url) => {
  * get I/f ajax function for database migration
  */
 const getMigAjax = () => {
-    url = scenario['function-mig-get-url'];
+    url = scenario['function-mig-get-url'][0];
     if (!url.startsWith("/")) url = "/" + url;
 
     $.ajax({
@@ -664,9 +664,10 @@ const getMigAjax = () => {
 
         let m = "";
         // go data parse
+        console.log("mig getajax data: ", result);
         if (checkResult(result)) {
             //getdata(result, 6);
-            showConfigPanel(true);
+            //showConfigPanel(true);
             m = 'success-msg';
         } else {
             cmdCandidates = [];
@@ -1401,6 +1402,15 @@ const chatKeyDown = (cmd) => {
                     m = "";
                     // chatbox moves to below
                     jetelinaPanelPositionController(false);
+
+                    // test for migration
+                    if(inScenarioChk(ut, 'func-db-mig-show-tables')){
+                        getMigAjax();
+                        m = "migration show";
+                    }else if(inScenarioChk(ut, 'func-db-mig-hide-tables')){
+                        m = "migration hide";
+                    }
+
                     if (!inScenarioChk(ut, 'config-show-cmd') && (presentaction.cmd != CONFIGCHANGE)) {
                         // if 'ut' is a command for driving function
                         m = functionPanelFunctions(ut);
