@@ -1872,6 +1872,7 @@ const functionPanelFunctions = (ut) => {
       } else {
         showPreciousPanel(false);
         showConfigPanel(false);
+        showMigTableList(false);
         
         cancelableCmdList = [];
       }
@@ -1886,6 +1887,7 @@ const functionPanelFunctions = (ut) => {
       refreshdisplayTablesAndApis();
       showPreciousPanel(false);
       showConfigPanel(false);
+      showMigTableList(false);
       m = chooseMsg('refreshing-msg', '', '');
       break;
     case 'subquery': //open subquery panel

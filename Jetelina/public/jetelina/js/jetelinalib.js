@@ -229,7 +229,8 @@ const checkResult = (o) => {
  *                     5->indicate available db 
  *                     6->operation history
  *                     7->fetch suggestion data
- *                     8 ->checking existing suggestion 
+ *                     8->checking existing suggestion 
+ *                    -1->migration table list data
  *  @returns {object} only in the case of t=3, conifguration changing history object
  *
  *  resolve the json object into each data
@@ -307,6 +308,9 @@ const getdata = (o, t) => {
                                                 }
                                             }
                                         }
+                                    } else if (t == -1 ){
+                                        // migration table list
+                                        str += `<span class="table">${value}</span>`;
                                     }
                                 });
                             } else if (t == 2) {
@@ -406,6 +410,8 @@ const getdata = (o, t) => {
                                 tagid = `${COLUMNSPANEL} .item_area`;
                             } else if (t == 2) {
                                 tagid = APICONTAINER;
+                            } else if ( t == -1 ){
+                                tagid = `${MIGRATIONTABLELIST} [name='table_list']`;
                             }
 
                             $(tagid).append(str);
@@ -423,7 +429,7 @@ const getdata = (o, t) => {
                         let aquisition_nubmer = `<span class='apitestresult'><p>-aquaiable data number is ${datanumber}</p></span>`;
                         let testdata = JSON.stringify(o[key]);
                         $(`${APITESTPANEL} [name='api-test-msg']`).append(`${testmsg}<br>${aquisition_nubmer}`);
-                        $(`${APITESTPANEL} [name='api-test-data'`).append(`<span class='apitestresult'><p>-return JSON data are</p><p>${testdata}</p></span>`);
+                        $(`${APITESTPANEL} [name='api-test-data']`).append(`<span class='apitestresult'><p>-return JSON data are</p><p>${testdata}</p></span>`);
                         if (0 < jetelinamessage.length) {
                             $(`${APITESTPANEL} [name='api-test-msg']`).append(`<span class='apitestresult'><p>Attention: ${jetelinamessage}</p></span>`);
                         }
@@ -666,8 +672,8 @@ const getMigAjax = () => {
         // go data parse
         console.log("mig getajax data: ", result);
         if (checkResult(result)) {
-            //getdata(result, 6);
-            //showConfigPanel(true);
+            getdata(result, -1);
+            //showMigTableList(true);
             m = 'success-msg';
         } else {
             cmdCandidates = [];
@@ -1452,6 +1458,7 @@ const chatKeyDown = (cmd) => {
                                 showSomethingMsgPanel(false);
                                 showConfigPanel(false);
                                 showPreciousPanel(false);
+                                showMigTableList(false);
                                 if (inCancelableCmdList([CONFIGCHANGE])) {
                                     rejectCancelableCmdList(CONFIGCHANGE);
                                     presentaction = {};
@@ -1646,6 +1653,7 @@ const chatKeyDown = (cmd) => {
                     resetApiTestProcedure();
                     showConfigPanel(false);
                     showPreciousPanel(false);
+                    showMigTableList(false);
                     changeChatGirlImage("chat");
 
                     typingControll(chooseMsg('general-thanks-msg', loginuser.lastname, "c"));
@@ -1735,6 +1743,7 @@ const logout = () => {
     showSomethingMsgPanel(false);
     showConfigPanel(false);
     showPreciousPanel(false);
+    showMigTableList(false);
     setDBFocus("");
     isVisibleDatabaseList(false);
 
@@ -2299,6 +2308,22 @@ const showConfigPanel = (b) => {
         $(`${CONFIGPANEL} span`).filter(".configparams_key, .configparams_val").remove();
     }
 }
+/**
+ * @function showMigTableList
+ * @param {boolean} true -> show, false -> hide
+ *  
+ * "#migration_table_list" show or hide
+ */
+const showMigTableList = (b) => {
+    if (b) {
+        $(MIGRATIONTABLELIST).show().draggable();
+    } else {
+        // delete all test results
+        $(MIGRATIONTABLELIST).hide();
+//        $(`${MIGRATIONTABLELIST} span`).filter(".configparams_key, .configparams_val").remove();
+    }
+}
+
 /**
  * @function showPreciousPanel
  * @param {boolean} true -> show, false -> hide

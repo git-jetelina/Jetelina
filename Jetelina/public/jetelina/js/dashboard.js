@@ -23,6 +23,7 @@ const JETELINACHATBOX = `${JETELINAPANEL} [name='chat_input']`;
 const PIECHARTPANEL = "#piechart";
 const APIACCESSNUMBERS = "#api_access_numbers";
 const LINECHARTPANEL = "#apispeedchart";
+const MIGRATIONTABLELIST = "#migration_table_list";
 
 let stage = 0;// action stage number ex. 1:before login  'login':at login
 let preferent = {};// contains precedence commands. ex. droptable, deliteApi...
