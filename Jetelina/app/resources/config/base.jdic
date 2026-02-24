@@ -222,8 +222,8 @@
 @jdic func-use-mongodb-cmd:"mongodb"
 
 # migration in database table
-@jdic func-db-mig-show-tables:"migration list","migration table","mig table","mig list","migration"
-@jdic func-db-mig-hide-tables:"hide migration list","delete migration table","hide mig list","hide mig table"
+@jdic func-db-mig-show-tables:"show migration list","show migration table","show mig table","show mig list","open migration list","open migration table","open mig table","open mig list"
+@jdic func-db-mig-hide-tables:"hide migration list","hide migration table","hide mig table","hide mig list","close migration list","close migration table","close mig table","close mig list"
 
 #
 #  account management

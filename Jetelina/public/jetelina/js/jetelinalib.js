@@ -10,6 +10,8 @@
       checkResult(o) check the 'return' field in the object when post/get ajax failed
       getdata(o, t) resolve the json object into each data
       getAjaxData(url) general purpose ajax get call function 
+      getMigAjax() get I/f ajax function for database migration
+      postMigAjax() post migration tables
       postAjaxData(url,data) general purpose ajax post call function 
       typingControll(m) typing character controller
       authAjax(chunk) Authentication ajax call
@@ -42,6 +44,7 @@
       apiTestAjax() ajax function for executing API test.
       searchLogAjax() ajax function for searching 'errnum' in the log file
       showConfigPanel(b) "#config_panel" show or hide
+      showMigTableList(b) "#migration_table_list" show or hide
       showPreciousPanel(b) "#jetelina_teach_you_smg" show or hide
       jsonFromCheck(s) check for json form in mongodb
       guidancePageFootLinkController(n) create cmd and call guidancePageController in case of clickcing the page link on the footer 
@@ -310,7 +313,14 @@ const getdata = (o, t) => {
                                         }
                                     } else if (t == -1 ){
                                         // migration table list
-                                        str += `<span class="table">${value}</span>`;
+                                        let migList = [];
+                                        $(`${MIGRATIONTABLELIST} [name='table_list'] span`).each(function () {
+                                            migList.push($(this).text());
+                                        });
+
+                                        if ($.inArray(value, migList) == -1) {
+                                            str += `<span class="table">${value}</span>`;
+                                        }
                                     }
                                 });
                             } else if (t == 2) {
@@ -635,8 +645,6 @@ const getAjaxData = (url) => {
         typingControll(chooseMsg("unknown-msg", "", ""));
     }
 }
-
-
 /**
  * 
  * @function getMigAjax
@@ -670,10 +678,9 @@ const getMigAjax = () => {
 
         let m = "";
         // go data parse
-        console.log("mig getajax data: ", result);
         if (checkResult(result)) {
             getdata(result, -1);
-            //showMigTableList(true);
+            showMigTableList(true);
             m = 'success-msg';
         } else {
             cmdCandidates = [];
@@ -691,7 +698,14 @@ const getMigAjax = () => {
         inprogress = false;
     });
 }
+/**
+ * @function postMigAjax
+ * 
+ *  post migration tables
+ */
+const postMigAjax = () => {
 
+}
 
 
 /**
@@ -1410,11 +1424,12 @@ const chatKeyDown = (cmd) => {
                     jetelinaPanelPositionController(false);
 
                     // test for migration
-                    if(inScenarioChk(ut, 'func-db-mig-show-tables')){
+                    if(inScenarioChk(ut, 'func-db-mig-hide-tables')){
+                        showMigTableList(false);
+                        m = "migration hide";
+                    } else if(inScenarioChk(ut, 'func-db-mig-show-tables')){
                         getMigAjax();
                         m = "migration show";
-                    }else if(inScenarioChk(ut, 'func-db-mig-hide-tables')){
-                        m = "migration hide";
                     }
 
                     if (!inScenarioChk(ut, 'config-show-cmd') && (presentaction.cmd != CONFIGCHANGE)) {
@@ -2323,7 +2338,6 @@ const showMigTableList = (b) => {
 //        $(`${MIGRATIONTABLELIST} span`).filter(".configparams_key, .configparams_val").remove();
     }
 }
-
 /**
  * @function showPreciousPanel
  * @param {boolean} true -> show, false -> hide
