@@ -10,6 +10,7 @@
       isVisibleApiContainer() checking "#api_container" is visible or not
       isVisibleGenelicPanel() checking "#genelic_panel" is visible or not
       isVisibleColumns() checking "#columns" is visible or not
+      isVisibleMigTableListPanel() checking "#migration_table_list" is visible or not
       itemSelect(p) select table column
       deleteSelectedItems(p) delete the selected columns from #container field
       cleanUp(s)  droped items & columns of selecting table
@@ -186,6 +187,20 @@ const isVisibleGenelicPanel = () => {
 const isVisibleColumns = () => {
   let ret = false;
   if ($(COLUMNSPANEL).is(":visible")) {
+    ret = true;
+  }
+
+  return ret;
+}
+/**
+ * @function isVisibleMigTableListPanel
+ * @returns {boolean}  true -> visible, false -> invisible
+ * 
+ * checking "#migration_table_list" is visible or not
+ */
+const isVisibleMigTableListPanel = () => {
+  let ret = false;
+  if ($(MIGRATIONTABLELIST).is(":visible")) {
     ret = true;
   }
 
@@ -1664,6 +1679,7 @@ const functionPanelFunctions = (ut) => {
       } else {
         preferent.cmd = TABLEAPIDELETE;
         cancelableCmdList.push(TABLEAPIDELETE);
+        console.log("check 1");
         /*
           Tips:
             searching for all tables and apis order by utarray.
