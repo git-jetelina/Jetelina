@@ -1572,11 +1572,11 @@ const functionPanelFunctions = (ut) => {
 
       for (let n = 0; n < t.length; n++) {
         findflg = false;
-
         /*
           Tips:
             at the first, searching in the table list, then the api list if did not hit.
             respect table seaching if there were a word 'table' in 'ut'.
+            but migration list is respected anyhow if it were opened. <- Feb in 2026 :P
 
             because... may the name of table has variety, against it the name of api has a rule.
             if there were the same name in the both list, this selection hit both, but puting 'table' in the order,
@@ -1588,27 +1588,23 @@ const functionPanelFunctions = (ut) => {
                   case 2. order 'open table js100' hit the only table.
                   case 3. order 'open 100' hit the only api.
         */
-        $(`${TABLECONTAINER} span`).each(function (i, v) {
-          if (v.textContent == t[n]) {
-            listClick($(this));
-            m = chooseMsg('success-msg', "", "");
-            findflg = true;
-          }
-        });
+        if( isVisibleMigTableListPanel() ){
+          findflg = findItemnameFromlist(MIGRATIONTABLELIST,t[n]);
+        }
+
+        if (!findflg){
+          findflg = findItemnameFromlist(TABLECONTAINER,t[n]);
+        }
 
         if (!findflg) {
-          $(`${APICONTAINER} span`).each(function (i, v) {
-            if (v.textContent.indexOf(t[n]) != -1) {
-              listClick($(this));
-              m = chooseMsg('success-msg', "", "");
-              findflg = true;
-            }
-          });
+          findflg = findItemnameFromlist(APICONTAINER,t[n]);
         }
       }
 
       // !findlg meaning is not for openging table or api, this time is for selecting columns in opening tables
       if (!findflg) {
+        m = chooseMsg('success-msg', "", "");
+
         if (inScenarioChk(ut, "func-item-select-all-cmd")) {
           // select all items
           $(`${COLUMNSPANEL} span`).filter(".item").each(function () {

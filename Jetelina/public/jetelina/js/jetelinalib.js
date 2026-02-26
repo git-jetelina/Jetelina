@@ -52,6 +52,7 @@
       jetelinaPanelPositionController(b) JETELINAPANEL position change 
       determindDateStart2End(dates) pick the min date and max date within query date array
       changeChatGirlImage(imgtype) switching chat box image.
+      findItemnameFromlist(tag,name) finding 'name' in the list of ordering 'tag' panel.
 */
 const JETELINACHATTELL = `${JETELINAPANEL} [name='jetelina_tell']`;
 const SOMETHINGMSGPANEL = "#something_msg";
@@ -2523,4 +2524,24 @@ const changeChatGirlImage = (imgtype) => {
     } else if (imgtype == "chat") {
         imgtag.hide();
     }
+}
+/**
+ * @function findItemnameFromlist
+ * @param {String} tag: searching panel id name. ex. TABLECONTAINER
+ * @param {String} name: searching target table/api name.
+ * @return {Boolean} : true -> find out, false -> the 'name' is not in 'tag' panel.
+ * 
+ * finding 'name' in the list of ordering 'tag' panel.
+ */
+const findItemnameFromlist = (tag,name) =>{
+    let ret = false;
+
+    $(`${tag} span`).each(function (i, v) {
+        if (v.textContent == name) {
+            listClick($(this));
+            ret = true;
+        }
+    });
+
+    return ret;
 }
