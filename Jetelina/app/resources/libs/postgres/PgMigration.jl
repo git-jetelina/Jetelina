@@ -46,8 +46,7 @@ function getTableList(conn)
         """
 
         dff = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
-        
-        if 0<size(dff)[1]            
+        if 0<=size(dff)[1]            
             if targetcolumnaname ∉ names(dff)
                 isjdf = false
             end
@@ -63,24 +62,23 @@ function getTableList(conn)
         df = DataFrame(columntable(LibPQ.execute(conn, table_str)))
         # do not include usertable and ivm table in the return
         DataFrames.filter!(row -> row.tablename != "jetelina_user_table" && row.tablename ∉ Df_JsJvList[!,:jv] , df)
-
         #===
             Tips:
                 select tables that does not have 'jetelina_delete_flg' in it among df
         ===#
         if 1 < size(df)[1]
-            dff = copy(df)
+            tnarry = []
             for i in 1:size(df, 1)
                 tn = string(df[!,:tablename][i])
                 if !_chkJetelina(tn)
                     #===
                         tn is for migrating table because it has not "jetelina_delete_flg" column in there yet
                     ===#
-                    DataFrames.filter!(row -> row.tablename == tn , dff)
+                    push!(tnarry,tn)
                 end
             end
             
-            df = copy(dff)
+            df = copy(DataFrame(tablename = tnarry))
         end
     catch err
         JLog.writetoLogfile("PgMigration.getTableList() error: $err")
