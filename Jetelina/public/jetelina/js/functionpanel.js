@@ -313,6 +313,10 @@ const cleanupItems4Switching = () => {
   $(`${TABLECONTAINER} span`).removeClass("activeItem");
   $(`${APICONTAINER} span`).removeClass("activeItem");
   $(`${CONTAINERPANEL} span`).remove();
+
+  if( isVisibleMigTableListPanel() ){
+    $(`${MIGRATIONTABLELIST}  span`).removeClass("activeItem");
+  }
 }
 /**
 * @function cleanupContainers
@@ -592,7 +596,11 @@ const listClick = (p) => {
         });
       }
 
-      if(!isivmtable){
+      /*
+        Tips:
+          getColumn() calls only Jetelina table. 
+      */
+      if(!isivmtable && !isVisibleMigTableListPanel() ){
         // get&show table columns
         getColumn(t);
       }
@@ -632,9 +640,10 @@ const listClick = (p) => {
 
     /*
       Tips:
-        because ivm table is not listed in JetelinaTableApiRelation file
+        because ivm table is not listed in JetelinaTableApiRelation file.
+        and migration target tables as well.
     */
-    if(!isivmtable){
+    if(!isivmtable && !isVisibleMigTableListPanel() ){
       let data = `{"table":"${related_table}","api":"${related_api}"}`;
       postAjaxData(scenario["function-post-url"][8], data);
     }
@@ -1550,24 +1559,32 @@ const functionPanelFunctions = (ut) => {
             -> in the case of 'ut' is 'close all', 'all close'
       */
       if (($.inArray('all', t) != -1) && ($.inArray('close', t) != -1)) {
-        $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem").each(function () {
-          if ($(this).hasClass("relatedItem")) {
-            $(this).removeClass("relatedItem");
-          }
-          if ($(this).hasClass("activeItem")) {
-            $(this).removeClass("activeItem");
-          }
-          if ($(this).hasClass("activeandrelatedItem")) {
-            $(this).removeClass("activeandrelatedItem");
-          }
+        if( isVisibleMigTableListPanel() ){
+          $(`${MIGRATIONTABLELIST} span`).filter(".activeItem").each(function () {
+            if ($(this).hasClass("activeItem")) {
+              $(this).removeClass("activeItem");
+            }
+          });
+        }else{
+          $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem").each(function () {
+            if ($(this).hasClass("relatedItem")) {
+              $(this).removeClass("relatedItem");
+            }
+            if ($(this).hasClass("activeItem")) {
+              $(this).removeClass("activeItem");
+            }
+            if ($(this).hasClass("activeandrelatedItem")) {
+              $(this).removeClass("activeandrelatedItem");
+            }
 
-          showGenelicPanel(false);
-          cleanUp("items");
-          let n = $(this).text();
-          if (relatedDataList[n] != null) {
-            delete relatedDataList[n];
-          }
-        });
+            showGenelicPanel(false);
+            cleanUp("items");
+            let n = $(this).text();
+            if (relatedDataList[n] != null) {
+              delete relatedDataList[n];
+            }
+          });
+        }
       }
 
       for (let n = 0; n < t.length; n++) {

@@ -44,7 +44,7 @@
       apiTestAjax() ajax function for executing API test.
       searchLogAjax() ajax function for searching 'errnum' in the log file
       showConfigPanel(b) "#config_panel" show or hide
-      showMigTableList(b) "#migration_table_list" show or hide
+      showMigTableList(b) "#migration_panel" show or hide
       showPreciousPanel(b) "#jetelina_teach_you_smg" show or hide
       jsonFromCheck(s) check for json form in mongodb
       guidancePageFootLinkController(n) create cmd and call guidancePageController in case of clickcing the page link on the footer 
@@ -315,7 +315,7 @@ const getdata = (o, t) => {
                                     } else if (t == -1 ){
                                         // migration table list
                                         let migList = [];
-                                        $(`${MIGRATIONTABLELIST} [name='table_list'] span`).each(function () {
+                                        $(`${MIGRATIONTABLELIST}  span`).each(function () {
                                             migList.push($(this).text());
                                         });
 
@@ -422,7 +422,7 @@ const getdata = (o, t) => {
                             } else if (t == 2) {
                                 tagid = APICONTAINER;
                             } else if ( t == -1 ){
-                                tagid = `${MIGRATIONTABLELIST} [name='table_list']`;
+                                tagid = MIGRATIONTABLELIST;
                             }
 
                             $(tagid).append(str);
@@ -2328,15 +2328,14 @@ const showConfigPanel = (b) => {
  * @function showMigTableList
  * @param {boolean} true -> show, false -> hide
  *  
- * "#migration_table_list" show or hide
+ * "#migration_panel" show or hide
  */
 const showMigTableList = (b) => {
     if (b) {
-        $(MIGRATIONTABLELIST).show().draggable();
+        $(MIGRATIONPANEL).show().draggable();
     } else {
         // delete all test results
-        $(MIGRATIONTABLELIST).hide();
-//        $(`${MIGRATIONTABLELIST} span`).filter(".configparams_key, .configparams_val").remove();
+        $(MIGRATIONPANEL).hide();
     }
 }
 /**
