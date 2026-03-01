@@ -1638,6 +1638,8 @@ const functionPanelFunctions = (ut) => {
             });
           }
         }
+      }else{
+        m = chooseMsg('success-msg', "", "");
       }
 
       if (m.length == 0) {

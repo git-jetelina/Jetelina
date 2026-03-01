@@ -2537,7 +2537,12 @@ const findItemnameFromlist = (tag,name) =>{
 
     $(`${tag} span`).each(function (i, v) {
         if (v.textContent == name) {
-            listClick($(this));
+            if(!isVisibleMigTableListPanel()){
+                listClick($(this));
+            }else{
+                $(this).toggleClass("activeItem");
+            }
+
             ret = true;
         }
     });
