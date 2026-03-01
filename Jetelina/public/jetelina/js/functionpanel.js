@@ -413,7 +413,11 @@ const fileupload = () => {
   the excecution of getting column is judged by this 'activeItem' attribute.
 */
 $(document).on("click", ".table,.api", function () {
-  listClick($(this));
+  if(!isVisibleMigTableListPanel()){
+    listClick($(this));
+  }else{
+    $(this).toggleClass("activeItem");
+  }
 });
 
 /**

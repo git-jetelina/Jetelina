@@ -705,7 +705,15 @@ const getMigAjax = () => {
  *  post migration tables
  */
 const postMigAjax = () => {
+    if(isVisibleMigTableListPanel()){
+        let migtables = [];
 
+        $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function(i,v){
+            migtables.push($(this).text());    
+        });
+
+        console.log("mig table list:", migtables);
+    }
 }
 
 
