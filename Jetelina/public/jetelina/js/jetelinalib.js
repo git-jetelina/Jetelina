@@ -705,14 +705,75 @@ const getMigAjax = () => {
  *  post migration tables
  */
 const postMigAjax = () => {
+    let m = "";
+
     if(isVisibleMigTableListPanel()){
         let migtables = [];
+        let url = scenario['function-mig-post-url'][0];
 
         $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function(i,v){
             migtables.push($(this).text());    
         });
 
-        console.log("mig table list:", migtables);
+        if( 0 < migtables.length ){
+            let pd = {};
+            pd["tablename"] = migtables;
+/*            
+            if (loginuser.sw == null || loginuser.sw == "") {
+                pd["pass"] = $(SOMETHINGINPUT).val();
+            } else {
+                pd["pass"] = loginuser.sw;
+            }
+*/
+            let dd = JSON.stringify(pd);
+console.log("mig post data ", dd);
+/*            
+            $.ajax({
+                url: url,
+                type: "post",
+                contentType: 'application/json',
+                data: dd,
+                dataType: "json",
+                xhr: function () {
+                    ret = $.ajaxSettings.xhr();
+                    inprogress = true;// in progress. for priventing accept a new command.
+                    typingControll(chooseMsg('inprogress-msg', "", ""));
+                    return ret;
+                }
+            }).done(function (result, textStatus, jqXHR) {
+                if (checkResult(result)) {
+                    let specialmsg = "";
+                    if (!result.result) {
+                        specialmsg = result["message from Jetelina"];
+                    }
+
+                    if (specialmsg == "") {
+                        m = chooseMsg("success-msg", "", "")
+                    } else {
+                        m = specialmsg;
+                    }
+
+                    typingControll(m, '', '');
+                }else{
+                    cmdCandidates = [];
+                    m = chooseMsg("fail-msg", "", "");
+                }
+            }).fail(function (result) {
+                checkResult(result);
+                cmdCandidates = [];
+                console.error("postMigAjax() fail: ", url);
+                typingControll(chooseMsg("fail-msg", "", ""));
+            }).always(function () {
+                // release it for allowing to input new command in the chatbox 
+                inprogress = false;
+            });*/
+        }else{
+            console.error("postMigAjax() no migration tables");
+            typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+        }
+    } else {
+        console.error("postMigAjax() never opened Migration panel");
+        typingControll(chooseMsg("func-db-mig-error-msg1", "", ""));
     }
 }
 
