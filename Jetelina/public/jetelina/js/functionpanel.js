@@ -1298,13 +1298,18 @@ const functionPanelFunctions = (ut) => {
       cmdCandidates.push("open sub query panel");
     }
 
-    if (cmd == "" && inScenarioChk(ut, 'func-tabledrop-cmd')) {
+    if (cmd == "" && (inScenarioChk(ut, 'func-tabledrop-cmd') || inScenarioChk(ut,'func-db-mig-cmd'))) {
       /*
         Attention:
           only 'admin' can drop tables
       */
       if (loginuser.roll == "admin") {
-        cmd = TABLEAPIDELETE;
+        if(inScenarioChk(ut, 'func-tabledrop-cmd')){
+          cmd = TABLEAPIDELETE;
+        }else if(inScenarioChk(ut, 'func-db-mig-cmd')){
+          cmd = TABLEMIGRATION;
+        }
+
         preferent.cmd = cmd;
         cmdCandidates.push("drop table");
       } else {
@@ -1349,7 +1354,6 @@ const functionPanelFunctions = (ut) => {
     if (cmd == "" && inScenarioChk(ut, 'common-post-cmd') ||
       (cmd == "" && inScenarioChk(ut, 'func-apicreate-cmd'))) {
       cmd = 'post';
-      //cmdCandidates.push("post");
       cancelableCmdList.push("post");
     }
 
@@ -1503,6 +1507,7 @@ const functionPanelFunctions = (ut) => {
         10.preapitest: api test before registering
         11.apitest: exist api test mode
         12.switchdb: switchng using database
+        13.TABLEMIGRATION: table migration
         default: non
   */
   switch (cmd) {
@@ -2071,6 +2076,28 @@ const functionPanelFunctions = (ut) => {
         cmdCandidates.push(cmd);
       }
 
+      break;
+    case TABLEMIGRATION:
+        console.log('case TABLEMIGRATION');
+        cancelableCmdList.push(TABLEMIGRATION);
+        if ((loginuser.sw == null || loginuser.sw == "") && (!$(SOMETHINGINPUT).is(":visible"))) {
+          showSomethingMsgPanel(true);
+          if (loginuser.available) {
+            showSomethingInputField(true, 2);
+            m = chooseMsg('func-require-stichwort-msg', '', '');
+          } else {
+            showSomethingInputField(true, 1);
+            m = chooseMsg('func-register-stichwort-msg', '', '');
+          }
+        } else {
+          /* execute drop table and/or delete api,
+             but 'pass phrase' is must item. 
+          */
+          if (($(SOMETHINGINPUT).is(":visible") && 0 < $(SOMETHINGINPUT).val().length) || (loginuser.sw != null && 0 < loginuser.sw.length)) {
+            console.log("execute migration here");
+            postMigAjax();
+          }
+        }
       break;
     default:
       break;

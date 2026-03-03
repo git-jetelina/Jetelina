@@ -79,6 +79,7 @@ const TABLEAPILISTOPEN = "table-api-open";//  〃
 const SELECTITEM = "select-item";// 　　　　　〃
 const TABLEAPIDELETE = "table-api-delete";// 〃
 const FILESELECTOROPEN = "files-elector-open"; // 　〃
+const TABLEMIGRATION = "table-migration"; // 　〃 
 const LOCALPARAM = "login2jetelina"; // local strage parameter
 const CONFIGPANEL = "#config_panel ";
 const CONFIGPANELLIST = `${CONFIGPANEL} [name='config_list']`;
@@ -718,13 +719,13 @@ const postMigAjax = () => {
         if( 0 < migtables.length ){
             let pd = {};
             pd["tablename"] = migtables;
-/*            
+            
             if (loginuser.sw == null || loginuser.sw == "") {
                 pd["pass"] = $(SOMETHINGINPUT).val();
             } else {
                 pd["pass"] = loginuser.sw;
             }
-*/
+
             let dd = JSON.stringify(pd);
 console.log("mig post data ", dd);
 /*            
