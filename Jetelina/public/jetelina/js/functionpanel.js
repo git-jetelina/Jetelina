@@ -1570,8 +1570,8 @@ const functionPanelFunctions = (ut) => {
       if (($.inArray('all', t) != -1) && ($.inArray('close', t) != -1)) {
         if( isVisibleMigTableListPanel() ){
           $(`${MIGRATIONTABLELIST} span`).filter(".activeItem").each(function () {
-            if ($(this).hasClass("activeItem")) {
-              $(this).removeClass("activeItem");
+            if (!$(this).hasClass("deleteItem")) {
+              $(this).toggleClass("activeItem");
             }
           });
         }else{
@@ -1703,7 +1703,6 @@ const functionPanelFunctions = (ut) => {
       } else {
         preferent.cmd = TABLEAPIDELETE;
         cancelableCmdList.push(TABLEAPIDELETE);
-        console.log("check 1");
         /*
           Tips:
             searching for all tables and apis order by utarray.
@@ -2078,7 +2077,6 @@ const functionPanelFunctions = (ut) => {
 
       break;
     case TABLEMIGRATION:
-        console.log('case TABLEMIGRATION');
         cancelableCmdList.push(TABLEMIGRATION);
         if ((loginuser.sw == null || loginuser.sw == "") && (!$(SOMETHINGINPUT).is(":visible"))) {
           showSomethingMsgPanel(true);
@@ -2094,7 +2092,6 @@ const functionPanelFunctions = (ut) => {
              but 'pass phrase' is must item. 
           */
           if (($(SOMETHINGINPUT).is(":visible") && 0 < $(SOMETHINGINPUT).val().length) || (loginuser.sw != null && 0 < loginuser.sw.length)) {
-            console.log("execute migration here");
             postMigAjax();
           }
         }

@@ -727,8 +727,7 @@ const postMigAjax = () => {
             }
 
             let dd = JSON.stringify(pd);
-console.log("mig post data ", dd);
-/*            
+            
             $.ajax({
                 url: url,
                 type: "post",
@@ -742,6 +741,8 @@ console.log("mig post data ", dd);
                     return ret;
                 }
             }).done(function (result, textStatus, jqXHR) {
+                showSomethingInputField(false);
+
                 if (checkResult(result)) {
                     let specialmsg = "";
                     if (!result.result) {
@@ -752,6 +753,14 @@ console.log("mig post data ", dd);
                         m = chooseMsg("success-msg", "", "")
                     } else {
                         m = specialmsg;
+                    }
+
+                    for (let n = 0; n < migtables.length; n++) {
+                        $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function(i,v){
+                            if (v.textContent == migtables[n]) {
+                                $(this).addClass("deleteItem");
+                            }
+                        });
                     }
 
                     typingControll(m, '', '');
@@ -767,7 +776,7 @@ console.log("mig post data ", dd);
             }).always(function () {
                 // release it for allowing to input new command in the chatbox 
                 inprogress = false;
-            });*/
+            });
         }else{
             console.error("postMigAjax() no migration tables");
             typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
@@ -2406,6 +2415,7 @@ const showMigTableList = (b) => {
     } else {
         // delete all test results
         $(MIGRATIONPANEL).hide();
+        $(`${MIGRATIONTABLELIST} span`).remove();
     }
 }
 /**
