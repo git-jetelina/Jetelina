@@ -742,6 +742,8 @@ const postMigAjax = () => {
                 }
             }).done(function (result, textStatus, jqXHR) {
                 showSomethingInputField(false);
+                rejectCancelableCmdList(TABLEMIGRATION);
+                preferent.cmd = "";
 
                 if (checkResult(result)) {
                     let specialmsg = "";
