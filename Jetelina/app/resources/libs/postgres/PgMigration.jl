@@ -135,16 +135,22 @@ function collect_columns_data_type(conn, tablename::String)
 function collect_columns_data_type(conn, tablename::String)
     result::Bool = true
     selectStr::String = """
-        select * from $tablename;
+        select * from $tablename limit 1;
     """
 
     try
         dd = LibPQ.execute(conn, selectStr)
 #        df = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
         df = DataFrame(columntable(dd))
+        @info df
         columns = names(df)
-        @info column_type = nonmissingtype.(eltype.(eachcol(df)))
-        @info LibPQ.column_types(dd)
+        @info columns typeof(columns)
+        column_type = nonmissingtype.(eltype.(eachcol(df)))
+        @info column_type typeof(column_type)
+        @info "what is this?" LibPQ.column_types(dd)
+
+        comb = Any[columns,column_type]
+        @info dff = DataFrame(comb, [:name,:type])
     catch err
         @info "PgMigration.collect_columns_data_type() error:: $err"
         result = false
