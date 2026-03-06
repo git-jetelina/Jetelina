@@ -44,7 +44,7 @@ functions
 -- special functions for RDBMS migration
     mig_getTableList() get the table list of targeting migration.
     mig_execute_migration(tablelist) execute the migration
-    mig_collect_columns_data_type(tablename::String) get the data type in the target table.
+    mig_collect_columns_data(tablename::String) get the data type in the target table.
 """
 module PgDBController
 
@@ -64,7 +64,7 @@ export create_jetelina_database, create_jetelina_table, create_jetelina_id_seque
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
     refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
-    mig_getTableList, mig_execute_migration, mig_collect_columns_data_type
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data
 
 """
 function create_jetelina_database()
@@ -1823,29 +1823,42 @@ function mig_execute_migration(tablelist::Vector)
 end
 
 """
-function mig_collect_columns_data_type(tablename::String)
+function mig_collect_columns_data(tablename::String)
 
     get the data type in the target table.
 
 # Arguments
 - `tablename:String`: target table name
-- return: error -> Tuple(false, error number)
+- `type::Integer`: 1->return data in DataFrames
+                   2->return data is only column names in array
+                   3->return data is only column data type in array 
+- return: Tuple(ture/false, columns data due to 'type')	
+            e.g. type = 1 in case DataFrames
+                    Row |  name   |  type    |
+                        | String  | DataType |
+                    --------------------------
+                       1| jt_id   | Integer  |
+                       2| address | String   |
+                       .|     .   |    .     |
+                       .|     .   |    .     |
 """
-function mig_collect_columns_data_type(tablename::String)
+function mig_collect_columns_data(tablename::String, type::Integer)
+    result::Bool = true
+    ret = ""
+
     conn = open_connection()
-    ret::Bool = true
 
     try
-        @info dd = PgMigration.collect_columns_data_type(conn, tablename)
+        ret = PgMigration.collect_columns_data(conn, tablename, type)
     catch err
-        ret = false
+        result = false
         errnum = JLog.getLogHash()
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data_type() error : $err")
-        return ret, errnum
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data() error : $err")
+        ret = errnum
     finally
         close_connection(conn)
     end
 
-    @info "PgMigration.mig_collect_columns_data_type " ret
+    return result, ret
 end
 end

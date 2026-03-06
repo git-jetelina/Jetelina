@@ -8,7 +8,7 @@ Description:
 
 functions
     getTableList(conn) collect the existing table's column data type
-    collect_columns_data_type(conn, tablename::String) collect the existing table's column data type
+    collect_columns_data(conn, tablename::String, type::Integer) collect the existing table's column data type
     execute_migration(conn, tablearray::Vector)	migration execution
 
 """
@@ -21,7 +21,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export getTableList, collect_columns_data_type, execute_migration
+export getTableList, collect_columns_data, execute_migration
 
 """
 function getTableList(conn)
@@ -94,7 +94,7 @@ function execute_migration(conn, tablearray::Vector)
 
 	migration execution
 
-    # Arguments
+# Arguments
 - `conn::LibPQ.Connection`: postgresql connection 
 - `tablearray:Array`: target table name list
 - return: success -> true, fail -> false	
@@ -116,52 +116,72 @@ function execute_migration(conn, tablearray::Vector)
         ret = false
         JLog.writetoLogfile("PgMigration.execute_migration() error: $err")
     finally
-#        close_connection(conn)
     end
 
     return ret
 end
 
 """
-function collect_columns_data_type(conn, tablename::String)
+function collect_columns_data(conn, tablename::String, type::Integer)
 
-	collect the existing table's column data type
+	collect the existing table's column data name/type
 
-    # Arguments
+# Arguments
 - `conn::LibPQ.Connection`: postgresql connection 
-- `tablename:String`: existing table name
-- return: columns data type list in json or DataFrame	
+- `tablename::String`: existing table name
+- `type::Integer`: 1->return data in DataFrames
+                   2->return data is only column names in array
+                   3->return data is only column data type in array 
+- return: Tuple(ture/false, columns data due to 'type')	
+            e.g. type = 1 in case DataFrames
+                    Row |  name   |  type    |
+                        | String  | DataType |
+                    --------------------------
+                       1| jt_id   | Integer  |
+                       2| address | String   |
+                       .|     .   |    .     |
+                       .|     .   |    .     |
 """
-function collect_columns_data_type(conn, tablename::String)
+function collect_columns_data(conn, tablename::String, type::Integer)
     result::Bool = true
+    ret = ""
+
+    #===
+        Tips:
+            at least one line data is required to get column info in a table
+    ===#
     selectStr::String = """
         select * from $tablename limit 1;
     """
 
     try
         dd = LibPQ.execute(conn, selectStr)
-#        df = DataFrame(columntable(LibPQ.execute(conn, selectStr)))
         df = DataFrame(columntable(dd))
-        @info df
+        #===
+            Tips:
+                you may aware, this func could return each 'name' and 'type' as array data,
+                but i prefer to use DataFrames to return them at once.
+                if it will be conveniented to use array data for an upper function.
+        ===#
         columns = names(df)
-        @info columns typeof(columns)
         column_type = nonmissingtype.(eltype.(eachcol(df)))
-        @info column_type typeof(column_type)
-        @info "what is this?" LibPQ.column_types(dd)
-
         comb = Any[columns,column_type]
-        @info dff = DataFrame(comb, [:name,:type])
+        ddf = DataFrame(comb, [:name,:type])
+
+        if(type == 1)
+            ret = ddf
+        elseif(type == 2)
+            ret = columns
+        elseif(type == 3)
+            ret = column_type
+        end
     catch err
-        @info "PgMigration.collect_columns_data_type() error:: $err"
+        @info "PgMigration.collect_columns_data() error:: $err"
         result = false
     finally
     end
 
-    if result
-        @info "success to collect_columns_data_type $tablename"
-    end
-
-    return result
+    return result, ret
 end
 
 """
