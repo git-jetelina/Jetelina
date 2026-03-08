@@ -44,7 +44,7 @@ functions
 -- special functions for RDBMS migration
     mig_getTableList() get the table list of targeting migration.
     mig_execute_migration(tablelist) execute the migration
-    mig_collect_columns_data(tablename::String) get the data type in the target table.
+    mig_collect_columns_data(tablename::String, type::Integer) get the data type in the target table.
 """
 module PgDBController
 

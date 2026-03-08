@@ -164,7 +164,7 @@ function collect_columns_data(conn, tablename::String, type::Integer)
                 if it will be conveniented to use array data for an upper function.
         ===#
         columns = names(df)
-        column_type = nonmissingtype.(eltype.(eachcol(df)))
+        column_type = string.(nonmissingtype.(eltype.(eachcol(df))))
         comb = Any[columns,column_type]
         ddf = DataFrame(comb, [:name,:type])
 

@@ -34,7 +34,6 @@
 -- special functions for RDBMS migration
 		mig_getTableList() Get the ordered table list by executing *.mig_getTable() depend on DB type
 		mig_execute_migration(tableName::Vector) execute db migration
-
 """
 
 module DBDataController
