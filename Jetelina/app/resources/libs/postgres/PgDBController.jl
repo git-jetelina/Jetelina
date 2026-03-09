@@ -417,7 +417,7 @@ function dataInsertFromCSV(fname::String)
     insert_column_str = string() # columns definition string
     insert_data_str = string() # data string
     update_str = string()
-    tablename_arr::Vector{String} = []
+#    tablename_arr::Vector{String} = []
 
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
@@ -583,7 +583,10 @@ function dataInsertFromCSV(fname::String)
     		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
     		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
     	===#
-    push!(tablename_arr, tableName)
+#    push!(tablename_arr, tableName)
+
+    retisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
+    #===
     insert_str = PgSQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
     if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "postgresql")[1] == false
         ApiSqlListManager.writeTolist(insert_str, "", tablename_arr, "postgresql")
@@ -598,10 +601,47 @@ function dataInsertFromCSV(fname::String)
     if ApiSqlListManager.sqlDuplicationCheck(delete_str[1], delete_str[2], "postgresql")[1] == false
         ApiSqlListManager.writeTolist(delete_str[1], delete_str[2], tablename_arr, "postgresql")
     end
-    # update sequence number with the end of row number
-#    setJetelinaSequenceNumber(tableName, insertEndid)
+    ===#
 
     return ret
+end
+"""
+function retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+
+	create and register insert/update/delete sql sentences to the API List
+
+# Arguments
+- `tableName: String`: insert targe table name
+- `insert_column_str: String`: part of columns definition in the insert sql
+- `insert_data_str: String`: part of data type definition in the insert sql
+- `update_str: String`: update sql sentece
+- return: tuple (boolean: true -> success/false -> get fail, JSON)
+"""
+function retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+    #===
+        Tips:
+            why'tableName' is put to 'tablename_arr', because ApiSqlListManager.writeTolist() requires the table name as Vector.
+            .writeTolist() manages both api/sql list and api/table relation list. indeed api/sql list needs only 'tableName',
+            however api/table relation list demands all relation tables name. in this process, cvs -> table, the table relation is 
+            not demanded, but no way, writeTolist() is like that. :P
+    ===#
+    tablename_arr::Vector{String} = []
+    push!(tablename_arr, tableName)
+
+    insert_str = PgSQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
+    if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "postgresql")[1] == false
+        ApiSqlListManager.writeTolist(insert_str, "", tablename_arr, "postgresql")
+    end
+    # update
+    update_str = PgSQLSentenceManager.createApiUpdateSentence(tableName, update_str)
+    if ApiSqlListManager.sqlDuplicationCheck(update_str[1], update_str[2], "postgresql")[1] == false
+        ApiSqlListManager.writeTolist(update_str[1], update_str[2], tablename_arr, "postgresql")
+    end
+    # delete
+    delete_str = PgSQLSentenceManager.createApiDeleteSentence(tableName)
+    if ApiSqlListManager.sqlDuplicationCheck(delete_str[1], delete_str[2], "postgresql")[1] == false
+        ApiSqlListManager.writeTolist(delete_str[1], delete_str[2], tablename_arr, "postgresql")
+    end
 end
 
 """
