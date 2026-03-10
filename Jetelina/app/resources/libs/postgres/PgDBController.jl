@@ -15,6 +15,7 @@ functions
     setJetelinaSequenceNumber(tablename::String,n::Integer)	set seaquence number in the ordered sequence table
 	getJetelinaSequenceNumber(t::Integer, tablename) get seaquence number from jetelina_id table
 	dataInsertFromCSV(fname::String) insert csv file data ordered by 'fname' into table. the table name is the csv file name.
+    retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String) create and register insert/update/delete sql sentences to the API List
 	dropTable(tableName::Vector) drop the tables and delete its related data from jetelina_table_manager table
 	getColumns(tableName::String) get columns name of ordereing table.
 	executeApi(json_d::Dict,target_api::DataFrame) execute API order by json data
@@ -61,7 +62,7 @@ include("PgIVMController.jl")
 include("PgMigration.jl")
 
 export create_jetelina_database, create_jetelina_table, create_jetelina_id_sequence, open_connection, close_connection,
-    getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, dropTable, getColumns,
+    getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, retisterSqlToApiList, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
     refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
     mig_getTableList, mig_execute_migration, mig_collect_columns_data
@@ -1841,10 +1842,40 @@ function mig_execute_migration(tablelist)
 function mig_execute_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
+    procedureflg::Bool = true
 
     try
         # tablelist expects in array
         if PgMigration.execute_migration(conn, tablelist)
+            for i ∈ 1:length(talblist)
+                mret = mig_collect_columns_data(conn, tablelist[i], 1)
+                if mret[1]
+                    # create api
+                    insert_column_str = string() # columns definition string
+                    insert_data_str = string() # data string
+                    update_str = string()
+                    column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
+                    p_column_type = mret[2][2][:,:type]
+                    column_type = []
+                    e_column_type = split.(p_column_type,'.')
+                    for ii ∈ 1:length(e_column_type)
+                        if 1<length(e_column_type)
+                            push!(column_type, e_column_type[2])
+                        else
+                            push!(column_type, e_column_type[1])
+                        end
+                    end
+
+                else
+                    procedureflg = false
+                    break
+                end
+            end
+        else
+            procedureflg = false
+        end
+
+        if procedureflg
             jmsg = "complement me."
             ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
         else
@@ -1863,7 +1894,7 @@ function mig_execute_migration(tablelist::Vector)
 end
 
 """
-function mig_collect_columns_data(tablename::String)
+function mig_collect_columns_data(conn, tablename::String, type::Integer)
 
     get the data type in the target table.
 
@@ -1882,11 +1913,11 @@ function mig_collect_columns_data(tablename::String)
                        .|     .   |    .     |
                        .|     .   |    .     |
 """
-function mig_collect_columns_data(tablename::String, type::Integer)
+function mig_collect_columns_data(conn, tablename::String, type::Integer)
     result::Bool = true
     ret = ""
 
-    conn = open_connection()
+#    conn = open_connection()
 
     try
         ret = PgMigration.collect_columns_data(conn, tablename, type)
@@ -1896,7 +1927,7 @@ function mig_collect_columns_data(tablename::String, type::Integer)
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data() error : $err")
         ret = errnum
     finally
-        close_connection(conn)
+#        close_connection(conn)
     end
 
     return result, ret
