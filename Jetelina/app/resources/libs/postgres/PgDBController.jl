@@ -423,7 +423,7 @@ function dataInsertFromCSV(fname::String)
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
     ===#
-    p = funcaaa(column_name,column_type)
+    p = createApiSentence(column_name,column_type)
     insert_column_str = p[1]
     insert_data_str = p[2]
     update_str = p[3]
@@ -611,15 +611,27 @@ function dataInsertFromCSV(fname::String)
 
     return ret
 end
+"""
+function createApiSentence(column_name::Vector, column_type::Vector)
 
-function funcaaa(column_name,column_type)
+	create sql sentence for ji/ju/jd APIs
+
+# Arguments
+- `column_name: Vector`: table column names
+- `column_type: Vector`: table column data types
+- return: Vector: [(1),(2),(3)]
+                    (1) string of column names for insert sql sentence
+                    (2) string of column data types for insert sql sentence
+                    (3) string of update sql sentence
+"""
+function createApiSentence(column_name::Vector, column_type::Vector)
     keyword1::String = "jetelina_delete_flg"
     keyword2::String = "jt_id"
     keyword3::String = "unique"
     column_str = string(keyword2, " serial primary key,") # using for creating table
-    insert_column_str = ""
-    insert_data_str = ""
-    update_str = ""
+    insert_column_str::String = ""
+    insert_data_str::String = ""
+    update_str::String = ""
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
     ===#
@@ -677,7 +689,6 @@ function funcaaa(column_name,column_type)
     return [insert_column_str, insert_data_str, update_str]
 
 end
-
 """
 function retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
 
@@ -1915,31 +1926,28 @@ function mig_execute_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
     procedureflg::Bool = true
-@info "original table list is " tablelist
+
     try
         # tablelist expects in array
         if PgMigration.execute_migration(conn, tablelist)
             for i ∈ 1:length(tablelist)
-                @info "tablelist " i tablelist[i]
                 mret = mig_collect_columns_data(conn, tablelist[i], 1)
                 if mret[1]
                     # create api
-                    insert_column_str = string() # columns definition string
-                    insert_data_str = string() # data string
-                    update_str = string()
                     column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
                     p_column_type = mret[2][2][:,:type]
                     column_type = []
                     e_column_type = split.(p_column_type,'.')
-                    for ii ∈ 1:length(e_column_type)
-                        if 1<length(e_column_type)
-                            push!(column_type, e_column_type[2])
+                    for ii ∈ eachindex(e_column_type)
+                        if 1<length(e_column_type[ii])
+                            push!(column_type, e_column_type[ii][2])
                         else
-                            push!(column_type, e_column_type[1])
+                            push!(column_type, e_column_type[ii][1])
                         end
                     end
-                    str = funcaaa(column_name,p_column_type)
-                    if !retisterSqlToApiList(tablelist[i],str[1],str[2],str[3])
+
+                    str = createApiSentence(column_name,p_column_type)
+                    if !retisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
                         procedureflg = false
                         break
                     end
@@ -1951,7 +1959,7 @@ function mig_execute_migration(tablelist::Vector)
         else
             procedureflg = false
         end
-@info "proce flg is " procedureflg tablelist[i]
+
         if procedureflg
             jmsg = "complement me."
             ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
@@ -1960,7 +1968,6 @@ function mig_execute_migration(tablelist::Vector)
             ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
         end
     catch err
-@info "simple chk"
         errnum = JLog.getLogHash()
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
@@ -1968,7 +1975,6 @@ function mig_execute_migration(tablelist::Vector)
         close_connection(conn)
     end
 
-@info "then return is " ret
     return ret
 end
 
