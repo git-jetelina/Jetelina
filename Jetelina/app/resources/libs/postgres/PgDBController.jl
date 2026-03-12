@@ -15,7 +15,8 @@ functions
     setJetelinaSequenceNumber(tablename::String,n::Integer)	set seaquence number in the ordered sequence table
 	getJetelinaSequenceNumber(t::Integer, tablename) get seaquence number from jetelina_id table
 	dataInsertFromCSV(fname::String) insert csv file data ordered by 'fname' into table. the table name is the csv file name.
-    retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String) create and register insert/update/delete sql sentences to the API List
+    createApiSentence(column_name::Vector, column_type::Vector)	create sql sentence for ji/ju/jd APIs
+    resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String) create and register insert/update/delete sql sentences to the API List
 	dropTable(tableName::Vector) drop the tables and delete its related data from jetelina_table_manager table
 	getColumns(tableName::String) get columns name of ordereing table.
 	executeApi(json_d::Dict,target_api::DataFrame) execute API order by json data
@@ -62,7 +63,7 @@ include("PgIVMController.jl")
 include("PgMigration.jl")
 
 export create_jetelina_database, create_jetelina_table, create_jetelina_id_sequence, open_connection, close_connection,
-    getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, retisterSqlToApiList, dropTable, getColumns,
+    getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, createApiSentence, resisterSqlToApiList, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
     refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
     mig_getTableList, mig_execute_migration, mig_collect_columns_data
@@ -591,7 +592,7 @@ function dataInsertFromCSV(fname::String)
     	===#
 #    push!(tablename_arr, tableName)
 
-    retisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
+    resisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
     #===
     insert_str = PgSQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
     if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "postgresql")[1] == false
@@ -690,7 +691,7 @@ function createApiSentence(column_name::Vector, column_type::Vector)
 
 end
 """
-function retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+function resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
 
 	create and register insert/update/delete sql sentences to the API List
 
@@ -701,7 +702,7 @@ function retisterSqlToApiList(tableName::String,insert_column_str::String,insert
 - `update_str: String`: update sql sentece
 - return: tuple (boolean: true -> success/false -> get fail, JSON)
 """
-function retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+function resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
     #===
         Tips:
             why'tableName' is put to 'tablename_arr', because ApiSqlListManager.writeTolist() requires the table name as Vector.
@@ -1947,7 +1948,7 @@ function mig_execute_migration(tablelist::Vector)
                     end
 
                     str = createApiSentence(column_name,p_column_type)
-                    if !retisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
+                    if !resisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
                         procedureflg = false
                         break
                     end
