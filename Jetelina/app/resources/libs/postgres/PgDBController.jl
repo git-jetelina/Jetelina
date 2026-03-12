@@ -423,6 +423,11 @@ function dataInsertFromCSV(fname::String)
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
     ===#
+    p = funcaaa(column_name,column_type)
+    insert_column_str = p[1]
+    insert_data_str = p[2]
+    update_str = p[3]
+#===
     for i ∈ 1:length(column_name)
         #===
         	Tips:
@@ -473,7 +478,7 @@ function dataInsertFromCSV(fname::String)
     if startswith(update_str, ",")
         update_str = lstrip(update_str, ',')
     end
-
+===#
     if j_config.JC["debug"]
         @info "PgDBController.dataInsertFromCSV() col str to create table: " column_str
     end
@@ -606,6 +611,73 @@ function dataInsertFromCSV(fname::String)
 
     return ret
 end
+
+function funcaaa(column_name,column_type)
+    keyword1::String = "jetelina_delete_flg"
+    keyword2::String = "jt_id"
+    keyword3::String = "unique"
+    column_str = string(keyword2, " serial primary key,") # using for creating table
+    insert_column_str = ""
+    insert_data_str = ""
+    update_str = ""
+    #===
+    	make the sentece of sql( "id integer, name varchar(36)...")
+    ===#
+    for i ∈ 1:length(column_name)
+        #===
+        	Tips:
+        		the reason for this connection, see in doSelect()
+        ===#
+        cn = column_name[i]
+        column_type_string = PgDataTypeList.getDataType(string(column_type[i]))
+        if contains(cn, keyword2)
+            column_str = string(column_str, " ", cn, " ", column_type_string, " ", keyword3)
+        else
+            column_str = string(column_str, " ", cn, " ", column_type_string)
+        end
+
+        insert_column_str = string(insert_column_str, "$cn")
+        if any(x -> startswith(lowercase(column_type_string),x), ["varchar","text","date"])
+            #string data
+            insert_data_str = string(insert_data_str, "'{$cn}'")
+            update_str = string(update_str, "$cn='{$cn}'")
+        else
+            #number data
+            insert_data_str = string(insert_data_str, "{$cn}")
+            if !contains(cn, keyword1) && !contains(cn, keyword2)
+                update_str = string(update_str, "$cn={$cn}")
+            end
+        end
+
+        if 0 < i < length(column_name)
+            column_str = string(column_str, ",")
+            insert_column_str = string(insert_column_str, ",")
+            insert_data_str = string(insert_data_str, ",")
+            #==
+            	Tips:
+            		because 'jetelina_delete_flg' always comes into the tail
+            ==#
+            if i < length(column_name) - 1
+                update_str = string(update_str, ",")
+            end
+        end
+    end
+
+    #===
+    	Tips:
+    		There is a reason.....
+    		in the above, 'update_str' has ',' at its head because of rejecting 'jt_id' column.
+    		'jt_id' is always head of the columns, and it puzzled to build 'update_str' if rejected it.
+    		that's why using lstrip(). dum it. :p
+    ===#
+    if startswith(update_str, ",")
+        update_str = lstrip(update_str, ',')
+    end
+
+    return [insert_column_str, insert_data_str, update_str]
+
+end
+
 """
 function retisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
 
@@ -1843,11 +1915,12 @@ function mig_execute_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
     procedureflg::Bool = true
-
+@info "original table list is " tablelist
     try
         # tablelist expects in array
         if PgMigration.execute_migration(conn, tablelist)
-            for i ∈ 1:length(talblist)
+            for i ∈ 1:length(tablelist)
+                @info "tablelist " i tablelist[i]
                 mret = mig_collect_columns_data(conn, tablelist[i], 1)
                 if mret[1]
                     # create api
@@ -1865,7 +1938,11 @@ function mig_execute_migration(tablelist::Vector)
                             push!(column_type, e_column_type[1])
                         end
                     end
-
+                    str = funcaaa(column_name,p_column_type)
+                    if !retisterSqlToApiList(tablelist[i],str[1],str[2],str[3])
+                        procedureflg = false
+                        break
+                    end
                 else
                     procedureflg = false
                     break
@@ -1874,7 +1951,7 @@ function mig_execute_migration(tablelist::Vector)
         else
             procedureflg = false
         end
-
+@info "proce flg is " procedureflg tablelist[i]
         if procedureflg
             jmsg = "complement me."
             ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
@@ -1883,6 +1960,7 @@ function mig_execute_migration(tablelist::Vector)
             ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
         end
     catch err
+@info "simple chk"
         errnum = JLog.getLogHash()
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
@@ -1890,6 +1968,7 @@ function mig_execute_migration(tablelist::Vector)
         close_connection(conn)
     end
 
+@info "then return is " ret
     return ret
 end
 
