@@ -428,58 +428,7 @@ function dataInsertFromCSV(fname::String)
     insert_column_str = p[1]
     insert_data_str = p[2]
     update_str = p[3]
-#===
-    for i ∈ 1:length(column_name)
-        #===
-        	Tips:
-        		the reason for this connection, see in doSelect()
-        ===#
-        cn = column_name[i]
-        column_type_string = PgDataTypeList.getDataType(string(column_type[i]))
-        if contains(cn, keyword2)
-            column_str = string(column_str, " ", cn, " ", column_type_string, " ", keyword3)
-        else
-            column_str = string(column_str, " ", cn, " ", column_type_string)
-        end
 
-        insert_column_str = string(insert_column_str, "$cn")
-        if any(x -> startswith(lowercase(column_type_string),x), ["varchar","text","date"])
-            #string data
-            insert_data_str = string(insert_data_str, "'{$cn}'")
-            update_str = string(update_str, "$cn='{$cn}'")
-        else
-            #number data
-            insert_data_str = string(insert_data_str, "{$cn}")
-            if !contains(cn, keyword1) && !contains(cn, keyword2)
-                update_str = string(update_str, "$cn={$cn}")
-            end
-        end
-
-        if 0 < i < length(column_name)
-            column_str = string(column_str, ",")
-            insert_column_str = string(insert_column_str, ",")
-            insert_data_str = string(insert_data_str, ",")
-            #==
-            	Tips:
-            		because 'jetelina_delete_flg' always comes into the tail
-            ==#
-            if i < length(column_name) - 1
-                update_str = string(update_str, ",")
-            end
-        end
-    end
-
-    #===
-    	Tips:
-    		There is a reason.....
-    		in the above, 'update_str' has ',' at its head because of rejecting 'jt_id' column.
-    		'jt_id' is always head of the columns, and it puzzled to build 'update_str' if rejected it.
-    		that's why using lstrip(). dum it. :p
-    ===#
-    if startswith(update_str, ",")
-        update_str = lstrip(update_str, ',')
-    end
-===#
     if j_config.JC["debug"]
         @info "PgDBController.dataInsertFromCSV() col str to create table: " column_str
     end
@@ -494,16 +443,8 @@ function dataInsertFromCSV(fname::String)
     	Tips:
     	    create table and sequence with 'not exists'.
     	    then insert csv data to there. this is because of forgiving adding data to the same table.
-
-            'jt_id' has been 'serial primary key' from 'integer primary key'. this column is incremented automatically, 
-            therefore 'seqT' does not need any more.
+            'jt_id' has been 'serial primary key' from 'integer primary key'. this column is incremented automatically.
     ===#
-#    seqT = string(tableName, "_id_sequence")
-#=    create_table_str = """
-    	create table if not exists $tableName(
-    		$column_str   
-    	);create sequence if not exists $seqT;
-    """ =#
     create_table_str = """
     	create table if not exists $tableName(
     		$column_str   
@@ -589,26 +530,8 @@ function dataInsertFromCSV(fname::String)
     		cols(see above) is ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
     		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
     		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
-    	===#
-#    push!(tablename_arr, tableName)
-
-    resisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
-    #===
-    insert_str = PgSQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
-    if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "postgresql")[1] == false
-        ApiSqlListManager.writeTolist(insert_str, "", tablename_arr, "postgresql")
-    end
-    # update
-    update_str = PgSQLSentenceManager.createApiUpdateSentence(tableName, update_str)
-    if ApiSqlListManager.sqlDuplicationCheck(update_str[1], update_str[2], "postgresql")[1] == false
-        ApiSqlListManager.writeTolist(update_str[1], update_str[2], tablename_arr, "postgresql")
-    end
-    # delete
-    delete_str = PgSQLSentenceManager.createApiDeleteSentence(tableName)
-    if ApiSqlListManager.sqlDuplicationCheck(delete_str[1], delete_str[2], "postgresql")[1] == false
-        ApiSqlListManager.writeTolist(delete_str[1], delete_str[2], tablename_arr, "postgresql")
-    end
     ===#
+    resisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
 
     return ret
 end
@@ -1786,104 +1709,11 @@ function deleteIVMApi(apinos::Vector)
 end
 
 
-"""
-    migration functions
+#====================================
+    call migration functions
     PgMigration.jl
     Feb 2026
-"""
-#
-# test programs for migration
-#
-function createDummyTable()
-    conn = open_connection()
-    ret::Bool = true
-
-    try
-        ret = PgMigration.createDummyTable(conn)
-    catch err
-        ret = false
-#        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
-#        return ret, errnum
-    finally
-        close_connection(conn)
-    end
-
-    @info "PgMigration.createDummyTable " ret
-end
-
-function dropDummyTable()
-    conn = open_connection()
-    ret::Bool = true
-
-    try
-        ret = PgMigration.dropDummyTable(conn)
-    catch err
-        ret = false
-#        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
-#        return ret, errnum
-    finally
-        close_connection(conn)
-    end
-
-    @info "PgMigration.dropDummyTable " ret
-end
-
-function dumdatainsert()
-    conn = open_connection()
-    ret::Bool = true
-
-    try
-        ret = PgMigration.dumdatainsert(conn)
-    catch err
-        ret = false
-#        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
-#        return ret, errnum
-    finally
-        close_connection(conn)
-    end
-
-    @info "PgMigration.dumdatainsert " ret
-end
-
-function selectDummyTable(colname::String)
-    conn = open_connection()
-    ret::Bool = true
-
-    try
-        ret = PgMigration.selectDummyTable(conn,colname)
-    catch err
-        ret = false
-#        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
-#        return ret, errnum
-    finally
-        close_connection(conn)
-    end
-
-    @info "PgMigration.selectDummyTable " ret
-end
-
-function columntypeofDummyTable()
-    conn = open_connection()
-    ret::Bool = true
-
-    try
-        ret = PgMigration.columntypeofDummyTable(conn)
-    catch err
-        ret = false
-#        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
-#        return ret, errnum
-    finally
-        close_connection(conn)
-    end
-
-    @info "PgMigration.columntypeofDummyTable " ret
-end
-
+====================================#
 """
 function mig_getTableList()
 
@@ -2003,8 +1833,6 @@ function mig_collect_columns_data(conn, tablename::String, type::Integer)
     result::Bool = true
     ret = ""
 
-#    conn = open_connection()
-
     try
         ret = PgMigration.collect_columns_data(conn, tablename, type)
     catch err
@@ -2013,9 +1841,103 @@ function mig_collect_columns_data(conn, tablename::String, type::Integer)
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data() error : $err")
         ret = errnum
     finally
-#        close_connection(conn)
     end
 
     return result, ret
 end
+
+#
+# test programs for migration
+#
+function createDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.createDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.createDummyTable " ret
+end
+
+function dropDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.dropDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.dropDummyTable " ret
+end
+
+function dumdatainsert()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.dumdatainsert(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.dumdatainsert " ret
+end
+
+function selectDummyTable(colname::String)
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.selectDummyTable(conn,colname)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.selectDummyTable " ret
+end
+
+function columntypeofDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = PgMigration.columntypeofDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "PgMigration.columntypeofDummyTable " ret
+end
+
+
 end
