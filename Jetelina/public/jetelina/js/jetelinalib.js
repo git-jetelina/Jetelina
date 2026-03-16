@@ -2209,7 +2209,7 @@ const subPanelCheck = () => {
             if (inCancelableCmdList([CONFIGCHANGE])) {
                 let e = chooseMsg('common-post-cmd', '', '');
                 typingControll(chooseMsg('config-update-msg', e, "r"));
-            } else if (inCancelableCmdList([TABLEAPIDELETE])) {
+            } else if (inCancelableCmdList([TABLEAPIDELETE,TABLEMIGRATION])) {
                 typingControll(chooseMsg('common-confirm-msg', '', ""));
             }
         }
