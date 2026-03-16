@@ -741,10 +741,6 @@ const postMigAjax = () => {
                     return ret;
                 }
             }).done(function (result, textStatus, jqXHR) {
-                showSomethingInputField(false);
-                rejectCancelableCmdList(TABLEMIGRATION);
-                preferent.cmd = "";
-
                 if (checkResult(result)) {
                     let specialmsg = "";
                     if (!result.result) {
@@ -765,6 +761,12 @@ const postMigAjax = () => {
                         });
                     }
 
+                    loginuser.sw = pd["pass"];
+                    showSomethingInputField(false);
+                    showSomethingMsgPanel(false);
+                    showGenelicPanel(false);
+                    rejectCancelableCmdList(TABLEMIGRATION);
+                    preferent.cmd = "";
                     refreshdisplayTablesAndApis();
                     typingControll(m, '', '');
                 }else{
