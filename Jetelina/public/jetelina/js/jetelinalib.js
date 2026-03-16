@@ -765,6 +765,7 @@ const postMigAjax = () => {
                         });
                     }
 
+                    refreshdisplayTablesAndApis();
                     typingControll(m, '', '');
                 }else{
                     cmdCandidates = [];
