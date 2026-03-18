@@ -458,10 +458,12 @@ function deleteApi()
 
             ret = json(Dict("result" => true, "apiname" => "$retapis", "message from Jetelina" => jmsg))
         else
-            ret = json(Dict("result" => false, "apiname" => "$retapis", "errmsg" => "Oh my, failed the deleting. Type 'show error' to show somethin' if you're lucky."))
+            jmsg = "Oh my, failed the deleting. Type 'show error' to show somethin' if you're lucky."
+            ret = json(Dict("result" => false, "apiname" => "$retapis", "errmsg" => jmsg))
         end
     else
-        ret = json(Dict("result" => false, "message from Jetelina" => "wrong pass phrase"))
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+        ret = json(Dict("result" => false, "message from Jetelina" => jmsg))
     end
 
     return ret
@@ -541,7 +543,7 @@ function getRelatedTableApi()
     if (0 < length(ret))
         json(Dict("result" => true, "target" => target, "list" => ret, "message from Jetelina" => jmsg))
     else
-        json(Dict("result" => false, "target" => target, "list" => 0, "errmsg" => "Oh my, there is no initial APIs, guess somethi' had happend at uploading file, ah..... sorry"))
+        json(Dict("result" => false, "target" => target, "list" => 0, "errmsg" => "Oh my, there is no initial APIs, guess somethi' had happend at uploading file or this table should be migrated under my control,  ah..... sorry"))
     end
 end
 """

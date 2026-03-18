@@ -999,6 +999,18 @@ const postAjaxData = (url, data) => {
 
                     $(CONFIGPANELLIST).append(dbparams);
                     showConfigPanel(true);
+                } else if (url == posturls[8]) {
+                    /*
+                        Tips:
+                            in case not migrated table, 'result.list' is '0'. so relatedDataList['table name'] is be null.
+                            it is not good on the scree operation, e.g. 'activeItem' css is not removed, i mean the target table
+                            is not be un-highlighted, because the target table is not listed in relatedDataList object.
+                            so a dummy data set in there at here, if 'result.list' is '0'.
+                            posturls[8] returns 'result=false' and 'list=0', in this case. this is the protocol.
+                    */
+                    if (result.list == 0) {
+                        relatedDataList[result.target] = ["dumdum"];
+                    }
                 }
 
                 cmdCandidates = [];

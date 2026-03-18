@@ -233,8 +233,8 @@ function dropTable(tableName::Vector, stichwort::String)
 		==#
 		return ret[2]
 	else
-		jmg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
-		return json(Dict("result" => false, "errmsg" => "$jmg"))
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+		return json(Dict("result" => false, "errmsg" => jmsg))
 	end
 
 end

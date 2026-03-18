@@ -1095,6 +1095,8 @@ const dropThisTable = (tables) => {
       m = result["message from Jetelina"];
       if (m == null || m == "") {
         m = chooseMsg('fail-msg', '', '');
+      }else if(m.indexOf("wrong pass phrase")){
+        login.sw = null;
       }
     }
 
@@ -2213,6 +2215,8 @@ const deleteThisApi = (apis) => {
       m = result["message from Jetelina"];
       if (m == null || m == "") {
         m = chooseMsg('fail-msg', '', '');
+      }else if(m.indexOf("wrong pass phrase")){
+        login.sw = null;
       }
     }
 
@@ -2270,11 +2274,11 @@ const whichCommandsInOrders = (s) => {
  */
 const cleanupRelatedList = (b) => {
   //  $("#api_container span").remove();
-  if (b) {
+//  if (b) {
     for (let i in relatedDataList) {
       delete relatedDataList[i];
     }
-  }
+//  }
 }
 /**
  * @function refreshdisplayTablesAndApis
