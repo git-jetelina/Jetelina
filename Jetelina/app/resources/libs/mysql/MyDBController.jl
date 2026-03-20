@@ -31,7 +31,12 @@ functions
 	 deleteUserAccount(uid::Integer) user delete, but not physical deleting, set jetelina_delete_flg to 1. 
 	 checkTheRoll(roll::String) check the ordered user's authority in order to 'roll'.
 	 refStichWort(stichwort::String)	reference and matching with user_info->stichwort
-    prepareDbEnvironment(mode::String) database connection checking, and initializing database if needed
+     prepareDbEnvironment(mode::String) database connection checking, and initializing database if needed
+
+-- special functions for RDBMS migration
+    mig_getTableList() get the table list of targeting migration.
+    mig_execute_migration(tablelist) execute the migration
+    mig_collect_columns_data(tablename::String, type::Integer) get the data type in the target table.
 """
 module MyDBController
 
@@ -44,11 +49,13 @@ JMessage.showModuleInCompiling(@__MODULE__)
 
 include("MyDataTypeList.jl")
 include("MySQLSentenceManager.jl")
+include("MyMigration.jl")
 
 export create_jetelina_database, create_jetelina_table, open_connection, close_connection,
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
-    refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment
+    refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data
 
 
 """
@@ -1502,5 +1509,238 @@ function _mycheck()
         close_connection(conn)
     end
 end
+
+
+
+#====================================
+    call migration functions
+    MyMigration.jl
+    Feb 2026
+====================================#
+"""
+function mig_getTableList()
+
+    get the table list of targeting migration.
+    the target table which has not been migrated yet are found by checking 
+      (1) wether exist its sequence table ex. ftest -> ftest_ftest_jt_id_seq
+      (2) wether exist unique column ex. ftest_jt_id or jetelina_delete_flg
+    mayby hiring (2)'jetelina_delete_flg' is the best.
+
+# Arguments
+- return: error -> Tuple(false, error number)
+"""
+function mig_getTableList()
+    conn = open_connection()
+
+    try
+        tlist = MyMigration.getTableList(conn)
+        return json(Dict("result" => true, "Jetelina" => copy.(eachrow(reverse(tlist)))))
+    catch err
+        ret = false
+        errnum = JLog.getLogHash()
+        ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_getTableList() error : $err")
+        return ret
+    finally
+        close_connection(conn)
+    end
+end
+
+"""
+function mig_execute_migration(tablelist)
+
+    execute the migration
+
+    the target table names are passed as json/array by user
+
+# Arguments
+- return: error -> Tuple(false, error number)
+"""
+function mig_execute_migration(tablelist::Vector)
+    conn = open_connection()
+    ret = ""
+    procedureflg::Bool = true
+
+    try
+        # tablelist expects in array
+        if MyMigration.execute_migration(conn, tablelist)
+            for i ∈ 1:length(tablelist)
+                mret = mig_collect_columns_data(conn, tablelist[i], 1)
+                if mret[1]
+                    # create api
+                    column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
+                    p_column_type = mret[2][2][:,:type]
+                    column_type = []
+                    e_column_type = split.(p_column_type,'.')
+                    for ii ∈ eachindex(e_column_type)
+                        if 1<length(e_column_type[ii])
+                            push!(column_type, e_column_type[ii][2])
+                        else
+                            push!(column_type, e_column_type[ii][1])
+                        end
+                    end
+
+                    str = createApiSentence(column_name,p_column_type)
+                    if !resisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
+                        procedureflg = false
+                        break
+                    end
+                else
+                    procedureflg = false
+                    break
+                end
+            end
+        else
+            procedureflg = false
+        end
+
+        if procedureflg
+            jmsg = "complement me."
+            ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        else
+            jmsg = "someting wrong"
+            ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        end
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+    finally
+        close_connection(conn)
+    end
+
+    return ret
+end
+
+"""
+function mig_collect_columns_data(conn, tablename::String, type::Integer)
+
+    get the data type in the target table.
+
+# Arguments
+- `tablename:String`: target table name
+- `type::Integer`: 1->return data in DataFrames
+                   2->return data is only column names in array
+                   3->return data is only column data type in array 
+- return: Tuple(ture/false, columns data due to 'type')	
+            e.g. type = 1 in case DataFrames
+                    Row |  name   |  type    |
+                        | String  | DataType |
+                    --------------------------
+                       1| jt_id   | Integer  |
+                       2| address | String   |
+                       .|     .   |    .     |
+                       .|     .   |    .     |
+"""
+function mig_collect_columns_data(conn, tablename::String, type::Integer)
+    result::Bool = true
+    ret = ""
+
+    try
+        ret = MyMigration.collect_columns_data(conn, tablename, type)
+    catch err
+        result = false
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data() error : $err")
+        ret = errnum
+    finally
+    end
+
+    return result, ret
+end
+
+#
+# test programs for migration
+#
+function createDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.createDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.createDummyTable " ret
+end
+
+function dropDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.dropDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.dropDummyTable " ret
+end
+
+function dumdatainsert()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.dumdatainsert(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.dumdatainsert " ret
+end
+
+function selectDummyTable(colname::String)
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.selectDummyTable(conn,colname)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.selectDummyTable " ret
+end
+
+function columntypeofDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.columntypeofDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.columntypeofDummyTable " ret
+end
+
 
 end
