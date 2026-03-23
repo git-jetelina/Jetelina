@@ -108,9 +108,18 @@ function execute_migration(conn, tablearray::Vector)
             tn::String = string(tablearray[i])
             jtid::String = string(tn,"_jt_id")
             addjtid::String = """alter table $tn add column $jtid serial primary key"""
-            addjtdelflg::String = """alter table $tn add column $delflg integer;alter table $tn alter column $delflg set default 0;update $tn set $delflg = 0"""
-
-            DBInterface.execute(conn, """$addjtid;$addjtdelflg""")
+            adddelflg::String = """alter table $tn add column $delflg integer"""
+            setdelflg::String = """alter table $tn alter column $delflg set default 0"""
+            updelflg::String = """update $tn set $delflg = 0"""
+            #===
+                Tips:
+                    unfortunately, .execute() can handle single sql sentence at once, so far. 
+                    2026/3/23
+            ===#
+            DBInterface.execute(conn, """$addjtid""")
+            DBInterface.execute(conn, """$adddelflg""")
+            DBInterface.execute(conn, """$setdelflg""")
+            DBInterface.execute(conn, """$updelflg""")
         end
     catch err
         ret = false
