@@ -61,7 +61,8 @@ include("libs/mongo/MonSQLSentenceManager.jl")
 export init_Jetelina_table, createJetelinaDatabaseinMysql,
 	dataInsertFromCSV, getTableList, getSequenceNumber, dropTable, getColumns, doSelect,
 	executeApi, userRegist, chkUserExistence, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo, updateUserData, deleteUserAccount,
-	createApiSelectSentence, refStichWort, prepareDbEnvironment
+	createApiSelectSentence, refStichWort, prepareDbEnvironment,
+	dropIVMtable, mig_getTableList, mig_execute_migration
 
 
 """
@@ -695,11 +696,7 @@ function mig_getTableList()
 		PgDBController.mig_getTableList()
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
-#		if j_config.JC["my_dbname"] == "mysql"
-#			createJetelinaDatabaseinMysql()
-#		end
-		
-#		MyDBController.getTableList(s)
+		MyDBController.mig_getTableList()
 	elseif j_config.JC["dbtype"] == "oracle"
 	end
 end
@@ -719,7 +716,7 @@ function mig_execute_migration(tableName::Vector)
 		ret = PgDBController.mig_execute_migration(tableName)
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
-#		ret = MyDBController.mig_execute_migration(tableName)
+		ret = MyDBController.mig_execute_migration(tableName)
 	elseif j_config.JC["dbtype"] == "oracle"
 	end
 

@@ -214,6 +214,12 @@ function _getTableList()
     table_str = """select table_name from information_schema.tables where table_schema='jetelina';"""
     try
         df = DataFrame(columntable(DBInterface.execute(conn, table_str)))
+        #===
+            Caution:
+                the column name in df by getting DBInterface... is TABLE_NAME. this is fixed name.
+                not tablename, not TABLENAME. it is TABLE_NAME.
+                will may get a trouble due to update the lib. :p.  20
+        ===#
         # do not include usertable
         DataFrames.filter!(row -> row.TABLE_NAME != "jetelina_user_table", df)
     catch err
@@ -1539,7 +1545,7 @@ function mig_getTableList()
         ret = false
         errnum = JLog.getLogHash()
         ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_getTableList() error : $err")
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_getTableList() error : $err")
         return ret
     finally
         close_connection(conn)
@@ -1603,7 +1609,7 @@ function mig_execute_migration(tablelist::Vector)
         end
     catch err
         errnum = JLog.getLogHash()
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_execute_migration() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
     finally
         close_connection(conn)
@@ -1641,7 +1647,7 @@ function mig_collect_columns_data(conn, tablename::String, type::Integer)
     catch err
         result = false
         errnum = JLog.getLogHash()
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data() error : $err")
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_collect_columns_data() error : $err")
         ret = errnum
     finally
     end
@@ -1661,7 +1667,7 @@ function createDummyTable()
     catch err
         ret = false
 #        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
 #        return ret, errnum
     finally
         close_connection(conn)
@@ -1679,7 +1685,7 @@ function dropDummyTable()
     catch err
         ret = false
 #        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
 #        return ret, errnum
     finally
         close_connection(conn)
@@ -1697,7 +1703,7 @@ function dumdatainsert()
     catch err
         ret = false
 #        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
 #        return ret, errnum
     finally
         close_connection(conn)
@@ -1715,7 +1721,7 @@ function selectDummyTable(colname::String)
     catch err
         ret = false
 #        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
 #        return ret, errnum
     finally
         close_connection(conn)
@@ -1733,7 +1739,7 @@ function columntypeofDummyTable()
     catch err
         ret = false
 #        errnum = JLog.getLogHash()
-#        JLog.writetoLogfile("[errnum:$errnum] PgDBController.compareJsAndJv() error : $err")
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
 #        return ret, errnum
     finally
         close_connection(conn)

@@ -57,11 +57,11 @@ function getTableList(conn)
 
     df = DataFrame()
     # Fixing as 'public' in schemaname. This is the protocol.
-    table_str = """select tablename from pg_tables where schemaname='public'"""
+    table_str = """select table_name from information_schema.tables where table_schema='jetelina';"""
     try
         df = DataFrame(columntable(DBInterface.execute(conn, table_str)))
         # do not include usertable and ivm table in the return
-        DataFrames.filter!(row -> row.tablename != "jetelina_user_table" && row.tablename ∉ Df_JsJvList[!,:jv] , df)
+        DataFrames.filter!(row -> row.TABLE_NAME != "jetelina_user_table", df)
         #===
             Tips:
                 select tables that does not have 'jetelina_delete_flg' in it among df
@@ -69,7 +69,7 @@ function getTableList(conn)
         if 1 < size(df)[1]
             tnarry = []
             for i in 1:size(df, 1)
-                tn = string(df[!,:tablename][i])
+                tn = string(df[!,:TABLE_NAME][i])
                 if !_chkJetelina(tn)
                     #===
                         tn is for migrating table because it has not "jetelina_delete_flg" column in there yet
@@ -192,22 +192,21 @@ function createDummyTable(conn)
 function createDummyTable(conn)
     result::Bool = true
     tablename::String = "mig_dum"
+
     column_str::String = """
         small smallint,
         intg integer,
         big bigint,
         decim decimal,
-        num numeric,
-        rea real,
-        mone money,
-        name varchar,
+        num float,
+        rea double,
+        name varchar(256),
         day date,
         timezone time,
         jsonstr json,
-        jsonbstr jsonb,
-        xmlstr xml,
         booleanstr boolean
     """
+
     createStr::String = """
     	create table if not exists $tablename(
     		$column_str   
@@ -260,10 +259,10 @@ function dumdatainsert(conn)
     tablename::String = "mig_dum"
 
     column_str::String = """
-        small,intg,big,decim,num,rea,mone,name,day,timezone,jsonstr,jsonbstr,xmlstr,booleanstr
+        small,intg,big,decim,num,rea,name,day,timezone,jsonstr,booleanstr
     """
     value_str::String = """
-        1,20,100,0.11,1.1,1.001,-1,'keiji','1962-05-25',now(),'{"json":"json data"}','{"jsonb":"json b data"}','<xml>XML Data</xml>',true
+        1,20,100,0.11,1.1,1.001,'keiji','1962-05-25',now(),'{"json":"json data"}',true
     """
     insertStr::String = """
     	insert into $tablename ( $column_str
