@@ -428,6 +428,7 @@ function dataInsertFromCSV(fname::String)
     insert_column_str = p[1]
     insert_data_str = p[2]
     update_str = p[3]
+    column_str = p[4]
 
     if j_config.JC["debug"]
         @info "PgDBController.dataInsertFromCSV() col str to create table: " column_str
@@ -436,8 +437,8 @@ function dataInsertFromCSV(fname::String)
     #===
     	check if the same name table already exists.
     ===#
-    df_tl = _getTableList()
-    DataFrames.filter!(row -> row.tablename == tableName, df_tl)
+#    df_tl = _getTableList()
+#    DataFrames.filter!(row -> row.tablename == tableName, df_tl)
 
     #===
     	Tips:
@@ -458,7 +459,7 @@ function dataInsertFromCSV(fname::String)
         close_connection(conn)
         errnum = JLog.getLogHash()
         ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.dataInsertFromCSV() with $fname error : $err")
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.dataInsertFromCSV() at create table with $fname error : $err")
         return ret
     finally
         # do not close the connection because of resuming below yet.
@@ -519,7 +520,7 @@ function dataInsertFromCSV(fname::String)
     catch err
         errnum = JLog.getLogHash()
         ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.dataInsertFromCSV() with $fname error : $err")
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.dataInsertFromCSV() at data insertion with $fname error : $err")
         return ret
     finally
         # ok. close the connection finally
@@ -547,6 +548,7 @@ function createApiSentence(column_name::Vector, column_type::Vector)
                     (1) string of column names for insert sql sentence
                     (2) string of column data types for insert sql sentence
                     (3) string of update sql sentence
+                    (4) string of column strings for create table sql sentence
 """
 function createApiSentence(column_name::Vector, column_type::Vector)
     keyword1::String = "jetelina_delete_flg"
@@ -610,7 +612,7 @@ function createApiSentence(column_name::Vector, column_type::Vector)
         update_str = lstrip(update_str, ',')
     end
 
-    return [insert_column_str, insert_data_str, update_str]
+    return [insert_column_str, insert_data_str, update_str, column_str]
 
 end
 """
