@@ -13,7 +13,7 @@ functions
 	 getTableList(s::String) get all table name from 'jetelina' database
 	 getJetelinaSequenceNumber(t::Integer, tablename) 	get seaquence number from jetelina_sql_sequence, jetelina_user_id_sequence or <table>_id_sequence
 	 dataInsertFromCSV(fname::String) insert csv file data ordered by 'fname' into table. the table name is the csv file name.
-     createApiSentence(column_name::Vector, column_type::Vector)	create sql sentence for ji/ju/jd APIs
+     createApiSentence(tableName::String, column_name::Vector, column_type::Vector)	create sql sentence for ji/ju/jd APIs
      resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String) create and register insert/update/delete sql sentences to the API List
 	 dropTable(tableName::Vector) drop the tables and delete its related data from jetelina_table_manager table
 	 getColumns(tableName::String) get columns name of ordereing table.
@@ -257,9 +257,6 @@ function dataInsertFromCSV(fname::String)
 - return: boolean: true -> success, false -> get fail
 """
 function dataInsertFromCSV(fname::String)
-    keyword1::String = "jetelina_delete_flg"
-    keyword2::String = "jt_id"
-    keyword3::String = "unique"
     ret = ""
     jmsg::String = string("compliment me!")
 
@@ -271,11 +268,13 @@ function dataInsertFromCSV(fname::String)
     		ex. /home/upload/test.csv -> splitdir() -> ("/home/upload","test.csv") -> splitext() -> ("test",".csv")
     ===#
     tableName = splitext(splitdir(fname)[2])[1]
+
     #===
     	Tips:
     		MySql does not forgive to use '-' in a table name
     ===#
     tableName = replace(tableName, "-" => "_")
+
     #===
     	Tips:
     		original column names in the csv file are changed here because of making it unique.
@@ -288,11 +287,11 @@ function dataInsertFromCSV(fname::String)
     end
 
     rename!(df, Symbol.(colarray))
-    keyword2 = string(tableName, '_', keyword2)
 
-    # special column 'jetelina_delte_flg' is added to columns 
     #===
         Tips:
+            special column 'jetelina_delte_flg' is added to columns.
+
             the secound param in insertcols!() points to the insert position.
             if there is no param in there, default is at adding to the tail
             e.g
@@ -303,88 +302,14 @@ function dataInsertFromCSV(fname::String)
                  . |   .         .                  .
     ===#
     insertcols!(df, :jetelina_delete_flg => 0)
-
     column_name = names(df)
-
     column_type = eltype.(eachcol(df))
-#    column_type_string = Array{Union{Nothing,String}}(nothing, length(column_name)) # using for creating table
-    #==
-        Tips:
-            apply 'auto_increment' to 'jt_id' column.
-            this parameter is the special for MySQL.
-            'jt_id' is to be a sequence number because of this setting. 
-    ==#
-    column_str = string(keyword2, " integer not null auto_increment primary key,") # using for creating table
-
-    insert_column_str = string() # columns definition string
-    insert_data_str = string() # data string
-    update_str = string()
-#    tablename_arr::Vector{String} = []
 
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
     ===#
-    p = createApiSentence(column_name,column_type)
-    insert_column_str = p[1]
-    insert_data_str = p[2]
-    update_str = p[3]
-    column_str = p[4]
+    insert_column_str,insert_data_str,update_str,column_str = createApiSentence(tableName,column_name,column_type)
 
-    #===
-    for i ∈ 1:length(column_name)
-        #===
-        	Tips:
-        		the reason for this connection, see in doSelect()
-        ===#
-        cn = column_name[i]
-        column_type_string = MyDataTypeList.getDataType(string(column_type[i]))
-        if contains(cn, keyword2)
-            column_str = string(column_str, " ", cn, " ", column_type_string, " ", keyword3)
-        else
-            column_str = string(column_str, " ", cn, " ", column_type_string)
-        end
-
-        insert_column_str = string(insert_column_str, "$cn")
-        if any(x -> startswith(lowercase(column_type_string),x), ["varchar","text","date"])
-            #string data
-            insert_data_str = string(insert_data_str, "'{$cn}'")
-            update_str = string(update_str, "$cn='{$cn}'")
-        else
-            #number data
-            insert_data_str = string(insert_data_str, "{$cn}")
-            if !contains(cn, keyword1) && !contains(cn, keyword2)
-                update_str = string(update_str, "$cn={$cn}")
-            end
-        end
-
-        if 0 < i < length(column_name)
-            column_str = string(column_str, ",")
-            insert_column_str = string(insert_column_str, ",")
-            insert_data_str = string(insert_data_str, ",")
-            #==
-            	Tips:
-            		because 'jetelina_delete_flg' always comes into the tail
-        	==#
-            if i < length(column_name) - 1
-                update_str = string(update_str, ",")
-            end
-        end
-    end
-
-    #===
-    	Tips:
-    		There is a reason.....
-    		in the above, 'update_str' has ',' at its head because of rejecting 'jt_id' column.
-    		'jt_id' is always head of the columns, and it puzzled to build 'update_str' if rejected it.
-    		that's why using lstrip(). dum it. :p
-    ===#
-    if startswith(update_str, ",")
-        update_str = lstrip(update_str, ',')
-    end
-    ===#
-    if j_config.JC["debug"]
-        @info "MyDBController.dataInsertFromCSV() col str to create table: " column_str
-    end
     #===
     	Tips:
     	    create table and sequence with 'not exists'.
@@ -430,6 +355,7 @@ function dataInsertFromCSV(fname::String)
 
     # change 'local_infile' setting to 'on' .  very important.
     _infile_on(conn)
+
     try
         DBInterface.execute(conn, copyin)
         ret = json(Dict("result" => true, "filename" => "$fname", "message from Jetelina" => jmsg))
@@ -446,38 +372,19 @@ function dataInsertFromCSV(fname::String)
         # never use any more
         rm(tmpf)
     end
-    #===
-    		Tips:
-    		cols(see above) is ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
-    		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
-    		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
-    ===#
+
+    # register ji/ju/jd to the list
     resisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
-    #===
-    push!(tablename_arr, tableName)
-    insert_str = MySQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
-    if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "mysql")[1] == false
-        ApiSqlListManager.writeTolist(insert_str, "", tablename_arr, "mysql")
-    end
-    # update
-    update_str = MySQLSentenceManager.createApiUpdateSentence(tableName, update_str)
-    if ApiSqlListManager.sqlDuplicationCheck(update_str[1], update_str[2], "mysql")[1] == false
-        ApiSqlListManager.writeTolist(update_str[1], update_str[2], tablename_arr, "mysql")
-    end
-    # delete
-    delete_str = MySQLSentenceManager.createApiDeleteSentence(tableName)
-    if ApiSqlListManager.sqlDuplicationCheck(delete_str[1], delete_str[2], "mysql")[1] == false
-        ApiSqlListManager.writeTolist(delete_str[1], delete_str[2], tablename_arr, "mysql")
-    end
-    ===#
+
     return ret
 end
 """
-function createApiSentence(column_name::Vector, column_type::Vector)
+function createApiSentence(tableName::String, column_name::Vector, column_type::Vector)
 
 	create sql sentence for ji/ju/jd APIs
 
 # Arguments
+- `tableName::String`: target table name
 - `column_name: Vector`: table column names
 - `column_type: Vector`: table column data types
 - return: Vector: [(1),(2),(3),(4)]
@@ -486,11 +393,11 @@ function createApiSentence(column_name::Vector, column_type::Vector)
                     (3) string of update sql sentence
                     (4) string of column strings for create table sql sentence
 """
-function createApiSentence(column_name::Vector, column_type::Vector)
+function createApiSentence(tableName::String, column_name::Vector, column_type::Vector)
     keyword1::String = "jetelina_delete_flg"
     keyword2::String = "jt_id"
     keyword3::String = "unique"
-    column_str = string(keyword2, " serial primary key,") # using for creating table
+    column_str = string(tableName,'_',keyword2, " serial primary key,") # using for creating table
     insert_column_str::String = ""
     insert_data_str::String = ""
     update_str::String = ""
@@ -561,7 +468,7 @@ function resisterSqlToApiList(tableName::String,insert_column_str::String,insert
 - `insert_column_str: String`: part of columns definition in the insert sql
 - `insert_data_str: String`: part of data type definition in the insert sql
 - `update_str: String`: update sql sentece
-- return: tuple (boolean: true -> success/false -> get fail, JSON)
+- return: tuple (boolean: true -> success/false -> get fail, JSON) <- return of ApiSqlListManager.writeTolist() or .sqlDuplicationCheck()
 """
 function resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
     #===
@@ -574,6 +481,12 @@ function resisterSqlToApiList(tableName::String,insert_column_str::String,insert
     tablename_arr::Vector{String} = []
     push!(tablename_arr, tableName)
 
+    #===
+    		Tips:
+    		cols is e.g. ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
+    		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
+    		that why do not use cols here. writing select sentence is done in MySQLSentenceManager.createApiSelectSentence(). 
+    ===#
     insert_str = MySQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
     if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "mysql")[1] == false
         ApiSqlListManager.writeTolist(insert_str, "", tablename_arr, "mysql")
@@ -588,10 +501,6 @@ function resisterSqlToApiList(tableName::String,insert_column_str::String,insert
     if ApiSqlListManager.sqlDuplicationCheck(delete_str[1], delete_str[2], "mysql")[1] == false
         ApiSqlListManager.writeTolist(delete_str[1], delete_str[2], tablename_arr, "mysql")
     end
-
-#    @info "insert " insert_str
- #   @info "update " update_str
-  #  @info "delete " delete_str
 end
 
 """
@@ -1719,7 +1628,7 @@ function mig_execute_migration(tablelist::Vector)
                         end
                     end
 
-                    str = createApiSentence(column_name,p_column_type)
+                    str = createApiSentence(tablelist[i],column_name,p_column_type)
                     if !resisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
                         procedureflg = false
                         break

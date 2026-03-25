@@ -424,21 +424,7 @@ function dataInsertFromCSV(fname::String)
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
     ===#
-    p = createApiSentence(column_name,column_type)
-    insert_column_str = p[1]
-    insert_data_str = p[2]
-    update_str = p[3]
-    column_str = p[4]
-
-    if j_config.JC["debug"]
-        @info "PgDBController.dataInsertFromCSV() col str to create table: " column_str
-    end
-
-    #===
-    	check if the same name table already exists.
-    ===#
-#    df_tl = _getTableList()
-#    DataFrames.filter!(row -> row.tablename == tableName, df_tl)
+    insert_column_str,insert_data_str,update_str,column_str = createApiSentence(column_name,column_type)
 
     #===
     	Tips:
@@ -526,12 +512,8 @@ function dataInsertFromCSV(fname::String)
         # ok. close the connection finally
         close_connection(conn)
     end
-    #===
-    	Tips:
-    		cols(see above) is ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
-    		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
-    		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
-    ===#
+
+    # register ji/ju/jd to the list
     resisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
 
     return ret
@@ -625,7 +607,7 @@ function resisterSqlToApiList(tableName::String,insert_column_str::String,insert
 - `insert_column_str: String`: part of columns definition in the insert sql
 - `insert_data_str: String`: part of data type definition in the insert sql
 - `update_str: String`: update sql sentece
-- return: tuple (boolean: true -> success/false -> get fail, JSON)
+- return: tuple (boolean: true -> success/false -> get fail, JSON) <- return of ApiSqlListManager.writeTolist() or .sqlDuplicationCheck()
 """
 function resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
     #===
@@ -638,6 +620,12 @@ function resisterSqlToApiList(tableName::String,insert_column_str::String,insert
     tablename_arr::Vector{String} = []
     push!(tablename_arr, tableName)
 
+    #===
+    	Tips:
+    		cols is e.g. ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
+    		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
+    		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
+    ===#
     insert_str = PgSQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
     if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "postgresql")[1] == false
         ApiSqlListManager.writeTolist(insert_str, "", tablename_arr, "postgresql")
