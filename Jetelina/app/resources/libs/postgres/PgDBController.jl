@@ -15,7 +15,7 @@ functions
     setJetelinaSequenceNumber(tablename::String,n::Integer)	set seaquence number in the ordered sequence table
 	getJetelinaSequenceNumber(t::Integer, tablename) get seaquence number from jetelina_id table
 	dataInsertFromCSV(fname::String) insert csv file data ordered by 'fname' into table. the table name is the csv file name.
-    createApiSentence(column_name::Vector, column_type::Vector)	create sql sentence for ji/ju/jd APIs
+    createApiSentence(tableName::String, column_name::Vector, column_type::Vector)	create sql sentence for ji/ju/jd APIs
     resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String) create and register insert/update/delete sql sentences to the API List
 	dropTable(tableName::Vector) drop the tables and delete its related data from jetelina_table_manager table
 	getColumns(tableName::String) get columns name of ordereing table.
@@ -411,20 +411,18 @@ function dataInsertFromCSV(fname::String)
                  . |   .         .                  .
     ===#
     insertcols!(df, :jetelina_delete_flg => 0)
-
     column_name = names(df)
-
     column_type = eltype.(eachcol(df))
-    column_str = string(keyword2, " serial primary key,") # using for creating table
-    insert_column_str = string() # columns definition string
-    insert_data_str = string() # data string
-    update_str = string()
+#    column_str = string(keyword2, " serial primary key,") # using for creating table
+#    insert_column_str = string() # columns definition string
+#    insert_data_str = string() # data string
+#    update_str = string()
 #    tablename_arr::Vector{String} = []
 
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
     ===#
-    insert_column_str,insert_data_str,update_str,column_str = createApiSentence(column_name,column_type)
+    insert_column_str,insert_data_str,update_str,column_str = createApiSentence(tableName, column_name,column_type)
 
     #===
     	Tips:
@@ -475,7 +473,6 @@ function dataInsertFromCSV(fname::String)
             'df' is the dataframe data of the csv file.
             'df0' is the existence data in the 'tableName'
     ===#
-    #    insertStartid::Integer = getJetelinaSequenceNumber(3,tableName)
     insertStartid::Integer = nrow(df0) + 1
     # append data into the exists table, and take care '+1' and '-1'
     insertEndid::Integer = insertStartid + nrow(df) -1
@@ -493,15 +490,15 @@ function dataInsertFromCSV(fname::String)
             'jt_id' column is defined as serial primary key.
             this key must update after a csv file insert, because of executing 'ji**' function.
     ===#
-    sequencename = string(tableName,"_",keyword2,"_seq")
-    setjtidno = """
-        select setval ('$sequencename', $insertEndid+1, false);
-    """
+#    sequencename = string(tableName,"_",keyword2,"_seq")
+#    setjtidno = """
+#        select setval ('$sequencename', $insertEndid+1, false);
+#    """
 
     copyin = LibPQ.CopyIn("COPY $tableName FROM STDIN (FORMAT CSV);", row_strings)
     try
         execute(conn, copyin)
-        execute(conn, setjtidno)
+#        execute(conn, setjtidno)
         ret = json(Dict("result" => true, "filename" => "$fname", "message from Jetelina" => jmsg))
     catch err
         errnum = JLog.getLogHash()
@@ -519,11 +516,12 @@ function dataInsertFromCSV(fname::String)
     return ret
 end
 """
-function createApiSentence(column_name::Vector, column_type::Vector)
+function createApiSentence(tableName::String, column_name::Vector, column_type::Vector)
 
 	create sql sentence for ji/ju/jd APIs
 
 # Arguments
+- `tableName::String`: target table name
 - `column_name: Vector`: table column names
 - `column_type: Vector`: table column data types
 - return: Vector: [(1),(2),(3)]
@@ -532,11 +530,11 @@ function createApiSentence(column_name::Vector, column_type::Vector)
                     (3) string of update sql sentence
                     (4) string of column strings for create table sql sentence
 """
-function createApiSentence(column_name::Vector, column_type::Vector)
+function createApiSentence(tableName::String, column_name::Vector, column_type::Vector)
     keyword1::String = "jetelina_delete_flg"
     keyword2::String = "jt_id"
     keyword3::String = "unique"
-    column_str = string(keyword2, " serial primary key,") # using for creating table
+    column_str = string(tableName,'_',keyword2, " serial primary key,") # using for creating table
     insert_column_str::String = ""
     insert_data_str::String = ""
     update_str::String = ""
@@ -1767,7 +1765,7 @@ function mig_execute_migration(tablelist::Vector)
                         end
                     end
 
-                    str = createApiSentence(column_name,p_column_type)
+                    str = createApiSentence(tablelist[i],column_name,p_column_type)
                     if !resisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
                         procedureflg = false
                         break
