@@ -490,15 +490,15 @@ function dataInsertFromCSV(fname::String)
             'jt_id' column is defined as serial primary key.
             this key must update after a csv file insert, because of executing 'ji**' function.
     ===#
-#    sequencename = string(tableName,"_",keyword2,"_seq")
-#    setjtidno = """
-#        select setval ('$sequencename', $insertEndid+1, false);
-#    """
+    sequencename = string(tableName,"_",keyword2,"_seq")
+    setjtidno = """
+        select setval ('$sequencename', $insertEndid+1, false);
+    """
 
     copyin = LibPQ.CopyIn("COPY $tableName FROM STDIN (FORMAT CSV);", row_strings)
     try
         execute(conn, copyin)
-#        execute(conn, setjtidno)
+        execute(conn, setjtidno)
         ret = json(Dict("result" => true, "filename" => "$fname", "message from Jetelina" => jmsg))
     catch err
         errnum = JLog.getLogHash()
