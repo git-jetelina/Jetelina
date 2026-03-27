@@ -70,7 +70,8 @@ function create_jetelina_database()
     
 """
 function create_jetelina_database()
-    jetelinadb = "jetelina"
+#    jetelinadb = "jetelina"
+    jetelinadb = j_config.JC["my_dbname"]
 
     conn = open_connection()
     #===
@@ -147,9 +148,16 @@ function open_connection()
     host = j_config.JC["my_host"]
     user = j_config.JC["my_user"]
     pwd = j_config.JC["my_password"]
-    db = j_config.JC["my_dbname"]
+#    db = j_config.JC["my_dbname"]
+    db = ""
     nport = parse(Int, j_config.JC["my_port"])
     sock = j_config.JC["my_unix_socket"]
+
+    if j_config.JC["my_work"]
+        db = j_config.JC["my_dbname"]
+    else
+        db = "mysql"
+    end
 
     conn = DBInterface.connect(MySQL.Connection, "$host", "$user", "$pwd", db="$db", port=nport, unix_socket="$sock")
     #===
@@ -163,7 +171,7 @@ function open_connection()
 #        DBInterface.execute(conn, "use jetelina")
         DBInterface.execute(conn, "use $db")
     catch err
-        JLog.writetoLogfile("MyDBController.open_connection() error: $err")
+        JLog.writetoLogfile("MyDBController.open_connection() use the db error: $err")
         return false
     finally
         return conn
@@ -307,6 +315,15 @@ function dataInsertFromCSV(fname::String)
 
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
+
+        Attention:
+            you may wonder why do not use 'alter' to put 'jt_id'&'jetelina_delete_flg'. i mean create table without them, then do 'alter'.
+            well, indeed it would be easy&smart here's logic if it used.
+            however i need 'column_str' to create the table, and it builds together 'insert*'&'update*' at once in the createApi.. api.
+            and these sql sentences require 'jt_id'&'jetelina_delete_flg' as well. so i set my priority on building the sql sentences, and that why 
+            the process of creating the table was to be stepfull a litte bit. :p 
+
+            may change this logic some day.
     ===#
     insert_column_str,insert_data_str,update_str,column_str = createApiSentence(tableName,column_name,column_type)
 
@@ -1537,9 +1554,9 @@ function _mycheck()
         println(df)
         k = filter(x -> x.Variable_name == "local_infile", df)
         println(k)
-        @info "value? " k[:, :Value]
+#        @info "value? " k[:, :Value]
         if lowercase(k[:, :Value][1]) == "on"
-            @info "ok"
+#            @info "ok"
             sql = "set global local_infile = off"
             df = DataFrame(DBInterface.execute(conn, sql))
             println(df)

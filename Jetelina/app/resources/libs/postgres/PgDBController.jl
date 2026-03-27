@@ -379,11 +379,13 @@ function dataInsertFromCSV(fname::String)
     		ex. /home/upload/test.csv -> splitdir() -> ("/home/upload","test.csv") -> splitext() -> ("test",".csv")
     ===#
     tableName = splitext(splitdir(fname)[2])[1]
+
     #===
     	Tips:
     		Postgresql does not forgive to use '-' in a table name
     ===#
     tableName = replace(tableName, "-" => "_")
+
     #===
     	Tips:
     		original column names in the csv file are changed here because of making it unique.
@@ -413,16 +415,20 @@ function dataInsertFromCSV(fname::String)
     insertcols!(df, :jetelina_delete_flg => 0)
     column_name = names(df)
     column_type = eltype.(eachcol(df))
-#    column_str = string(keyword2, " serial primary key,") # using for creating table
-#    insert_column_str = string() # columns definition string
-#    insert_data_str = string() # data string
-#    update_str = string()
-#    tablename_arr::Vector{String} = []
 
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
+
+        Attention:
+            you may wonder why do not use 'alter' to put 'jt_id'&'jetelina_delete_flg'. i mean create table without them, then do 'alter'.
+            well, indeed it would be easy&smart here's logic if it used.
+            however i need 'column_str' to create the table, and it builds together 'insert*'&'update*' at once in the createApi.. api.
+            and these sql sentences require 'jt_id'&'jetelina_delete_flg' as well. so i set my priority on building the sql sentences, and that why 
+            the process of creating the table was to be stepfull a litte bit. :p 
+
+            may change this logic some day.
     ===#
-    insert_column_str,insert_data_str,update_str,column_str = createApiSentence(tableName, column_name,column_type)
+    insert_column_str,insert_data_str,update_str,column_str = createApiSentence(tableName, column_name, column_type)
 
     #===
     	Tips:

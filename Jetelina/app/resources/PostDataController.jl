@@ -558,6 +558,10 @@ function switchDB()
     jmsg::String = string("compliment me!")
 
     if (!isnothing(db) && db != "")
+        if(db == "mysql")
+            DBDataController.createJetelinaDatabaseinMysql()
+        end
+
         JSession.setDBType(db)
         j_config.JC["dbtype"] = db
     end
