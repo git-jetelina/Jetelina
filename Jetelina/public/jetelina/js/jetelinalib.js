@@ -80,6 +80,7 @@ const SELECTITEM = "select-item";// 　　　　　〃
 const TABLEAPIDELETE = "table-api-delete";// 〃
 const FILESELECTOROPEN = "files-elector-open"; // 　〃
 const TABLEMIGRATION = "table-migration"; // 　〃 
+const TABLEMIGRATIONCANCELLATION = "table-migration-cancellation"; // 　〃 
 const LOCALPARAM = "login2jetelina"; // local strage parameter
 const CONFIGPANEL = "#config_panel ";
 const CONFIGPANELLIST = `${CONFIGPANEL} [name='config_list']`;
@@ -313,7 +314,7 @@ const getdata = (o, t) => {
                                                 }
                                             }
                                         }
-                                    } else if (t == -1 ){
+                                    } else if (t == -1) {
                                         // migration table list
                                         let migList = [];
                                         $(`${MIGRATIONTABLELIST}  span`).each(function () {
@@ -380,7 +381,7 @@ const getdata = (o, t) => {
                                 }
 
                                 // postgresql ivm function 
-                                if(v["pgivm"] !== null){
+                                if (v["pgivm"] !== null) {
                                     loginuser.pgivm = v["pgivm"];
                                 }
                             } else if (t == 6) {
@@ -422,7 +423,7 @@ const getdata = (o, t) => {
                                 tagid = `${COLUMNSPANEL} .item_area`;
                             } else if (t == 2) {
                                 tagid = APICONTAINER;
-                            } else if ( t == -1 ){
+                            } else if (t == -1) {
                                 tagid = MIGRATIONTABLELIST;
                             }
 
@@ -544,7 +545,7 @@ const getAjaxData = (url) => {
                         if (!isSuggestion) {
                             iconface = "chat";
                             m = "success-msg";
-                        }else{
+                        } else {
                             m = 'stats-performance-improve-msg';
                         }
 
@@ -702,94 +703,121 @@ const getMigAjax = () => {
 }
 /**
  * @function postMigAjax
+ * @param {string} s "exec" -> execute table migration
+ *                   "cancel" -> cancellation migrated table
  * 
- *  post migration tables
+ *  post migration or cancellation tables
  */
-const postMigAjax = () => {
+const postMigAjax = (s) => {
     let m = "";
+    let url = ""
+    let pd = {};
 
-    if(isVisibleMigTableListPanel()){
-        let migtables = [];
-        let url = scenario['function-mig-post-url'][0];
+    if (loginuser.sw == null || loginuser.sw == "") {
+        pd["pass"] = $(SOMETHINGINPUT).val();
+    } else {
+        pd["pass"] = loginuser.sw;
+    }
 
-        $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function(i,v){
-            migtables.push($(this).text());    
-        });
+    if (s == "exec") {
+        if (isVisibleMigTableListPanel()) {
+            let migtables = [];
+            url = scenario['function-mig-post-url'][0];
 
-        if( 0 < migtables.length ){
-            let pd = {};
-            pd["tablename"] = migtables;
-            
-            if (loginuser.sw == null || loginuser.sw == "") {
-                pd["pass"] = $(SOMETHINGINPUT).val();
-            } else {
-                pd["pass"] = loginuser.sw;
-            }
-
-            let dd = JSON.stringify(pd);
-            
-            $.ajax({
-                url: url,
-                type: "post",
-                contentType: 'application/json',
-                data: dd,
-                dataType: "json",
-                xhr: function () {
-                    ret = $.ajaxSettings.xhr();
-                    inprogress = true;// in progress. for priventing accept a new command.
-                    typingControll(chooseMsg('inprogress-msg', "", ""));
-                    return ret;
-                }
-            }).done(function (result, textStatus, jqXHR) {
-                if (checkResult(result)) {
-                    let specialmsg = "";
-                    if (!result.result) {
-                        specialmsg = result["message from Jetelina"];
-                    }
-
-                    if (specialmsg == "") {
-                        m = chooseMsg("success-msg", "", "")
-                    } else {
-                        m = specialmsg;
-                    }
-
-                    for (let n = 0; n < migtables.length; n++) {
-                        $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function(i,v){
-                            if (v.textContent == migtables[n]) {
-                                $(this).addClass("deleteItem");
-                            }
-                        });
-                    }
-
-                    loginuser.sw = pd["pass"];
-                    showSomethingInputField(false);
-                    showSomethingMsgPanel(false);
-                    showGenelicPanel(false);
-                    rejectCancelableCmdList(TABLEMIGRATION);
-                    preferent.cmd = "";
-                    refreshdisplayTablesAndApis();
-                    typingControll(m, '', '');
-                }else{
-                    cmdCandidates = [];
-                    m = chooseMsg("fail-msg", "", "");
-                }
-            }).fail(function (result) {
-                checkResult(result);
-                cmdCandidates = [];
-                console.error("postMigAjax() fail: ", url);
-                typingControll(chooseMsg("fail-msg", "", ""));
-            }).always(function () {
-                // release it for allowing to input new command in the chatbox 
-                inprogress = false;
+            $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function (i, v) {
+                migtables.push($(this).text());
             });
-        }else{
-            console.error("postMigAjax() no migration tables");
-            typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+
+            if (0 < migtables.length) {
+                pd["tablename"] = migtables;
+            } else {
+                console.error("postMigAjax() no migration tables");
+                typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+                return;
+            }
+        } else {
+            console.error("postMigAjax() never opened Migration panel");
+            typingControll(chooseMsg("func-db-mig-error-msg1", "", ""));
+            return;
         }
     } else {
-        console.error("postMigAjax() never opened Migration panel");
-        typingControll(chooseMsg("func-db-mig-error-msg1", "", ""));
+        // cancellation
+        url = scenario['function-mig-post-url'][1];
+        let droptables = [];
+        $(`${TABLECONTAINER} span`).filter('.deleteItem').each(function () {
+            droptables.push($(this).text());
+        });
+
+        if (0 < droptables.length) {
+            pd["tablename"] = droptables;
+        } else {
+            console.error("postMigAjax() no cancel migration tables");
+            typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+            return;
+        }
     }
+
+    let dd = JSON.stringify(pd);
+
+    $.ajax({
+        url: url,
+        type: "post",
+        contentType: 'application/json',
+        data: dd,
+        dataType: "json",
+        xhr: function () {
+            ret = $.ajaxSettings.xhr();
+            inprogress = true;// in progress. for priventing accept a new command.
+            typingControll(chooseMsg('inprogress-msg', "", ""));
+            return ret;
+        }
+    }).done(function (result, textStatus, jqXHR) {
+        if (checkResult(result)) {
+            let specialmsg = "";
+            if (!result.result) {
+                specialmsg = result["message from Jetelina"];
+            }
+
+            if (specialmsg == "") {
+                m = chooseMsg("success-msg", "", "")
+            } else {
+                m = specialmsg;
+            }
+
+            for (let n = 0; n < migtables.length; n++) {
+                $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function (i, v) {
+                    if (v.textContent == migtables[n]) {
+                        $(this).addClass("deleteItem");
+                    }
+                });
+            }
+
+            loginuser.sw = pd["pass"];
+            showSomethingInputField(false);
+            showSomethingMsgPanel(false);
+            showGenelicPanel(false);
+            if(s == "exec"){
+                rejectCancelableCmdList(TABLEMIGRATION);
+            }else{
+                rejectCancelableCmdList(TABLEMIGRATIONCANCELLATION);
+            }
+
+            preferent.cmd = "";
+            refreshdisplayTablesAndApis();
+            typingControll(m, '', '');
+        } else {
+            cmdCandidates = [];
+            m = chooseMsg("fail-msg", "", "");
+        }
+    }).fail(function (result) {
+        checkResult(result);
+        cmdCandidates = [];
+        console.error("postMigAjax() fail: ", url);
+        typingControll(chooseMsg("fail-msg", "", ""));
+    }).always(function () {
+        // release it for allowing to input new command in the chatbox 
+        inprogress = false;
+    });
 }
 
 
@@ -1312,14 +1340,14 @@ const chatKeyDown = (cmd) => {
         if (inScenarioChk(ut, 'guidance-goto-jetelinaorg-cmd')) {
             window.open(scenario["jetelina-web-site-url"][0], "_blank");
         } else {
-//            m = guidancePageController(ut);
-            if(ut.startsWith("go")){
+            //            m = guidancePageController(ut);
+            if (ut.startsWith("go")) {
                 let gcom = ut.split(" ");
-                if(0<gcom.length){
-                    for (k in gcom){
-                        if(gcom[k].startsWith("m") && 1<gcom[k].length){
+                if (0 < gcom.length) {
+                    for (k in gcom) {
+                        if (gcom[k].startsWith("m") && 1 < gcom[k].length) {
                             let gu = $(`#guidance div[name='page1'] span[name='${gcom[k]}'] a`).prop("href");
-                            window.open(gu,"_blank");
+                            window.open(gu, "_blank");
                             m = chooseMsg("starting-6a-msg", "", "");
                             break;
                         }
@@ -1489,7 +1517,7 @@ const chatKeyDown = (cmd) => {
                             the process is defined in initialprocess.js
                             and do not get out by the normal logout because of session data.
                         */
-                       showSomethingMsgPanel(false);
+                        showSomethingMsgPanel(false);
                         stage = 0;
                         $(JETELINAPANEL).hide();
                         jetelinaInitialize();
@@ -1521,10 +1549,10 @@ const chatKeyDown = (cmd) => {
                     jetelinaPanelPositionController(false);
 
                     // test for migration
-                    if(inScenarioChk(ut, 'func-db-mig-hide-tables')){
+                    if (inScenarioChk(ut, 'func-db-mig-hide-tables')) {
                         showMigTableList(false);
                         m = "migration hide";
-                    } else if(inScenarioChk(ut, 'func-db-mig-show-tables')){
+                    } else if (inScenarioChk(ut, 'func-db-mig-show-tables')) {
                         getMigAjax();
                         m = "migration show";
                     }
@@ -1705,9 +1733,9 @@ const chatKeyDown = (cmd) => {
                         */
                     } else {
                         // do not have an authority
-                        
+
                         // v3.0 6/10/2025 'user-manage-delete' is not existance
-//                        if (inScenarioChk(ut, 'user-manage-add-cmd') || inScenarioChk(ut, 'user-manage-update') || inScenarioChk(ut, 'user-manage-delete') || inScenarioChk(ut, 'config-show-cmd')) {
+                        //                        if (inScenarioChk(ut, 'user-manage-add-cmd') || inScenarioChk(ut, 'user-manage-update') || inScenarioChk(ut, 'user-manage-delete') || inScenarioChk(ut, 'config-show-cmd')) {
                         if (inScenarioChk(ut, 'user-manage-add-cmd') || inScenarioChk(ut, 'user-manage-update') || inScenarioChk(ut, 'config-show-cmd')) {
                             m = chooseMsg("no-authority-js-msg", "", "");
                         } else {
@@ -2221,7 +2249,7 @@ const subPanelCheck = () => {
             if (inCancelableCmdList([CONFIGCHANGE])) {
                 let e = chooseMsg('common-post-cmd', '', '');
                 typingControll(chooseMsg('config-update-msg', e, "r"));
-            } else if (inCancelableCmdList([TABLEAPIDELETE,TABLEMIGRATION])) {
+            } else if (inCancelableCmdList([TABLEAPIDELETE, TABLEMIGRATION])) {
                 typingControll(chooseMsg('common-confirm-msg', '', ""));
             }
         }
@@ -2356,7 +2384,7 @@ const apiTestAjax = () => {
     }).always(function () {
         // release it for allowing to input new command in the chatbox 
         inprogress = false;
-//        preferent.apitestparams = [];
+        //        preferent.apitestparams = [];
         preferent.apiparams_count = null;
     });
 }
@@ -2629,14 +2657,14 @@ const changeChatGirlImage = (imgtype) => {
  * 
  * finding 'name' in the list of ordering 'tag' panel.
  */
-const findItemnameFromlist = (tag,name) =>{
+const findItemnameFromlist = (tag, name) => {
     let ret = false;
 
     $(`${tag} span`).each(function (i, v) {
         if (v.textContent == name) {
-            if(!isVisibleMigTableListPanel()){
+            if (!isVisibleMigTableListPanel()) {
                 listClick($(this));
-            }else{
+            } else {
                 $(this).toggleClass("activeItem");
             }
 

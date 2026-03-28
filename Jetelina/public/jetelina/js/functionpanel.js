@@ -314,7 +314,7 @@ const cleanupItems4Switching = () => {
   $(`${APICONTAINER} span`).removeClass("activeItem");
   $(`${CONTAINERPANEL} span`).remove();
 
-  if( isVisibleMigTableListPanel() ){
+  if (isVisibleMigTableListPanel()) {
     $(`${MIGRATIONTABLELIST}  span`).removeClass("activeItem");
   }
 }
@@ -413,9 +413,9 @@ const fileupload = () => {
   the excecution of getting column is judged by this 'activeItem' attribute.
 */
 $(document).on("click", ".table,.api", function () {
-  if(!isVisibleMigTableListPanel()){
+  if (!isVisibleMigTableListPanel()) {
     listClick($(this));
-  }else{
+  } else {
     $(this).toggleClass("activeItem");
   }
 });
@@ -583,10 +583,10 @@ const listClick = (p) => {
 
           and ignore showring table columns even if ivm table were clicked.
       */
-      if( t.startsWith("jv")){
+      if (t.startsWith("jv")) {
         let checkjvapi = t.replace("jv", "js")
-        $(`${APICONTAINER} span`).filter(".api").each(function(){
-          if( checkjvapi == $(this).text()){
+        $(`${APICONTAINER} span`).filter(".api").each(function () {
+          if (checkjvapi == $(this).text()) {
             $(this).addClass("relatedItem");
             isivmtable = true;
             /*
@@ -604,7 +604,7 @@ const listClick = (p) => {
         Tips:
           getColumn() calls only Jetelina table. 
       */
-      if(!isivmtable && !isVisibleMigTableListPanel() ){
+      if (!isivmtable && !isVisibleMigTableListPanel()) {
         // get&show table columns
         getColumn(t);
       }
@@ -647,7 +647,7 @@ const listClick = (p) => {
         because ivm table is not listed in JetelinaTableApiRelation file.
         and migration target tables as well.
     */
-    if(!isivmtable && !isVisibleMigTableListPanel() ){
+    if (!isivmtable && !isVisibleMigTableListPanel()) {
       let data = `{"table":"${related_table}","api":"${related_api}"}`;
       postAjaxData(scenario["function-post-url"][8], data);
     }
@@ -857,7 +857,7 @@ const setApiIF_Sql = (s) => {
       ret = ret.replaceAll(`,{${reject_jetelina_delete_flg}}`, '').replaceAll(`,${reject_jetelina_delete_flg}`, '');
     }
 
-    ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
+    ret = ret.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   } else {
     if (loginuser.dbtype == "redis") {
       let d = s.sql.split(":");
@@ -869,7 +869,7 @@ const setApiIF_Sql = (s) => {
         ret = `${d[0]} ${d[1]}`;
       }
 
-      ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
+      ret = ret.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     } else if (loginuser.dbtype == "mongodb") {
       let ms = "";
       if (s.apino.startsWith("ji")) {
@@ -890,7 +890,7 @@ const setApiIF_Sql = (s) => {
     }
   }
 
-//  ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
+  //  ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
   return ret;
 }
 /**
@@ -1095,7 +1095,7 @@ const dropThisTable = (tables) => {
       m = result["message from Jetelina"];
       if (m == null || m == "") {
         m = chooseMsg('fail-msg', '', '');
-      }else if(m.indexOf("wrong pass phrase")){
+      } else if (m.indexOf("wrong pass phrase")) {
         login.sw = null;
       }
     }
@@ -1300,16 +1300,18 @@ const functionPanelFunctions = (ut) => {
       cmdCandidates.push("open sub query panel");
     }
 
-    if (cmd == "" && (inScenarioChk(ut, 'func-tabledrop-cmd') || inScenarioChk(ut,'func-db-mig-cmd'))) {
+    if (cmd == "" && (inScenarioChk(ut, 'func-tabledrop-cmd') || inScenarioChk(ut, 'func-db-mig-exec-cmd') || inScenarioChk(ut, 'func-db-mig-cancel-cmd'))) {
       /*
         Attention:
           only 'admin' can drop tables
       */
       if (loginuser.roll == "admin") {
-        if(inScenarioChk(ut, 'func-tabledrop-cmd')){
+        if (inScenarioChk(ut, 'func-tabledrop-cmd')) {
           cmd = TABLEAPIDELETE;
-        }else if(inScenarioChk(ut, 'func-db-mig-cmd')){
+        } else if (inScenarioChk(ut, 'func-db-mig-exec-cmd')) {
           cmd = TABLEMIGRATION;
+        } else if (inScenarioChk(ut, 'func-db-mig-cancel-cmd')) {
+          cmd = TABLEMIGRATIONCANCELLATION;
         }
 
         preferent.cmd = cmd;
@@ -1510,6 +1512,7 @@ const functionPanelFunctions = (ut) => {
         11.apitest: exist api test mode
         12.switchdb: switchng using database
         13.TABLEMIGRATION: table migration
+        14.TABLEMIGRATIONCANCELLATION: table migration cancellation
         default: non
   */
   switch (cmd) {
@@ -1560,7 +1563,7 @@ const functionPanelFunctions = (ut) => {
       break;
     case SELECTITEM:
       let findflg = false;
-      let t = ut.replaceAll(","," ").split(' ').filter(Boolean);
+      let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
 
       // for opening table 
       $(CONTAINERNEWAPINO).remove();
@@ -1570,13 +1573,13 @@ const functionPanelFunctions = (ut) => {
             -> in the case of 'ut' is 'close all', 'all close'
       */
       if (($.inArray('all', t) != -1) && ($.inArray('close', t) != -1)) {
-        if( isVisibleMigTableListPanel() ){
+        if (isVisibleMigTableListPanel()) {
           $(`${MIGRATIONTABLELIST} span`).filter(".activeItem").each(function () {
             if (!$(this).hasClass("deleteItem")) {
               $(this).toggleClass("activeItem");
             }
           });
-        }else{
+        } else {
           $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem").each(function () {
             if ($(this).hasClass("relatedItem")) {
               $(this).removeClass("relatedItem");
@@ -1616,16 +1619,16 @@ const functionPanelFunctions = (ut) => {
                   case 2. order 'open table js100' hit the only table.
                   case 3. order 'open 100' hit the only api.
         */
-        if( isVisibleMigTableListPanel() ){
-          findflg = findItemnameFromlist(MIGRATIONTABLELIST,t[n]);
-        }
-
-        if (!findflg){
-          findflg = findItemnameFromlist(TABLECONTAINER,t[n]);
+        if (isVisibleMigTableListPanel()) {
+          findflg = findItemnameFromlist(MIGRATIONTABLELIST, t[n]);
         }
 
         if (!findflg) {
-          findflg = findItemnameFromlist(APICONTAINER,t[n]);
+          findflg = findItemnameFromlist(TABLECONTAINER, t[n]);
+        }
+
+        if (!findflg) {
+          findflg = findItemnameFromlist(APICONTAINER, t[n]);
         }
       }
 
@@ -1649,7 +1652,7 @@ const functionPanelFunctions = (ut) => {
             });
           }
         }
-      }else{
+      } else {
         m = chooseMsg('success-msg', "", "");
       }
 
@@ -1659,7 +1662,7 @@ const functionPanelFunctions = (ut) => {
 
       break;
     case TABLEAPIDELETE:
-      let utarray = ut.replaceAll(","," ").split(' ').filter(Boolean);
+      let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
 
       if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
         /*
@@ -1785,12 +1788,12 @@ const functionPanelFunctions = (ut) => {
               $(GENELICPANELINPUT).focus().get(0).setSelectionRange(p, p)
             }
           } else {
-//            postSelectedColumns("");
-              if (checkGenelicInput(subquerysentence)) {
-                postSelectedColumns("");
-              } else {
-                m = chooseMsg('func-api-subquery-chk-error', '', '');
-              }
+            //            postSelectedColumns("");
+            if (checkGenelicInput(subquerysentence)) {
+              postSelectedColumns("");
+            } else {
+              m = chooseMsg('func-api-subquery-chk-error', '', '');
+            }
 
           }
         } else {
@@ -1856,7 +1859,7 @@ const functionPanelFunctions = (ut) => {
         rejectCancelableCmdList(FILESELECTOROPEN);
         m = chooseMsg("cancel-msg", "", "");
       } else if (inCancelableCmdList([SELECTITEM])) {
-        let t = ut.replaceAll(","," ").split(' ').filter(Boolean);
+        let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
         // cancel selected columns
         if (inScenarioChk(ut, "func-selecteditem-all-cancel-cmd")) {
           // cancel all items
@@ -1874,7 +1877,7 @@ const functionPanelFunctions = (ut) => {
           m = chooseMsg('cancel-msg', "", "");
         } else {
           // cancel each item
-          for (cw in t){
+          for (cw in t) {
             $(`${CONTAINERPANEL} span`).filter(".selectedItem").each(function (i, v) {
               if (v.textContent.indexOf(t[cw]) != -1) {
                 itemSelect($(this));
@@ -1907,19 +1910,19 @@ const functionPanelFunctions = (ut) => {
         if (preferent.jsonokflg != null) {
           preferent.jsonokflg = null;
         }
-      }else if(inCancelableCmdList([USERMANAGE])){
+      } else if (inCancelableCmdList([USERMANAGE])) {
         rejectCancelableCmdList(USERMANAGE);
         m = chooseMsg('cancel-msg', "", "");
       } else {
         showPreciousPanel(false);
         showConfigPanel(false);
         showMigTableList(false);
-        
+
         cancelableCmdList = [];
       }
 
       presentaction.cmd = null;
-      
+
       break;
     case 'cleanup': //clean up the panels
       cleanupItems4Switching();
@@ -1942,8 +1945,8 @@ const functionPanelFunctions = (ut) => {
         // before hitting this command, should desplay 'func-api-test-msg' in anywhere.
         if (checkGenelicInput($(GENELICPANELINPUT).val())) {
           // check the subquery in case RDBMS
-          if ($.inArray(loginuser.dbtype,["postgresql","mysql"]) != -1) {
-            if(containsMultiTables()){
+          if ($.inArray(loginuser.dbtype, ["postgresql", "mysql"]) != -1) {
+            if (containsMultiTables()) {
               let subquerysentence = $.trim($(GENELICPANELINPUT).val());
               // 'where sentence' is demanded if there were multi tables
               if (subquerysentence.length < 6 || subquerysentence.indexOf("where") < 0 || subquerysentence == IGNORE) {
@@ -1958,7 +1961,7 @@ const functionPanelFunctions = (ut) => {
                 }
               }
 
-            }else{
+            } else {
               postSelectedColumns("pre");
             }
           } else {
@@ -1974,9 +1977,9 @@ const functionPanelFunctions = (ut) => {
               }
             });
 
-            if(hasjs){
+            if (hasjs) {
               apitestsuggestion += "<br>but you already have it. look at brinking 'js' api.";
-            }else{
+            } else {
               apitestsuggestion += "<br>you see";
             }
 
@@ -2078,25 +2081,35 @@ const functionPanelFunctions = (ut) => {
       }
 
       break;
-    case TABLEMIGRATION:
+    case TABLEMIGRATION: case TABLEMIGRATIONCANCELLATION:
+      if(cmd == TABLEMIGRATION){
         cancelableCmdList.push(TABLEMIGRATION);
-        if ((loginuser.sw == null || loginuser.sw == "") && (!$(SOMETHINGINPUT).is(":visible"))) {
-          showSomethingMsgPanel(true);
-          if (loginuser.available) {
-            showSomethingInputField(true, 2);
-            m = chooseMsg('func-require-stichwort-msg', '', '');
-          } else {
-            showSomethingInputField(true, 1);
-            m = chooseMsg('func-register-stichwort-msg', '', '');
-          }
+      }else{
+        cancelableCmdList.push(TABLEMIGRATIONCANCELLATION);
+      }
+
+      if ((loginuser.sw == null || loginuser.sw == "") && (!$(SOMETHINGINPUT).is(":visible"))) {
+        showSomethingMsgPanel(true);
+        if (loginuser.available) {
+          showSomethingInputField(true, 2);
+          m = chooseMsg('func-require-stichwort-msg', '', '');
         } else {
-          /* execute drop table and/or delete api,
-             but 'pass phrase' is must item. 
-          */
-          if (($(SOMETHINGINPUT).is(":visible") && 0 < $(SOMETHINGINPUT).val().length) || (loginuser.sw != null && 0 < loginuser.sw.length)) {
-            postMigAjax();
-          }
+          showSomethingInputField(true, 1);
+          m = chooseMsg('func-register-stichwort-msg', '', '');
         }
+      } else {
+        /* execute drop table and/or delete api,
+           but 'pass phrase' is must item. 
+        */
+        if (($(SOMETHINGINPUT).is(":visible") && 0 < $(SOMETHINGINPUT).val().length) || (loginuser.sw != null && 0 < loginuser.sw.length)) {
+          let s = "exec";
+          if(cmd == TABLEMIGRATIONCANCELLATION ){
+            s = "cancel";
+          }
+
+          postMigAjax(s);
+        }
+      }
       break;
     default:
       break;
@@ -2215,7 +2228,7 @@ const deleteThisApi = (apis) => {
       m = result["message from Jetelina"];
       if (m == null || m == "") {
         m = chooseMsg('fail-msg', '', '');
-      }else if(m.indexOf("wrong pass phrase")){
+      } else if (m.indexOf("wrong pass phrase")) {
         login.sw = null;
       }
     }
@@ -2274,11 +2287,11 @@ const whichCommandsInOrders = (s) => {
  */
 const cleanupRelatedList = (b) => {
   //  $("#api_container span").remove();
-//  if (b) {
-    for (let i in relatedDataList) {
-      delete relatedDataList[i];
-    }
-//  }
+  //  if (b) {
+  for (let i in relatedDataList) {
+    delete relatedDataList[i];
+  }
+  //  }
 }
 /**
  * @function refreshdisplayTablesAndApis

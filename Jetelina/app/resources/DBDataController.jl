@@ -34,6 +34,7 @@
 -- special functions for RDBMS migration
 		mig_getTableList() Get the ordered table list by executing *.mig_getTable() depend on DB type
 		mig_execute_migration(tableName::Vector) execute db migration
+		mig_cancel_migration(tableName::Vector) cancellation the migrated table to the origin
 """
 
 module DBDataController
@@ -62,7 +63,7 @@ export init_Jetelina_table, createJetelinaDatabaseinMysql,
 	dataInsertFromCSV, getTableList, getSequenceNumber, dropTable, getColumns, doSelect,
 	executeApi, userRegist, chkUserExistence, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo, updateUserData, deleteUserAccount,
 	createApiSelectSentence, refStichWort, prepareDbEnvironment,
-	dropIVMtable, mig_getTableList, mig_execute_migration
+	dropIVMtable, mig_getTableList, mig_execute_migration, mig_cancel_migration
 
 
 """
@@ -154,6 +155,14 @@ function getTableList(s::String)
 		PgDBController.getTableList(s)
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
+		#===
+			Tips:
+				my_dbname is ordered by user, but initially it is 'mysql', 
+				meaning 'jetelina' database has not created yet.
+				this forced to use 'jetelina' database for Jetelina, not 'mysql'.
+				'jetelina' is changeable by ordering 'my_dbname'. this order is in updating configuration parameter.
+				i hard to recommend to use 'mysql' database even you can change it.
+		===#
 		if j_config.JC["my_dbname"] == "mysql"
 			createJetelinaDatabaseinMysql()
 		end
@@ -720,6 +729,26 @@ function mig_execute_migration(tableName::Vector)
 	elseif j_config.JC["dbtype"] == "oracle"
 	end
 
+end
+"""
+function mig_cancel_migration(tableName::Vector) 
+	
+	cancellation the migrated table to the origin
+	this function is only for RDBMS	
+# Arguments
+- `tableName: Vector`: name of the tables
+"""
+function mig_cancel_migration(tableName::Vector)
+	ret::Any = ""
+
+	if j_config.JC["dbtype"] == "postgresql"
+		# Case in PostgreSQL
+		ret = PgDBController.mig_cancel_migration(tableName)
+	elseif j_config.JC["dbtype"] == "mysql"
+		# Case in MySQL
+		ret = MyDBController.mig_cancel_migration(tableName)
+	elseif j_config.JC["dbtype"] == "oracle"
+	end
 end
 
 end

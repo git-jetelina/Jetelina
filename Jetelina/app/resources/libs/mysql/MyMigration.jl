@@ -10,7 +10,7 @@ functions
     getTableList(conn) collect the existing table's column data type
     collect_columns_data(conn, tablename::String, type::Integer) collect the existing table's column data type
     execute_migration(conn, tablearray::Vector)	migration execution
-
+    cancel_migration(conn, tableName::String) cancellation the migrated table to the origin
 """
 module MyMigration
 
@@ -21,7 +21,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export getTableList, collect_columns_data, execute_migration
+export getTableList, collect_columns_data, execute_migration, cancel_migration
 
 """
 function getTableList(conn)
@@ -116,10 +116,10 @@ function execute_migration(conn, tablearray::Vector)
                     unfortunately, .execute() can handle single sql sentence at once, so far. 
                     2026/3/23
             ===#
-            DBInterface.execute(conn, """$addjtid""")
-            DBInterface.execute(conn, """$adddelflg""")
-            DBInterface.execute(conn, """$setdelflg""")
-            DBInterface.execute(conn, """$updelflg""")
+            DBInterface.execute(conn, addjtid)
+            DBInterface.execute(conn, adddelflg)
+            DBInterface.execute(conn, setdelflg)
+            DBInterface.execute(conn, updelflg)
         end
     catch err
         ret = false
@@ -192,7 +192,44 @@ function collect_columns_data(conn, tablename::String, type::Integer)
 
     return result, ret
 end
+"""
+function cancel_migration(conn, tableName::String)
 
+	migration execution
+
+# Arguments
+- `conn::LibPQ.Connection`: MySQL connection 
+- `tablename:String`: target table name
+- return: success -> true, fail -> false	
+"""
+function cancel_migration(conn, tableName::String)
+    delflg::String = "jetelina_delete_flg"
+    jtid::String = string(tableName,"_jt_id")
+    ret::Bool = true
+
+    try
+
+        deljtid::String = """alter table $tableName drop column $jtid"""
+        deldelflg::String = """alter table $tableName drop column $delflg"""
+        #===
+            Tips:
+                unfortunately, .execute() can handle single sql sentence at once, so far. 
+        ===#
+        DBInterface.execute(conn, deljtid)
+        DBInterface.execute(conn, deldelflg)
+    catch err
+        ret = false
+        JLog.writetoLogfile("MyMigration.cancel_migration() error: $err")
+    finally
+    end
+
+    return ret
+end
+
+
+#=======
+    manipuration functions for dummy table for test&check
+========#
 """
 function createDummyTable(conn)
 

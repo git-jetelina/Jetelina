@@ -37,8 +37,9 @@ functions
 
 -- special functions for RDBMS migration
     mig_getTableList() get the table list of targeting migration.
-    mig_execute_migration(tablelist) execute the migration
+    mig_execute_migration(tablelist::Vector) execute the migration
     mig_collect_columns_data(tablename::String, type::Integer) get the data type in the target table.
+    mig_cancel_migration(tablelist::Vector) cancellation the migrated table to the origin
 """
 module MyDBController
 
@@ -57,7 +58,7 @@ export create_jetelina_database, create_jetelina_table, open_connection, close_c
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, createApiSentence, resisterSqlToApiList, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
     refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
-    mig_getTableList, mig_execute_migration, mig_collect_columns_data
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data, mig_cancel_migration
 
 
 """
@@ -70,17 +71,19 @@ function create_jetelina_database()
     
 """
 function create_jetelina_database()
-#    jetelinadb = "jetelina"
     jetelinadb = j_config.JC["my_dbname"]
 
     conn = open_connection()
     #===
-            Tips:
-                jetelina works in 'jetelina' database in MySql, because of getTable().
-                and this function is called in DBControllerinit_Jetelina_table() as initializing process.
-                at the first, try to find existing 'jetelina' data base, then creat it if there were not.
-                after that, change j_config.JS["my_dbname"]. this "my_dbname" is defined in configuration file. 
-        ===#
+        Tips:
+            jetelina works in 'jetelina' database in MySql, because of getTable().
+            and this function is called in DBControllerinit_Jetelina_table() as initializing process.
+            at first, try to find existing 'jetelina' data base, then creat it if there were not.
+            after that, change j_config.JS["my_dbname"]. this "my_dbname" is defined in configuration file.
+			
+            'jetelina' is changeable by ordering 'my_dbname'. this order is in updating configuration parameter.
+			i hard to recommend to use 'mysql' database even you can change it.
+    ===#
     try
         sql = "show databases"
         df = DataFrame(DBInterface.execute(conn, sql))
@@ -1592,7 +1595,7 @@ function mig_getTableList()
     mayby hiring (2)'jetelina_delete_flg' is the best.
 
 # Arguments
-- return: error -> Tuple(false, error number)
+- return: json contains true/false and/or error number
 """
 function mig_getTableList()
     conn = open_connection()
@@ -1612,14 +1615,15 @@ function mig_getTableList()
 end
 
 """
-function mig_execute_migration(tablelist)
+function mig_execute_migration(tablelist::Vector)
 
     execute the migration
 
-    the target table names are passed as json/array by user
+    the target table names are passed as array by user
 
 # Arguments
-- return: error -> Tuple(false, error number)
+- `tablelist::Vector`: ordered table name list
+- return: json contains true/false and/or error number
 """
 function mig_execute_migration(tablelist::Vector)
     conn = open_connection()
@@ -1712,6 +1716,41 @@ function mig_collect_columns_data(conn, tablename::String, type::Integer)
     end
 
     return result, ret
+end
+"""
+function mig_cancel_migration(tablelist::Vector)
+
+        cancellation the migrated table to the origin
+
+# Arguments
+- `tablelist::Vector`: ordered table name list
+- return: json contains true/false and/or error number
+
+"""
+function mig_cancel_migration(tablelist::Vector)
+    conn = open_connection()
+    ret = ""
+    jmsg = "complement me."
+
+    try
+        for i ∈ 1:length(tablelist)
+            ret = MyMigration.execute_migration(conn, tablelist[i])
+
+            if ret
+                # delete apis
+            end
+        end
+
+        ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_cancel_migration() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+    finally
+        close_connection(conn)
+    end
+
+    return ret
 end
 
 #
