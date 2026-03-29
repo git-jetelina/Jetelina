@@ -1734,7 +1734,7 @@ function mig_cancel_migration(tablelist::Vector)
 
     try
         for i ∈ 1:length(tablelist)
-            ret = MyMigration.execute_migration(conn, tablelist[i])
+            ret = MyMigration.cancel_migration(conn, tablelist[i])
 
             if ret
                 # delete apis

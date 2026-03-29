@@ -712,6 +712,8 @@ const postMigAjax = (s) => {
     let m = "";
     let url = ""
     let pd = {};
+    let migtables = [];
+    let reverttables = [];
 
     if (loginuser.sw == null || loginuser.sw == "") {
         pd["pass"] = $(SOMETHINGINPUT).val();
@@ -721,7 +723,6 @@ const postMigAjax = (s) => {
 
     if (s == "exec") {
         if (isVisibleMigTableListPanel()) {
-            let migtables = [];
             url = scenario['function-mig-post-url'][0];
 
             $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function (i, v) {
@@ -743,13 +744,12 @@ const postMigAjax = (s) => {
     } else {
         // cancellation
         url = scenario['function-mig-post-url'][1];
-        let droptables = [];
-        $(`${TABLECONTAINER} span`).filter('.deleteItem').each(function () {
-            droptables.push($(this).text());
+        $(`${TABLECONTAINER} span`).filter('.activeItem').each(function () {
+            reverttables.push($(this).text());
         });
 
-        if (0 < droptables.length) {
-            pd["tablename"] = droptables;
+        if (0 < reverttables.length) {
+            pd["tablename"] = reverttables;
         } else {
             console.error("postMigAjax() no cancel migration tables");
             typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
@@ -784,24 +784,23 @@ const postMigAjax = (s) => {
                 m = specialmsg;
             }
 
-            for (let n = 0; n < migtables.length; n++) {
-                $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function (i, v) {
-                    if (v.textContent == migtables[n]) {
-                        $(this).addClass("deleteItem");
-                    }
-                });
+            if(s == "exec"){
+                rejectCancelableCmdList(TABLEMIGRATION);
+                for (let n = 0; n < migtables.length; n++) {
+                    $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function (i, v) {
+                        if (v.textContent == migtables[n]) {
+                            $(this).addClass("deleteItem");
+                        }
+                    });
+                }
+            }else{
+                rejectCancelableCmdList(TABLEMIGRATIONCANCELLATION);
             }
 
             loginuser.sw = pd["pass"];
             showSomethingInputField(false);
             showSomethingMsgPanel(false);
             showGenelicPanel(false);
-            if(s == "exec"){
-                rejectCancelableCmdList(TABLEMIGRATION);
-            }else{
-                rejectCancelableCmdList(TABLEMIGRATIONCANCELLATION);
-            }
-
             preferent.cmd = "";
             refreshdisplayTablesAndApis();
             typingControll(m, '', '');
