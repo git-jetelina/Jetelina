@@ -10,7 +10,7 @@ functions
     getTableList(conn) collect the existing table's column data type
     collect_columns_data(conn, tablename::String, type::Integer) collect the existing table's column data type
     execute_migration(conn, tablearray::Vector)	migration execution
-    revert_migration(conn, tableName::String) cancellation the migrated table to the origin
+    revert_migration(conn, tableName::String) revert the migrated table to the origin
 """
 module MyMigration
 
@@ -29,7 +29,7 @@ function getTableList(conn)
 	collect the existing table's column data type
 
     # Arguments
-- `conn::LibPQ.Connection`: MySQL connection 
+- `conn::MySQL.Connection`: MySQL connection 
 - return: table list in json or DataFrame	
 """
 function getTableList(conn)
@@ -95,7 +95,7 @@ function execute_migration(conn, tablearray::Vector)
 	migration execution
 
 # Arguments
-- `conn::LibPQ.Connection`: MySQL connection 
+- `conn::MySQL.Connection`: MySQL connection 
 - `tablearray:Array`: target table name list
 - return: success -> true, fail -> false	
 """
@@ -136,7 +136,7 @@ function collect_columns_data(conn, tablename::String, type::Integer)
 	collect the existing table's column data name/type
 
 # Arguments
-- `conn::LibPQ.Connection`: MySQL connection 
+- `conn::MySQL.Connection`: MySQL connection 
 - `tablename::String`: existing table name
 - `type::Integer`: 1->return data in DataFrames
                    2->return data is only column names in array
@@ -195,10 +195,10 @@ end
 """
 function revert_migration(conn, tableName::String)
 
-	migration execution
+	revert the migrated table to the origin
 
 # Arguments
-- `conn::LibPQ.Connection`: MySQL connection 
+- `conn::MySQL.Connection`: MySQL connection 
 - `tablename:String`: target table name
 - return: success -> true, fail -> false	
 """
@@ -207,10 +207,10 @@ function revert_migration(conn, tableName::String)
     jtid::String = string(tableName,"_jt_id")
     ret::Bool = true
 
-    try
+    deljtid::String = """alter table $tableName drop column $jtid"""
+    deldelflg::String = """alter table $tableName drop column $delflg"""
 
-        deljtid::String = """alter table $tableName drop column $jtid"""
-        deldelflg::String = """alter table $tableName drop column $delflg"""
+    try
         #===
             Tips:
                 unfortunately, .execute() can handle single sql sentence at once, so far. 

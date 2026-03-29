@@ -10,7 +10,7 @@ functions
     getTableList(conn) collect the existing table's column data type
     collect_columns_data(conn, tablename::String, type::Integer) collect the existing table's column data type
     execute_migration(conn, tablearray::Vector)	migration execution
-
+    revert_migration(conn, tableName::String) revert the migrated table to the origin
 """
 module PgMigration
 
@@ -21,7 +21,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export getTableList, collect_columns_data, execute_migration
+export getTableList, collect_columns_data, execute_migration, revert_migration
 
 """
 function getTableList(conn)
@@ -102,7 +102,6 @@ function execute_migration(conn, tablearray::Vector)
 function execute_migration(conn, tablearray::Vector)
     delflg::String = "jetelina_delete_flg"
     ret::Bool = true
-    result::Bool = true
 
     try
         for i in 1:length(tablearray)
@@ -114,18 +113,13 @@ function execute_migration(conn, tablearray::Vector)
             LibPQ.execute(conn, """$addjtid;$addjtdelflg""")
         end
 
-        ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
-
-        # write to operationhistoryfile
-        JLog.writetoOperationHistoryfile(string("revert ", tablelist, " tables"))
     catch err
         JLog.writetoLogfile("PgMigration.execute_migration() error: $err")
-        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
         result = false
     finally
     end
 
-    return result, ret
+    return ret
 end
 
 """
@@ -189,6 +183,34 @@ function collect_columns_data(conn, tablename::String, type::Integer)
     end
 
     return result, ret
+end
+"""
+function revert_migration(conn, tableName::String)
+
+	revert the migrated table to the origin
+
+# Arguments
+- `conn::LibPQ.Connection`: postgresql connection 
+- `tablename:String`: target table name
+- return: success -> true, fail -> false	
+"""
+function revert_migration(conn, tableName::String)
+    delflg::String = "jetelina_delete_flg"
+    jtid::String = string(tableName,"_jt_id")
+    ret::Bool = true
+
+    deljtid::String = """alter table $tableName drop column $jtid"""
+    deldelflg::String = """alter table $tableName drop column $delflg"""
+
+    try
+        LibPQ.execute(conn, """$deljtid;$deldelflg""")
+    catch err
+        ret = false
+        JLog.writetoLogfile("PgMigration.revert_migration() error: $err")
+    finally
+    end
+
+    return ret
 end
 
 """

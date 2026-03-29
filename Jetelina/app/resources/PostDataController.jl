@@ -32,7 +32,7 @@ functions
 
 -- special functions for RDBMS migration
     mig_execute_migration() execute DB migration.
-    mig_cancel_migration() cancellation the migrated table to the origin
+    mig_revert_migration() cancellation the migrated table to the origin
 """
 module PostDataController
 
@@ -43,7 +43,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 JMessage.showModuleInCompiling(@__MODULE__)
 
 export initialDb, initialUser, getConfigData, handleApipostdata, createApi, getColumns, deleteTable, userRegist, login, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo,
-    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed, mig_execute_migration, mig_cancel_migration
+    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed, mig_execute_migration, mig_revert_migration
 
 """
 	function initialDb() 
@@ -714,19 +714,19 @@ function mig_execute_migration()
     end
 end
 """
-function mig_cancel_migration() 
+function mig_revert_migration() 
         
     cancellation the migrated table to the origin
 	ordered table name is posted as the name 'tablename' in jsonpayload().
 
 """
-function mig_cancel_migration()
+function mig_revert_migration()
     if !isnothing(JSession.get())
         ret = ""
         tableName::Vector = jsonpayload("tablename")
 
         if !isnothing(tableName)
-            ret = DBDataController.mig_cancel_migration(tableName)
+            ret = DBDataController.mig_revert_migration(tableName)
         end
 
         return ret

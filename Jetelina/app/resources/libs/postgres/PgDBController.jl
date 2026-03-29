@@ -47,6 +47,7 @@ functions
     mig_getTableList() get the table list of targeting migration.
     mig_execute_migration(tablelist) execute the migration
     mig_collect_columns_data(tablename::String, type::Integer) get the data type in the target table.
+    mig_revert_migration(tablelist::Vector) revert the migrated table to the origin
 """
 module PgDBController
 
@@ -66,7 +67,7 @@ export create_jetelina_database, create_jetelina_table, create_jetelina_id_seque
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, createApiSentence, resisterSqlToApiList, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
     refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
-    mig_getTableList, mig_execute_migration, mig_collect_columns_data
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data, mig_revert_migration
 
 """
 function create_jetelina_database()
@@ -1751,6 +1752,7 @@ function mig_execute_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
     procedureflg::Bool = true
+    result::Bool = true
 
     try
         # tablelist expects in array
@@ -1792,15 +1794,19 @@ function mig_execute_migration(tablelist::Vector)
             jmsg = "someting wrong"
             ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
         end
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("migration ", tablelist, " tables"))
     catch err
         errnum = JLog.getLogHash()
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
     finally
         close_connection(conn)
     end
 
-    return ret
+    return result, ret
 end
 
 """
@@ -1835,6 +1841,42 @@ function mig_collect_columns_data(conn, tablename::String, type::Integer)
         JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_collect_columns_data() error : $err")
         ret = errnum
     finally
+    end
+
+    return result, ret
+end
+"""
+function mig_revert_migration(tablelist::Vector)
+
+        revert the migrated table to the origin
+
+# Arguments
+- `tablelist::Vector`: ordered table name list
+- return: json contains true/false and/or error number
+
+"""
+function mig_revert_migration(tablelist::Vector)
+    conn = open_connection()
+    ret = ""
+    result::Bool = true
+    jmsg = "complement me."
+
+    try
+        for i ∈ 1:length(tablelist)
+            ret = PgMigration.revert_migration(conn, tablelist[i])
+        end
+
+        ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("revert ", tablelist, " tables"))
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_revert_migration() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
+    finally
+        close_connection(conn)
     end
 
     return result, ret

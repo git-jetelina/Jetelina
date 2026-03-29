@@ -39,7 +39,7 @@ functions
     mig_getTableList() get the table list of targeting migration.
     mig_execute_migration(tablelist::Vector) execute the migration
     mig_collect_columns_data(tablename::String, type::Integer) get the data type in the target table.
-    mig_cancel_migration(tablelist::Vector) cancellation the migrated table to the origin
+    mig_revert_migration(tablelist::Vector) revert the migrated table to the origin
 """
 module MyDBController
 
@@ -58,7 +58,7 @@ export create_jetelina_database, create_jetelina_table, open_connection, close_c
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, createApiSentence, resisterSqlToApiList, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
     refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
-    mig_getTableList, mig_execute_migration, mig_collect_columns_data, mig_cancel_migration
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data, mig_revert_migration
 
 
 """
@@ -1718,16 +1718,16 @@ function mig_collect_columns_data(conn, tablename::String, type::Integer)
     return result, ret
 end
 """
-function mig_cancel_migration(tablelist::Vector)
+function mig_revert_migration(tablelist::Vector)
 
-        cancellation the migrated table to the origin
+        revert the migrated table to the origin
 
 # Arguments
 - `tablelist::Vector`: ordered table name list
 - return: json contains true/false and/or error number
 
 """
-function mig_cancel_migration(tablelist::Vector)
+function mig_revert_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
     result::Bool = true
@@ -1744,7 +1744,7 @@ function mig_cancel_migration(tablelist::Vector)
         JLog.writetoOperationHistoryfile(string("revert ", tablelist, " tables"))
     catch err
         errnum = JLog.getLogHash()
-        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_cancel_migration() error : $err")
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_revert_migration() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
         result = false
     finally
