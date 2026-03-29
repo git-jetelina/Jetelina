@@ -102,6 +102,7 @@ function execute_migration(conn, tablearray::Vector)
 function execute_migration(conn, tablearray::Vector)
     delflg::String = "jetelina_delete_flg"
     ret::Bool = true
+    result::Bool = true
 
     try
         for i in 1:length(tablearray)
@@ -112,13 +113,19 @@ function execute_migration(conn, tablearray::Vector)
 
             LibPQ.execute(conn, """$addjtid;$addjtdelflg""")
         end
+
+        ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("revert ", tablelist, " tables"))
     catch err
-        ret = false
         JLog.writetoLogfile("PgMigration.execute_migration() error: $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
     finally
     end
 
-    return ret
+    return result, ret
 end
 
 """

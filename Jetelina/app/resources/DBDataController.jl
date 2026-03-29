@@ -729,6 +729,7 @@ function mig_execute_migration(tableName::Vector)
 	elseif j_config.JC["dbtype"] == "oracle"
 	end
 
+	return ret[2]
 end
 """
 function mig_cancel_migration(tableName::Vector) 
@@ -749,6 +750,13 @@ function mig_cancel_migration(tableName::Vector)
 		ret = MyDBController.mig_cancel_migration(tableName)
 	elseif j_config.JC["dbtype"] == "oracle"
 	end
+
+	if ret[1]
+		# update SQL list
+		ApiSqlListManager.deleteTableFromlist(tableName)
+	end
+
+	return ret[2]
 end
 
 end

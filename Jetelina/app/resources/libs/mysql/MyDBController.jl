@@ -534,6 +534,7 @@ function dropTable(tableName::Vector)
 """
 function dropTable(tableName::Vector)
     ret = ""
+    result::Bool = true
     jmsg::String = string("compliment me!")
     rettables::String = join(tableName, ",") # ["a","b"] -> "a,b" oh ＼(^o^)／
 
@@ -542,12 +543,7 @@ function dropTable(tableName::Vector)
         for i in eachindex(tableName)
             # drop the tableName
             drop_table_str = string("drop table ", tableName[i],";drop table ", tableName[i], "_id_sequence")
-#            drop_table_str = string("drop table ", tableName[i])
-            # delete the related data from jetelina_table_manager
-            #				delete_data_str = string("delete from jetelina_table_manager where table_name = '", tableName[i], "'")
-
             DBInterface.execute(conn, drop_table_str)
-            #				DBInterface.execute(conn, delete_data_str)
         end
 
         ret = json(Dict("result" => true, "tablename" => "$rettables", "message from Jetelina" => jmsg))
@@ -558,12 +554,12 @@ function dropTable(tableName::Vector)
         errnum = JLog.getLogHash()
         ret = json(Dict("result" => false, "tablename" => "$rettables", "errmsg" => "$err", "errnum"=>"$errnum"))
         JLog.writetoLogfile("[errnum:$errnum] MyDBController.dropTable() with $rettables error : $err")
-        return false, ret
+        result = false
     finally
         close_connection(conn)
     end
 
-    return true, ret
+    return result, ret
 end
 
 """
@@ -578,7 +574,6 @@ function getColumns(tableName::String)
 function getColumns(tableName::String)
     ret = ""
     jmsg::String = string("compliment me!")
-
 
     sql = """   
      SELECT
@@ -1628,6 +1623,7 @@ function mig_execute_migration(tablelist::Vector)
 function mig_execute_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
+    result::Bool = true
     procedureflg::Bool = true
 
     try
@@ -1670,15 +1666,19 @@ function mig_execute_migration(tablelist::Vector)
             jmsg = "someting wrong"
             ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
         end
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("migration ", tablelist, " tables"))
     catch err
         errnum = JLog.getLogHash()
         JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_execute_migration() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
     finally
         close_connection(conn)
     end
 
-    return ret
+    return result, ret
 end
 
 """
@@ -1730,27 +1730,28 @@ function mig_cancel_migration(tablelist::Vector)
 function mig_cancel_migration(tablelist::Vector)
     conn = open_connection()
     ret = ""
+    result::Bool = true
     jmsg = "complement me."
 
     try
         for i ∈ 1:length(tablelist)
-            ret = MyMigration.cancel_migration(conn, tablelist[i])
-
-            if ret
-                # delete apis
-            end
+            ret = MyMigration.revert_migration(conn, tablelist[i])
         end
 
         ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("revert ", tablelist, " tables"))
     catch err
         errnum = JLog.getLogHash()
         JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_cancel_migration() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
     finally
         close_connection(conn)
     end
 
-    return ret
+    return result, ret
 end
 
 #
