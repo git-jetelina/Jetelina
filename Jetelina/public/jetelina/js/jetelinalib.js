@@ -690,12 +690,14 @@ const getMigAjax = () => {
             m = 'fail-msg';
         }
 
-        typingControll(chooseMsg(m, '', ''));
+//        typingControll(chooseMsg(m, '', ''));
+        return m;
     }).fail(function (result) {
         checkResult(result);
         cmdCandidates = [];
         console.error("getMigAjax() fail: ", url);
-        typingControll(chooseMsg("fail-msg", "", ""));
+//        typingControll(chooseMsg("fail-msg", "", ""));
+        return chooseMsg("fail-msg", "", "");
     }).always(function () {
         // release it for allowing to input new command in the chatbox 
         inprogress = false;
@@ -733,13 +735,13 @@ const postMigAjax = (s) => {
                 pd["tablename"] = migtables;
             } else {
                 console.error("postMigAjax() no migration tables");
-                typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
-                return;
+//                typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+                return chooseMsg("func-db-mig-error-msg2", "", "");
             }
         } else {
             console.error("postMigAjax() never opened Migration panel");
-            typingControll(chooseMsg("func-db-mig-error-msg1", "", ""));
-            return;
+//            typingControll(chooseMsg("func-db-mig-error-msg1", "", ""));
+            return chooseMsg("func-db-mig-error-msg1", "", "");
         }
     } else {
         // cancellation
@@ -752,8 +754,8 @@ const postMigAjax = (s) => {
             pd["tablename"] = reverttables;
         } else {
             console.error("postMigAjax() no cancel migration tables");
-            typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
-            return;
+        //    typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+            return chooseMsg("func-db-mig-error-msg2", "", "");
         }
     }
 
@@ -801,18 +803,22 @@ const postMigAjax = (s) => {
             showSomethingInputField(false);
             showSomethingMsgPanel(false);
             showGenelicPanel(false);
+            cleanupContainers();
+            cleanupItems4Switching();
             preferent.cmd = "";
             refreshdisplayTablesAndApis();
-            typingControll(m, '', '');
+            //typingControll(m, '', '');
+            return m;
         } else {
             cmdCandidates = [];
-            m = chooseMsg("fail-msg", "", "");
+            return chooseMsg("fail-msg", "", "");
         }
     }).fail(function (result) {
         checkResult(result);
         cmdCandidates = [];
         console.error("postMigAjax() fail: ", url);
-        typingControll(chooseMsg("fail-msg", "", ""));
+//        typingControll(chooseMsg("fail-msg", "", ""));
+        return chooseMsg("fail-msg", "", "");
     }).always(function () {
         // release it for allowing to input new command in the chatbox 
         inprogress = false;
@@ -1552,8 +1558,10 @@ const chatKeyDown = (cmd) => {
                         showMigTableList(false);
                         m = "migration hide";
                     } else if (inScenarioChk(ut, 'func-db-mig-show-tables')) {
-                        getMigAjax();
-                        m = "migration show";
+                        m = getMigAjax();
+                        if(m == null || m.length <1){
+                            m = "migration show";
+                        }
                     }
 
                     if (!inScenarioChk(ut, 'config-show-cmd') && (presentaction.cmd != CONFIGCHANGE)) {
@@ -2248,7 +2256,7 @@ const subPanelCheck = () => {
             if (inCancelableCmdList([CONFIGCHANGE])) {
                 let e = chooseMsg('common-post-cmd', '', '');
                 typingControll(chooseMsg('config-update-msg', e, "r"));
-            } else if (inCancelableCmdList([TABLEAPIDELETE, TABLEMIGRATION])) {
+            } else if (inCancelableCmdList([TABLEAPIDELETE, TABLEMIGRATION, TABLEMIGRATIONCANCELLATION])) {
                 typingControll(chooseMsg('common-confirm-msg', '', ""));
             }
         }

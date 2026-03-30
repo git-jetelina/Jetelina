@@ -1300,7 +1300,7 @@ const functionPanelFunctions = (ut) => {
       cmdCandidates.push("open sub query panel");
     }
 
-    if (cmd == "" && (inScenarioChk(ut, 'func-tabledrop-cmd') || inScenarioChk(ut, 'func-db-mig-exec-cmd') || inScenarioChk(ut, 'func-db-mig-cancel-cmd'))) {
+    if (cmd == "" && (inScenarioChk(ut, 'func-tabledrop-cmd') || inScenarioChk(ut, 'func-db-mig-exec-cmd') || inScenarioChk(ut, 'func-db-mig-revert-cmd'))) {
       /*
         Attention:
           only 'admin' can drop tables
@@ -1310,7 +1310,7 @@ const functionPanelFunctions = (ut) => {
           cmd = TABLEAPIDELETE;
         } else if (inScenarioChk(ut, 'func-db-mig-exec-cmd')) {
           cmd = TABLEMIGRATION;
-        } else if (inScenarioChk(ut, 'func-db-mig-cancel-cmd')) {
+        } else if (inScenarioChk(ut, 'func-db-mig-revert-cmd')) {
           cmd = TABLEMIGRATIONCANCELLATION;
         }
 
@@ -2107,7 +2107,10 @@ const functionPanelFunctions = (ut) => {
             s = "cancel";
           }
 
-          postMigAjax(s);
+          let p = postMigAjax(s);
+          if(p != null && 0<p.length ){
+            m = p;
+          }
         }
       }
       break;
