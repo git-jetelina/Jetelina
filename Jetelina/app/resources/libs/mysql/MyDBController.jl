@@ -472,12 +472,11 @@ function createApiSentence(tableName::String, column_name::Vector, column_type::
     		that's why using lstrip(). dum it. :p
 
             2026/3/32 Now, ',' has a possibility to be in both head and tail becase of migration feature.
-                      So, try to cut it at both.            
+                      So, try to cut it at both. 
+                      You may say the 'if' judgement does not need. Yes, it is, but i wanna make clear the logic.
     ===#
-    if startswith(update_str, ",")
-        update_str = lstrip(update_str, ',')
-    elseif endswith(update_str,",")
-        update_str = rstrip(update_str,',')
+    if startswith(update_str, ",") || endswith(update_str, ",")
+        strip(update_str, ',')
     end
 
     return [insert_column_str, insert_data_str, update_str, column_str]
