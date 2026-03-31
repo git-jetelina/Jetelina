@@ -594,9 +594,14 @@ function createApiSentence(tableName::String, column_name::Vector, column_type::
     		in the above, 'update_str' has ',' at its head because of rejecting 'jt_id' column.
     		'jt_id' is always head of the columns, and it puzzled to build 'update_str' if rejected it.
     		that's why using lstrip(). dum it. :p
+
+            2026/3/32 Now, ',' has a possibility to be in both head and tail becase of migration feature.
+                      So, try to cut it at both.
     ===#
     if startswith(update_str, ",")
         update_str = lstrip(update_str, ',')
+    elseif endswith(update_str,",")
+        update_str = rstrip(update_str,',')
     end
 
     return [insert_column_str, insert_data_str, update_str, column_str]
