@@ -1770,7 +1770,7 @@ end
 #
 # test programs for migration
 #
-function createDummyTable(thpe::String)
+function createDummyTable(type::String)
     conn = open_connection()
     ret::Bool = true
 
@@ -1778,6 +1778,8 @@ function createDummyTable(thpe::String)
         ret = MyMigration.createDummyTable(conn, type)
     catch err
         ret = false
+        @info "MyDBController.createDummyTable() error:: $err"
+
 #        errnum = JLog.getLogHash()
 #        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
 #        return ret, errnum
