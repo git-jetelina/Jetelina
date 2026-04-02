@@ -1762,6 +1762,12 @@ function mig_execute_migration(tablelist::Vector)
         # tablelist expects in array
         if PgMigration.execute_migration(conn, tablelist)
             for i ∈ 1:length(tablelist)
+                #===
+                    Tips:
+                        in case the parameter is '1', mret is to be DataFrames. ref PgMigration.collect_columns_data()
+                        mret[2][2][:,:type] has some types like '*.*' and '*' because eltype() in ..collect_columns_data().
+                        so make it tidy up and push into column_type in below.
+                ===#
                 mret = mig_collect_columns_data(conn, tablelist[i], 1)
                 if mret[1]
                     # create api
@@ -1777,7 +1783,17 @@ function mig_execute_migration(tablelist::Vector)
                         end
                     end
 
-                    str = createApiSentence(tablelist[i],column_name,p_column_type)
+                    #===
+                        Tips:
+                            to create apis, '*_jt_id' is unnecessary. it is in the way.
+                            so reject it in column_name and column_type at here.
+                    ===#
+                    rejectjtid::String = string(tablelist[i],"_jt_id")
+                    rejectjtidindex::Integer = findfirst( x -> x == rejectjtid, column_name)
+                    filter!( x -> x != rejectjtid, column_name)
+                    deleteat!( column_type, rejectjtidindex)
+
+                    str = createApiSentence(tablelist[i],column_name,column_type)
                     if !resisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
                         procedureflg = false
                         break
@@ -1889,12 +1905,12 @@ end
 #
 # test programs for migration
 #
-function createDummyTable()
+function createDummyTable(type::String)
     conn = open_connection()
     ret::Bool = true
 
     try
-        ret = PgMigration.createDummyTable(conn)
+        ret = PgMigration.createDummyTable(conn,type)
     catch err
         ret = false
 #        errnum = JLog.getLogHash()
@@ -1925,12 +1941,12 @@ function dropDummyTable()
     @info "PgMigration.dropDummyTable " ret
 end
 
-function dumdatainsert()
+function dumdatainsert(type::String)
     conn = open_connection()
     ret::Bool = true
 
     try
-        ret = PgMigration.dumdatainsert(conn)
+        ret = PgMigration.dumdatainsert(conn, type)
     catch err
         ret = false
 #        errnum = JLog.getLogHash()

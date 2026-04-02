@@ -214,29 +214,39 @@ function revert_migration(conn, tableName::String)
 end
 
 """
-function createDummyTable(conn)
+function createDummyTable(conn, type::String)
 
     create a dummy table for testing
 """
-function createDummyTable(conn)
+function createDummyTable(conn, type::String)
     result::Bool = true
     tablename::String = "mig_dum"
-    column_str::String = """
-        small smallint,
-        intg integer,
-        big bigint,
-        decim decimal,
-        num numeric,
-        rea real,
-        mone money,
-        name varchar,
-        day date,
-        timezone time,
-        jsonstr json,
-        jsonbstr jsonb,
-        xmlstr xml,
-        booleanstr boolean
-    """
+    column_str::String = ""
+
+    if type == "simple"
+        column_str = """
+            small smallint,
+            name varchar
+        """
+    else
+        column_str = """
+            small smallint,
+            intg integer,
+            big bigint,
+            decim decimal,
+            num numeric,
+            rea real,
+            mone money,
+            name varchar,
+            day date,
+            timezone time,
+            jsonstr json,
+            jsonbstr jsonb,
+            xmlstr xml,
+            booleanstr boolean
+        """
+    end
+
     createStr::String = """
     	create table if not exists $tablename(
     		$column_str   
@@ -284,16 +294,28 @@ function dropDummyTable(conn)
     return result
 end
 
-function dumdatainsert(conn)
+function dumdatainsert(conn, type::String)
     result::Bool = true
     tablename::String = "mig_dum"
+    column_str::String = ""
+    value_str::String = ""
 
-    column_str::String = """
-        small,intg,big,decim,num,rea,mone,name,day,timezone,jsonstr,jsonbstr,xmlstr,booleanstr
-    """
-    value_str::String = """
-        1,20,100,0.11,1.1,1.001,-1,'keiji','1962-05-25',now(),'{"json":"json data"}','{"jsonb":"json b data"}','<xml>XML Data</xml>',true
-    """
+    if type == "simple"
+        column_str = """
+            small, name
+        """
+        value_str = """
+            1,'Gerge'
+        """
+    else
+        column_str = """
+            small,intg,big,decim,num,rea,mone,name,day,timezone,jsonstr,jsonbstr,xmlstr,booleanstr
+        """
+        value_str = """
+            1,20,100,0.11,1.1,1.001,-1,'keiji','1962-05-25',now(),'{"json":"json data"}','{"jsonb":"json b data"}','<xml>XML Data</xml>',true
+        """
+    end
+
     insertStr::String = """
     	insert into $tablename ( $column_str
             ) 

@@ -1648,8 +1648,17 @@ function mig_execute_migration(tablelist::Vector)
                             push!(column_type, e_column_type[ii][1])
                         end
                     end
+                    #===
+                        Tips:
+                            to create apis, '*_jt_id' is unnecessary. it is in the way.
+                            so reject it in column_name and column_type at here.
+                    ===#
+                    rejectjtid::String = string(tablelist[i],"_jt_id")
+                    rejectjtidindex::Integer = findfirst( x -> x == rejectjtid, column_name)
+                    filter!( x -> x != rejectjtid, column_name)
+                    deleteat!( column_type, rejectjtidindex)
 
-                    str = createApiSentence(tablelist[i],column_name,p_column_type)
+                    str = createApiSentence(tablelist[i],column_name,column_type)
                     if !resisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
                         procedureflg = false
                         break
@@ -1761,12 +1770,12 @@ end
 #
 # test programs for migration
 #
-function createDummyTable()
+function createDummyTable(thpe::String)
     conn = open_connection()
     ret::Bool = true
 
     try
-        ret = MyMigration.createDummyTable(conn)
+        ret = MyMigration.createDummyTable(conn, type)
     catch err
         ret = false
 #        errnum = JLog.getLogHash()
@@ -1797,12 +1806,12 @@ function dropDummyTable()
     @info "MyMigration.dropDummyTable " ret
 end
 
-function dumdatainsert()
+function dumdatainsert(type::String)
     conn = open_connection()
     ret::Bool = true
 
     try
-        ret = MyMigration.dumdatainsert(conn)
+        ret = MyMigration.dumdatainsert(conn, type)
     catch err
         ret = false
 #        errnum = JLog.getLogHash()

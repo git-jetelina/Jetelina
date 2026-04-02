@@ -231,27 +231,35 @@ end
     manipuration functions for dummy table for test&check
 ========#
 """
-function createDummyTable(conn)
+function createDummyTable(conn, type::String)
 
     create a dummy table for testing
 """
-function createDummyTable(conn)
+function createDummyTable(conn, type::String)
     result::Bool = true
     tablename::String = "mig_dum"
+    column_str::String = ""
 
-    column_str::String = """
-        small smallint,
-        intg integer,
-        big bigint,
-        decim decimal,
-        num float,
-        rea double,
-        name varchar(256),
-        day date,
-        timezone time,
-        jsonstr json,
-        booleanstr boolean
-    """
+    if type == "simple"
+        column_str = """
+            small smallint,
+            name varchar(256)
+        """
+    else
+        column_str = """
+            small smallint,
+            intg integer,
+            big bigint,
+            decim decimal,
+            num float,
+            rea double,
+            name varchar(256),
+            day date,
+            timezone time,
+            jsonstr json,
+            booleanstr boolean
+        """
+    end
 
     createStr::String = """
     	create table if not exists $tablename(
@@ -300,16 +308,28 @@ function dropDummyTable(conn)
     return result
 end
 
-function dumdatainsert(conn)
+function dumdatainsert(conn, type::String)
     result::Bool = true
     tablename::String = "mig_dum"
+    column_str::String = ""
+    value_str::String = ""
 
-    column_str::String = """
-        small,intg,big,decim,num,rea,name,day,timezone,jsonstr,booleanstr
-    """
-    value_str::String = """
-        1,20,100,0.11,1.1,1.001,'keiji','1962-05-25',now(),'{"json":"json data"}',true
-    """
+    if type == "simple"
+        column_str = """
+            small,name
+        """
+        value_str = """
+            1,'Greg'
+        """
+    else
+        column_str = """
+            small,intg,big,decim,num,rea,name,day,timezone,jsonstr,booleanstr
+        """
+        value_str = """
+            1,20,100,0.11,1.1,1.001,'keiji','1962-05-25',now(),'{"json":"json data"}',true
+        """
+    end
+
     insertStr::String = """
     	insert into $tablename ( $column_str
             ) 
