@@ -703,9 +703,10 @@ function mig_execute_migration()
     if !isnothing(JSession.get())
         ret = ""
         tableName::Vector = jsonpayload("tablename")
+        stichwort::String = jsonpayload("pass")
 
         if !isnothing(tableName)
-            ret = DBDataController.mig_execute_migration(tableName)
+            ret = DBDataController.mig_execute_migration(tableName, stichwort)
         end
 
         return ret
@@ -724,9 +725,10 @@ function mig_revert_migration()
     if !isnothing(JSession.get())
         ret = ""
         tableName::Vector = jsonpayload("tablename")
+        stichwort::String = jsonpayload("pass")
 
         if !isnothing(tableName)
-            ret = DBDataController.mig_revert_migration(tableName)
+            ret = DBDataController.mig_revert_migration(tableName, stichwort)
         end
 
         return ret

@@ -33,8 +33,8 @@
 		dropIVMtable(apis::Vector) special func for PostgreSQL, synchronized droppping ivm table with deleting api
 -- special functions for RDBMS migration
 		mig_getTableList() Get the ordered table list by executing *.mig_getTable() depend on DB type
-		mig_execute_migration(tableName::Vector) execute db migration
-		mig_revert_migration(tableName::Vector) cancellation the migrated table to the origin
+		mig_execute_migration(tableName::Vector, stichwort::String) execute db migration
+		mig_revert_migration(tableName::Vector, stichwort::String) cancellation the migrated table to the origin
 """
 
 module DBDataController
@@ -710,53 +710,93 @@ function mig_getTableList()
 	end
 end
 """
-function mig_execute_migration(tableName::Vector)
+function mig_execute_migration(tableName::Vector, stichwort::String)
 		
 	execute db migration
 	this function is only for RDBMS	
 # Arguments
 - `tableName: Vector`: name of the tables
+- `stichwort: String`: a kind of pass phrase for executing
 """
-function mig_execute_migration(tableName::Vector)
+function mig_execute_migration(tableName::Vector, stichwort::String)
+	stichret::Bool = false
 	ret::Any = ""
 
-	if j_config.JC["dbtype"] == "postgresql"
-		# Case in PostgreSQL
-		ret = PgDBController.mig_execute_migration(tableName)
-	elseif j_config.JC["dbtype"] == "mysql"
-		# Case in MySQL
-		ret = MyDBController.mig_execute_migration(tableName)
-	elseif j_config.JC["dbtype"] == "oracle"
+	#===
+		Tips:
+			check the stichwort in user_info.
+			in the case of nothing, register it into there,
+			in the case of being, take the matching.
+	===#
+	if j_config.JC["jetelinadb"] == "postgresql"
+		stichret = PgDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "mysql"
+		stichret = MyDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "oracle"
 	end
 
-	return ret[2]
+	if stichret
+		if j_config.JC["dbtype"] == "postgresql"
+			# Case in PostgreSQL
+			ret = PgDBController.mig_execute_migration(tableName)
+		elseif j_config.JC["dbtype"] == "mysql"
+			# Case in MySQL
+			ret = MyDBController.mig_execute_migration(tableName)
+		elseif j_config.JC["dbtype"] == "oracle"
+		end
+
+		return ret[2]
+	else
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+		return json(Dict("result" => false, "errmsg" => jmsg))
+	end
 end
 """
-function mig_revert_migration(tableName::Vector) 
+function mig_revert_migration(tableName::Vector, stichwort::String) 
 	
 	cancellation the migrated table to the origin
 	this function is only for RDBMS	
 # Arguments
 - `tableName: Vector`: name of the tables
+- `stichwort: String`: a kind of pass phrase for executing
 """
-function mig_revert_migration(tableName::Vector)
+function mig_revert_migration(tableName::Vector, stichwort::String)
+	stichret::Bool = false
 	ret::Any = ""
 
-	if j_config.JC["dbtype"] == "postgresql"
-		# Case in PostgreSQL
-		ret = PgDBController.mig_revert_migration(tableName)
-	elseif j_config.JC["dbtype"] == "mysql"
-		# Case in MySQL
-		ret = MyDBController.mig_revert_migration(tableName)
-	elseif j_config.JC["dbtype"] == "oracle"
+	#===
+		Tips:
+			check the stichwort in user_info.
+			in the case of nothing, register it into there,
+			in the case of being, take the matching.
+	===#
+	if j_config.JC["jetelinadb"] == "postgresql"
+		stichret = PgDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "mysql"
+		stichret = MyDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "oracle"
 	end
 
-	if ret[1]
-		# update SQL list
-		ApiSqlListManager.deleteTableFromlist(tableName)
-	end
+	if stichret
+		if j_config.JC["dbtype"] == "postgresql"
+			# Case in PostgreSQL
+			ret = PgDBController.mig_revert_migration(tableName)
+		elseif j_config.JC["dbtype"] == "mysql"
+			# Case in MySQL
+			ret = MyDBController.mig_revert_migration(tableName)
+		elseif j_config.JC["dbtype"] == "oracle"
+		end
 
-	return ret[2]
+		if ret[1]
+			# update SQL list
+			ApiSqlListManager.deleteTableFromlist(tableName)
+		end
+
+		return ret[2]
+	else
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+		return json(Dict("result" => false, "errmsg" => jmsg))
+	end
 end
 
 end
