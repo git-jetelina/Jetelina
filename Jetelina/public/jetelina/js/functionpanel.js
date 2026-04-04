@@ -1662,7 +1662,7 @@ const functionPanelFunctions = (ut) => {
 
       break;
     case TABLEAPIDELETE:
-      let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+//      let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
 
       if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
         /*
@@ -1720,6 +1720,7 @@ const functionPanelFunctions = (ut) => {
           Attention:
             only 'js*' api can be deleted.
         */
+        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
         for (let n = 0; n < utarray.length; n++) {
           $(`${TABLECONTAINER} span`).each(function (i, v) {
             if (v.textContent == utarray[n]) {
@@ -2082,37 +2083,87 @@ const functionPanelFunctions = (ut) => {
 
       break;
     case TABLEMIGRATION: case TABLEMIGRATIONCANCELLATION:
+/*
       if(cmd == TABLEMIGRATION){
         cancelableCmdList.push(TABLEMIGRATION);
       }else{
         cancelableCmdList.push(TABLEMIGRATIONCANCELLATION);
       }
+*/
+      if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
+        /*
+          Tips:
+            get 'pass phrase' confirmation here.
+            continue the process if ..sw is not null, ask it if it is not in loginuser.sw. 
+            the matching the 'pass phrase' is done in Jetelina.
+        */
 
-      if ((loginuser.sw == null || loginuser.sw == "") && (!$(SOMETHINGINPUT).is(":visible"))) {
-        showSomethingMsgPanel(true);
-        if (loginuser.available) {
-          showSomethingInputField(true, 2);
-          m = chooseMsg('func-require-stichwort-msg', '', '');
+        if ((loginuser.sw == null || loginuser.sw == "") && (!$(SOMETHINGINPUT).is(":visible"))) {
+          showSomethingMsgPanel(true);
+          if (loginuser.available) {
+            showSomethingInputField(true, 2);
+            m = chooseMsg('func-require-stichwort-msg', '', '');
+          } else {
+            showSomethingInputField(true, 1);
+            m = chooseMsg('func-register-stichwort-msg', '', '');
+          }
         } else {
-          showSomethingInputField(true, 1);
-          m = chooseMsg('func-register-stichwort-msg', '', '');
+          /* execute table migration and/or revert table,
+            but 'pass phrase' is must item. 
+          */
+          if (($(SOMETHINGINPUT).is(":visible") && 0 < $(SOMETHINGINPUT).val().length) || (loginuser.sw != null && 0 < loginuser.sw.length)) {
+            let s = "exec";
+            if(cmd == TABLEMIGRATIONCANCELLATION ){
+              s = "cancel";
+            }
+
+            let p = postMigAjax(s);
+            if(p != null && 0<p.length ){
+              m = p;
+            }
+          }
         }
       } else {
-        /* execute drop table and/or delete api,
-           but 'pass phrase' is must item. 
-        */
-        if (($(SOMETHINGINPUT).is(":visible") && 0 < $(SOMETHINGINPUT).val().length) || (loginuser.sw != null && 0 < loginuser.sw.length)) {
-          let s = "exec";
-          if(cmd == TABLEMIGRATIONCANCELLATION ){
-            s = "cancel";
-          }
+        preferent.cmd = cmd;
 
-          let p = postMigAjax(s);
-          if(p != null && 0<p.length ){
-            m = p;
+        /*
+          Tips:
+            searching for all tables in MIGRATIONTABLELIST.
+  
+            ex. ut ->"execute migration mig_dum" utarray->[execute,migration,mig_dum]
+                mig_dum found in MIGRATIONTABLELIST
+                
+            must be opened MIGRATIONTABLELIST panel, because to prevent double migration execution on jetelina table.
+            of cause the safety lock is done in *.jl program, but wanna do forward check here.
+        */
+        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+        if(cmd == TABLEMIGRATION){
+          cancelableCmdList.push(TABLEMIGRATION);
+          for (let n = 0; n < utarray.length; n++) {
+            $(`${MIGRATIONTABLELIST} span`).each(function (i, v) {
+              if (v.textContent == utarray[n]) {
+                $(this).addClass("activeItem");
+                m = chooseMsg("common-confirm-msg", "", "");
+              }
+            });
+          }
+        }else{
+          cancelableCmdList.push(TABLEMIGRATIONCANCELLATION);
+          for (let n = 0; n < utarray.length; n++) {
+            $(`${TABLECONTAINER} span`).each(function (i, v) {
+              if (v.textContent == utarray[n]) {
+                $(this).addClass("activeItem");
+                m = chooseMsg("common-confirm-msg", "", "");
+              }
+            });
           }
         }
       }
+
+      if (m.length == 0) {
+        m = chooseMsg("common-alert-msg", "", "");
+      }
+
       break;
     default:
       break;
