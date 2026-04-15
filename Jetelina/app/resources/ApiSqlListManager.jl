@@ -55,7 +55,7 @@ function _setApiSequenceNumber
 	how to update apisequencenumber ..ApiSqlListManager.apisequencenumber.apino[1] += 1
 """
 function _setApiSequenceNumber()
-    global Df_JetelinaSqlList = DataFrame()
+    global Df_JetelinaSqlList = DataFrame(apino="",sql="",subquery="",db="")
     p = readSqlList2DataFrame()
     if p[1]
         df = p[2]
@@ -561,7 +561,7 @@ function jsjvmatching2DataFrame()
 
 """
 function jsjvmatching2DataFrame()
-    global Df_JsJvList = DataFrame()
+    global Df_JsJvList = DataFrame(js="",jv="")
     jsjvFile = JFiles.getFileNameFromConfigPath(j_config.JC["jsjvmatchingfile"])
     if isfile(jsjvFile)
         df = CSV.read(jsjvFile, DataFrame)
