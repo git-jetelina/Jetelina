@@ -29,6 +29,7 @@ functions
 	searchErrorLog() searching orderd log as 'errnum' in log file
 	prepareDbEnvironment() database connection checking, and initializing database if needed
 	getApiExecutionSpeed()	get api execution speed data.
+    getJvApiList() read Df_JsJvList to show the js/jv api relation.
 
 -- special functions for RDBMS migration
     mig_execute_migration() execute DB migration.
@@ -43,7 +44,8 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 JMessage.showModuleInCompiling(@__MODULE__)
 
 export initialDb, initialUser, getConfigData, handleApipostdata, createApi, getColumns, deleteTable, userRegist, login, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo,
-    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed, mig_execute_migration, mig_revert_migration
+    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed, getJvApiList,
+    mig_execute_migration, mig_revert_migration
 
 """
 	function initialDb() 
@@ -735,6 +737,20 @@ function mig_revert_migration()
     else
         return nothing
     end
+end
+"""
+function getJvApiList() 
+        
+    read Df_JsJvList to show the js/jv api relation.
+    
+# Arguments
+- return: json: contains the list data
+"""
+function getJvApiList()
+    jmsg::String = string("compliment me!")
+
+    df = ApiSqlListManager.Df_JsJvList
+    return json(Dict("result" => true, "Jetelina" => copy.(eachrow(df[:,:js])), "message from Jetelina" => jmsg))
 end
 
 end

@@ -16,7 +16,7 @@
 @jdic function-search-log-errnum-url:"/searcherror"
 
 # get urls for function panel 
-@jdic function-get-url:"/getapilist","/getalldbtable","/getconfigchangehistory","/goodbyenow","/getdbsavailability","/getoperationhistory"
+@jdic function-get-url:"/getapilist","/getalldbtable","/getconfigchangehistory","/goodbyenow","/getdbsavailability","/getoperationhistory","/getjsjvrelation"
 @jdic function-mig-get-url:"/getmigrationtablelist"
 
 # null 
@@ -110,6 +110,7 @@
 
 #open api list
 @jdic func-show-api-list-cmd:"open api","show me api","api list","apis list","apis","apilist"
+@jdic func-get-jv-api-list-cmd:"ivm api"
 
 ###@jdic 6cond:"Let me your command, if you need"
 @jdic stats-graph-show-msg:"here you are","tatta laan"

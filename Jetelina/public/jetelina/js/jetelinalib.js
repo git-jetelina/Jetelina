@@ -236,6 +236,7 @@ const checkResult = (o) => {
  *                     6->operation history
  *                     7->fetch suggestion data
  *                     8->checking existing suggestion 
+ *                     9->jv api list 
  *                    -1->migration table list data
  *  @returns {object} only in the case of t=3, conifguration changing history object
  *
@@ -412,6 +413,20 @@ const getdata = (o, t) => {
                                 $.each(v, function (name, value) {
                                     if (name == "issuggestion") {
                                         isSuggestion = value;
+                                    }
+                                });
+                            }else if(t == 9){
+                                $.each(v, function (name, value) {
+                                    if (name == "Jetelina") {
+                                        if (0 < value.length) {
+//                                            $.each(value, function (na, va) {
+                                                console.info( value);
+ //                                           });
+                                            
+                                            // here you are message
+                                        }else{
+                                            // nothing message
+                                        }
                                     }
                                 });
                             }
@@ -624,6 +639,9 @@ const getAjaxData = (url) => {
                     } else if (url == geturl[5]) {
                         // operation history
                         getdata(result, 6);
+                    } else if (url == geturl[6]){
+                        // show jv api on the list
+                        getdata(result, 9);
                     }
 
                     m = 'success-msg';
@@ -1726,6 +1744,8 @@ const chatKeyDown = (cmd) => {
                             getAjaxData(scenario["function-get-url"][2]);
                         } else if (inScenarioChk(ut, 'get-operation-history-cmd')) {
                             getAjaxData(scenario["function-get-url"][5]);
+                        } else if (inScenarioChk(ut, "func-get-jv-api-list-cmd")){
+                            getAjaxData(scenario["function-get-url"][6])
                         }
 
                         // user management

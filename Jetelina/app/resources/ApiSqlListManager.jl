@@ -282,17 +282,17 @@ function deleteTableFromlist(tablename::Vector)
         open(tableapiTmpFile, "w") do ttaf
             open(tableapiFile, "r") do taf
                 #===
-                					Tips: 
-                						'keep=false' omits the line-feed in each line, then do println()
-                				===#
+                	Tips: 
+                		'keep=false' omits the line-feed in each line, then do println()
+                ===#
                 for ss in eachline(taf, keep=false)
                     if contains(ss, ':')
                         p = split(ss, ":") # api_name:table,table,....
                         #===
-                        							Tips:
-                        								there is a chance to exist the same table name in postgres and mysql,
-                        								therefore look at p[3]
-                        						===#
+                        	Tips:
+                        		there is a chance to exist the same table name in postgres and mysql,
+                        		therefore look at p[3]
+                        ===#
                         if (p[3] == j_config.JC["dbtype"])
                             tmparr = split(p[2], ',')
                             for i in eachindex(tablename)
@@ -309,15 +309,15 @@ function deleteTableFromlist(tablename::Vector)
                 end
 
                 #===
-                					Tips:
-                						return to the file top ＼(^o^)／
-                						indeed, there are 3 funcs in julia
-                						   - seek(taf,0) move 'taf' to the position '0'
-                						   - seekstart(taf) same above
-                						   - seekend(taf) move 'taf' to the position tail
+                	Tips:
+                		return to the file top ＼(^o^)／
+                		indeed, there are 3 funcs in julia
+                		   - seek(taf,0) move 'taf' to the position '0'
+                		   - seekstart(taf) same above
+                		   - seekend(taf) move 'taf' to the position tail
 
-                						seek(taf,0) can apply here, but use seekstart(taf) because the position is obvioous
-                				===#
+                		seek(taf,0) can apply here, but use seekstart(taf) because the position is obvioous
+                ===#
                 seekstart(taf)
 
                 for ss in eachline(taf, keep=false)
@@ -471,10 +471,10 @@ function getRelatedList(searchKey::String, target::String)
                 p = split(ss, ':')
                 if searchKey == "table"
                     #===
-                    						Tips:
-                    							there is a chance to exist the same table name in postgres and mysql,
-                    							therefore look at p[3]
-                    					===#
+                    	Tips:
+                    		there is a chance to exist the same table name in postgres and mysql,
+                    		therefore look at p[3]
+                    ===#
                     if (p[3] == j_config.JC["dbtype"])
                         c = split(p[2], ',')
                         keys = split(target, ',')
@@ -489,14 +489,14 @@ function getRelatedList(searchKey::String, target::String)
                 else
                     c = p[1]
                     #===
-                    						Tips:
-                    							p[1] is unique api number.
-                    					===#
+                    	Tips:
+                    		p[1] is unique api number.
+                    ===#
                     if target == p[1]
                         #===
-                        							Tips:
-                        								p[2] has possibility multi data. e.g table1,table2
-                        						===#
+                    		Tips:
+                     			p[2] has possibility multi data. e.g table1,table2
+                        ===#
                         c = split(p[2], ',')
                         for i in eachindex(c)
                             push!(ret, c[i])
@@ -648,12 +648,12 @@ function deleteJvApiFromMatchingList(apis::Vector)
                 for ss in eachline(f, keep=false)
                     p = split(ss, ",")
                     if p[1] ∉ apis
-                        # remain others in the file
-                        println(tf, ss)
+                            # remain others in the file
+                            println(tf, ss)
+                        end
                     end
                 end
             end
-        end
     catch err
         JLog.writetoLogfile("ApiSqlListManager.deleteJvApiFromMatchingList() error: $err")
         return false

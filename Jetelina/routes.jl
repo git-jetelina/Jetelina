@@ -95,6 +95,8 @@ route("/deleteapi", PostDataController.deleteApi, method = POST)
 route("/getrelatedlist", PostDataController.getRelatedTableApi, method = POST)
 # search error log
 route("/searcherror", PostDataController.searchErrorLog, method = POST)
+# ivm special: js/jv relation
+route("/getjsjvrelation", PostDataController.getJvApiList)
 #===
     -Handle CSV file
 ===#
