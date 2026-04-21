@@ -110,7 +110,7 @@
 
 #open api list
 @jdic func-show-api-list-cmd:"open api","show me api","api list","apis list","apis","apilist"
-@jdic func-get-jv-api-list-cmd:"ivm api"
+@jdic func-get-jv-api-list-cmd:"show ivm api","display ivm api","ivm api","show api of ivm","api of ivm","show apis of ivm","apis of ivm"
 
 ###@jdic 6cond:"Let me your command, if you need"
 @jdic stats-graph-show-msg:"here you are","tatta laan"

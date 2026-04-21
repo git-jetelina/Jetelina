@@ -416,19 +416,15 @@ const getdata = (o, t) => {
                                     }
                                 });
                             }else if(t == 9){
-                                $.each(v, function (name, value) {
-                                    if (name == "Jetelina") {
-                                        if (0 < value.length) {
-//                                            $.each(value, function (na, va) {
-                                                console.info( value);
- //                                           });
-                                            
-                                            // here you are message
-                                        }else{
-                                            // nothing message
-                                        }
-                                    }
-                                });
+                                if (0 < v.length ){
+                                    $.each(v, function (name, value) {
+                                        $(`${APICONTAINER} span`).each(function(){
+                                            if($(this).text() == value ){
+                                                $(this).addClass("activeItem");
+                                            }
+                                        });
+                                    });
+                                }
                             }
 
                             let tagid = "";
