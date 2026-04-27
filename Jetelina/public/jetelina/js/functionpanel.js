@@ -1580,7 +1580,7 @@ const functionPanelFunctions = (ut) => {
             }
           });
         } else {
-          $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem").each(function () {
+          $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem, .ivmItem").each(function () {
             if ($(this).hasClass("relatedItem")) {
               $(this).removeClass("relatedItem");
             }
@@ -1589,6 +1589,9 @@ const functionPanelFunctions = (ut) => {
             }
             if ($(this).hasClass("activeandrelatedItem")) {
               $(this).removeClass("activeandrelatedItem");
+            }
+            if($(this).hasClass("ivmItem")){
+              $(this).removeClass("ivmItem");
             }
 
             showGenelicPanel(false);

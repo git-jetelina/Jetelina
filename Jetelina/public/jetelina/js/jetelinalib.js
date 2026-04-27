@@ -416,11 +416,13 @@ const getdata = (o, t) => {
                                     }
                                 });
                             }else if(t == 9){
+                                // explicit ivm apis on the api list
                                 if (0 < v.length ){
                                     $.each(v, function (name, value) {
                                         $(`${APICONTAINER} span`).each(function(){
                                             if($(this).text() == value ){
-                                                $(this).addClass("activeItem");
+//                                                $(this).addClass("activeItem");
+                                                $(this).addClass("ivmItem")
                                             }
                                         });
                                     });
@@ -562,8 +564,6 @@ const getAjaxData = (url) => {
 
                         changeChatGirlImage(iconface);
                     }
-
-
                 } else if (inScenarioChk(url, 'analyzed-data-collect-url')) {
                     let type = "";
                     if (url == dataurls[0]) {
@@ -1576,6 +1576,8 @@ const chatKeyDown = (cmd) => {
                         if(m == null || m.length <1){
                             m = "migration show";
                         }
+                    } else if (inScenarioChk(ut, "func-get-jv-api-list-cmd")){
+                        getAjaxData(scenario["function-get-url"][6])
                     }
 
                     if (!inScenarioChk(ut, 'config-show-cmd') && (presentaction.cmd != CONFIGCHANGE)) {
@@ -1740,8 +1742,6 @@ const chatKeyDown = (cmd) => {
                             getAjaxData(scenario["function-get-url"][2]);
                         } else if (inScenarioChk(ut, 'get-operation-history-cmd')) {
                             getAjaxData(scenario["function-get-url"][5]);
-                        } else if (inScenarioChk(ut, "func-get-jv-api-list-cmd")){
-                            getAjaxData(scenario["function-get-url"][6])
                         }
 
                         // user management
