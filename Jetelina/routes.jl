@@ -84,6 +84,8 @@ route("/ispath", PostDataController.prepareDbEnvironment, method = POST)
 ===#
 # create api from posting data of db table columns
 route( "/createapi", PostDataController.createApi, method = POST )
+# recreate api order to changing db table columns
+route("/recreateapi", PostDataController.recreateApi, method = POST)
 # api test before doing createapi
 #     indeed '/createapi' and 'testapi' are same, but wanna indicate them difference url
 route( "/testapi", PostDataController.createApi, method = POST )

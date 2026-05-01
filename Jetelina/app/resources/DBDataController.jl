@@ -26,6 +26,7 @@
 		updateUserLoginData(uid::Integer) update user login data if it succeeded to login
 		deleteUserAccount(uid::Integer) user delete, but not physical deleting, set jetelina_delete_flg to 1. 
 		createApiSelectSentence(json_d::Dict,mode::String) create API and SQL select sentence from posting data.
+		recreateApiSentence(talbename::String) recreate ji/ju/jd apis in ordering table
 		refStichWort(stichwort::String)	reference and matching with user_info->stichwort
 		prepareDbEnvironment(db::String,mode::String) database connection checking, and initializing database if needed
 
@@ -62,7 +63,7 @@ include("libs/mongo/MonSQLSentenceManager.jl")
 export init_Jetelina_table, createJetelinaDatabaseinMysql,
 	dataInsertFromCSV, getTableList, getSequenceNumber, dropTable, getColumns, doSelect,
 	executeApi, userRegist, chkUserExistence, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo, updateUserData, deleteUserAccount,
-	createApiSelectSentence, refStichWort, prepareDbEnvironment,
+	createApiSelectSentence, recreateApiSentence, refStichWort, prepareDbEnvironment,
 	dropIVMtable, mig_getTableList, mig_execute_migration, mig_revert_migration
 
 
@@ -636,6 +637,32 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 
 	return ret
 end
+"""
+function recreateApiSentence(tablename::String) 
+	
+	recreate ji/ju/jd apis in ordering table
+
+# Arguments
+- `tablename::String`: target table name
+- return: success to append it to  -> json {"apino":"<something no>"}
+		  fail to append it to     -> false
+"""
+function recreateApiSentence(tablename::String)
+	ret = ""
+
+	if j_config.JC["dbtype"] == "postgresql"
+		# Case in PostgreSQL
+		ret = PgDBController.recreateApis(tablename)
+	elseif j_config.JC["dbtype"] == "mysql"
+		# Case in MySQL
+#		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)
+	elseif j_config.JC["dbtype"] == "oracle"
+	end
+
+	return ret[2]
+end
+
+
 """
 function refStichWort(stichwort::String)
 

@@ -45,9 +45,13 @@ functions
 
 -- special functions for RDBMS migration
     mig_getTableList() get the table list of targeting migration.
-    mig_execute_migration(tablelist) execute the migration
+    mig_execute_migration(tablelist::Vector) execute the migration
     mig_collect_columns_data(tablename::String, type::Integer) get the data type in the target table.
     mig_revert_migration(tablelist::Vector) revert the migrated table to the origin
+
+-- special functions for recreating Apis due to the change in the table layout
+    recreateApis(tablename::String) recreate ji/ju/jd apis in ordering table
+    replaceSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)	create and register insert/update/delete sql sentences to the API List
 """
 module PgDBController
 
@@ -67,7 +71,7 @@ export create_jetelina_database, create_jetelina_table, create_jetelina_id_seque
     getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, createApiSentence, resisterSqlToApiList, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
     refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
-    mig_getTableList, mig_execute_migration, mig_collect_columns_data, mig_revert_migration
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data, mig_revert_migration, recreateApis, replaceSqlToApiList
 
 """
 function create_jetelina_database()
@@ -1743,7 +1747,7 @@ function mig_getTableList()
 end
 
 """
-function mig_execute_migration(tablelist)
+function mig_execute_migration(tablelist::Vector)
 
     execute the migration
 
@@ -1902,6 +1906,146 @@ function mig_revert_migration(tablelist::Vector)
     return result, ret
 end
 
+
+
+"""
+function recreateApis(tablename::String)
+
+    recreate ji/ju/jd apis in ordering table
+
+# Arguments
+- `talbename::String`: ordered table name
+- return: success -> Tupple(true, json form)
+          error -> Tuple(false, error number)
+"""
+function recreateApis(tablename::String)
+    conn = open_connection()
+    ret = ""
+    procedureflg::Bool = true
+    result::Bool = true
+
+    try
+        #===
+            Tips:
+                in case the parameter is '1', mret is to be DataFrames. ref PgMigration.collect_columns_data()
+                mret[2][2][:,:type] has some types like '*.*' and '*' because eltype() in ..collect_columns_data().
+                so make it tidy up and push into column_type in below.
+        ===#
+        mret = mig_collect_columns_data(conn, tablename, 1)
+        if mret[1]
+            # create api
+            column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
+            p_column_type = mret[2][2][:,:type]
+            column_type = []
+            e_column_type = split.(p_column_type,'.')
+            for ii ∈ eachindex(e_column_type)
+                if 1<length(e_column_type[ii])
+                    push!(column_type, e_column_type[ii][2])
+                else
+                    push!(column_type, e_column_type[ii][1])
+                end
+            end
+
+            #===
+                Tips:
+                    to create apis, '*_jt_id' is unnecessary. it is in the way.
+                    so reject it in column_name and column_type at here.
+            ===#
+            rejectjtid::String = string(tablename,"_jt_id")
+            rejectjtidindex::Integer = findfirst( x -> x == rejectjtid, column_name)
+            filter!( x -> x != rejectjtid, column_name)
+            deleteat!( column_type, rejectjtidindex)
+
+            str = createApiSentence(tablename,column_name,column_type)
+            if !replaceSqlToApiList(tablename,str[1],str[2],str[3])[1]
+                procedureflg = false
+            end
+        else
+            procedureflg = false
+        end
+
+        if procedureflg
+            jmsg = "complement me."
+            ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        else
+            jmsg = "someting wrong"
+            ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        end
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("migration ", tablelist, " tables"))
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
+    finally
+        close_connection(conn)
+    end
+
+    return result, ret
+end
+"""
+function replaceSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+
+	create and register insert/update/delete sql sentences to the API List
+
+# Arguments
+- `tableName: String`: insert targe table name
+- `insert_column_str: String`: part of columns definition in the insert sql
+- `insert_data_str: String`: part of data type definition in the insert sql
+- `update_str: String`: update sql sentece
+- return: tuple (boolean: true -> success/false -> get fail, JSON) <- return of ApiSqlListManager.writeTolist() or .sqlDuplicationCheck()
+"""
+function replaceSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+    #===
+        Tips:
+            why'tableName' is put to 'tablename_arr', because ApiSqlListManager.writeTolist() requires the table name as Vector.
+            .writeTolist() manages both api/sql list and api/table relation list. indeed api/sql list needs only 'tableName',
+            however api/table relation list demands all relation tables name. in this process, cvs -> table, the table relation is 
+            not demanded, but no way, writeTolist() is like that. :P
+    ===#
+    tablename_arr::Vector{String} = []
+    push!(tablename_arr, tableName)
+
+    #===
+    	Tips:
+    		cols is e.g. ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
+    		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
+    		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
+    ===#
+    insert_str = PgSQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
+    # update    -> take care, retrun "update_str is tuple()
+    update_str = PgSQLSentenceManager.createApiUpdateSentence(tableName, update_str)
+    # delete
+#    @info delete_str = PgSQLSentenceManager.createApiDeleteSentence(tableName)
+
+    #===
+        Tips:
+            searching JetelinaTableApiRelation by tablename with ApiSqlListManager.getRelatedList("table",tableName)
+            the .getRelatedList() returns apis that is registered in there. e.g. ["ji11","ju12","jd13","js23",....], only related in tableName.
+            then replace insert_str to "ji", update_str to "ju". delete_str is not necessary.
+    ===#
+    existapis::Vector = ApiSqlListManager.getRelatedList("table", tableName)
+
+    if 0<length(existapis)
+        updateapino::Vector = []
+        updatesqlstr::Vector = []
+
+        for i ∈ eachindex(existapis)
+            if startswith(existapis[i], "ji")
+                push!(updateapino, existapis[i])
+                push!(updatesqlstr,string(existapis[i], ",\"", insert_str, "\",\"\",","\"postgresql\"") )
+            elseif startswith(existapis[i], "ju")
+                push!(updateapino, existapis[i])
+                push!(updatesqlstr, string(existapis[i], ",\"", update_str[1], "\",\"", update_str[2],"\",\"postgresql\""))
+            end 
+        end
+
+        return ApiSqlListManager.updateApiList(updateapino, updatesqlstr)
+    end
+end
+
 #
 # test programs for migration
 #
@@ -1994,6 +2138,5 @@ function columntypeofDummyTable()
 
     @info "PgMigration.columntypeofDummyTable " ret
 end
-
 
 end

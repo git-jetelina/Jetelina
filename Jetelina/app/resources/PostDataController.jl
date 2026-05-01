@@ -12,6 +12,7 @@ functions
 	getConfigData()	get a configuration parameter data ordered by posting data.
 	handleApipostdata() execute ordered API by posting data.
 	createApi()  create API and SQL select sentence from posting data.
+    recreateApi() recreate ji/ju/jd apis in ordering table
 	getColumns()  get ordered tables's columns with json style.ordered table name is posted as the name 'tablename' in jsonpayload().
 	deleteTable()  delete table by ordering. this function calls DBDataController.dropTable(tableName,stichwort), so 'delete' meaning is really 'drop'.ordered table name is posted as the name 'tablename' in jsonpayload().
 	userRegist() register a new user
@@ -43,7 +44,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export initialDb, initialUser, getConfigData, handleApipostdata, createApi, getColumns, deleteTable, userRegist, login, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo,
+export initialDb, initialUser, getConfigData, handleApipostdata, createApi, recreateApi, getColumns, deleteTable, userRegist, login, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo,
     updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed, getJvApiList,
     mig_execute_migration, mig_revert_migration
 
@@ -153,6 +154,27 @@ function createApi()
         return nothing
     end
 end
+
+    
+"""
+function recreateApi() 
+    
+    recreate ji/ju/jd apis in ordering table
+
+# Arguments
+- return: this sql is already existing -> json {"resembled":true}
+		  new sql then success to append it to  -> json {"apino":"<something no>"}
+					   fail to append it to     -> false
+"""
+function recreateApi()
+    if !isnothing(JSession.get())
+        tablename::String = json_d["table"]
+        return DBDataController.recreateApiSentence(tablename)
+    else
+        return nothing
+    end
+end
+
 """
 function getColumns()
 

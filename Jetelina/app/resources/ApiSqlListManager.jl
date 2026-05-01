@@ -11,6 +11,7 @@ functions
 	getApiSequenceNumber()  get api sequence number from apisequencenumber in dataframe then update it +1
 	readSqlList2DataFrame() import registered SQL sentence list in JC["sqllistfile"] to DataFrame.this function set the sql list data in the global variable 'Df_JetelinaSqlList' as DataFrame object.
 	writeTolist(sql::String, subquery::String, tablename_arr::Vector{String}, db::String) create api no and write it to JC["sqllistfile"] order by SQL sentence.
+    updateApiList(apino::Vector, sql::Vector) update api because of changing in a table layout and/or etc..
 	deleteTableFromlist(tablename::Vector) delete tables name from JC["sqllistfile"] synchronized with dropping table.
 	deleteApiFromList(apis:Vector) delete api by ordering from JC["sqllistfile"] file, then refresh the DataFrame.
 	getRelatedList(searchKey::String,target::String) earch in JetelinaTableApiRelation file to find 'target' due to 'searchKey'
@@ -29,7 +30,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export Df_JetelinaSqlList, readSqlList2DataFrame, writeTolist, deleteTableFromlist, sqlDuplicationCheck, jsjvmatching2DataFrame, Df_JsJvList
+export Df_JetelinaSqlList, readSqlList2DataFrame, writeTolist, updateApiList, deleteTableFromlist, sqlDuplicationCheck, jsjvmatching2DataFrame, Df_JsJvList
 
 """
 function __init__()
@@ -255,6 +256,64 @@ function writeTolist(sql::String, subquery::String, tablename_arr::Vector{String
     end
 
     return true, string(suffix, seq_no)
+end
+
+"""
+function updateApiList(apino::Vector, sql::Vector) 
+    
+    update api because of changing in a table layout and/or etc..
+	
+# Arguments
+- `apino::Vector`: target api no  e.g. ji11, ju12
+- `sql::Vector`: sql sentence
+- return: Tuple: suceeded (true::Boolean, api number name::Vector)
+				 failed   (false::Boolean, nothing)
+"""
+function updateApiList(apino::Vector, sql::Vector)
+    sql = strip.(sql)
+    sqlFile = JFiles.getFileNameFromConfigPath(j_config.JC["sqllistfile"])
+    sqlTmpFile = string(sqlFile, ".tmp")
+    replacedapino::Vector = []
+
+    # take the backup file
+    JFiles.fileBackup(sqlFile)
+
+    # remain SQL sentence not include in the target api
+    try
+        i::Integer = 1
+        open(sqlTmpFile, "w") do tf
+            open(sqlFile, "r") do f
+                for ss in eachline(f, keep=false)
+                    p = split(ss, "\"") # js1,"select..."
+                    if rstrip(p[1], ',') ∉ apino
+                        # keep this line
+                        println(tf, ss)
+                    else
+                        # update this line
+                        println(tf, sql[i])
+                        push!(replacedapino, apino[i])
+                        if i < length(apino)
+                            i += 1
+                        end
+                    end
+                end
+            end
+        end
+    catch err
+        JLog.writetoLogfile("ApiSqlListManager.updateApiList() error: $err")
+        return false
+    end
+
+    # change the file name
+    mv(sqlTmpFile, sqlFile, force=true)
+
+    # update DataFrame
+    readSqlList2DataFrame()
+
+    # write to operationhistoryfile
+    JLog.writetoOperationHistoryfile(string("update api", ",", "suffix", replacedapino))
+
+    return true, replacedapino
 end
 """
 function deleteTableFromlist(tablename::Vector)
