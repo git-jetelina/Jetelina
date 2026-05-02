@@ -1355,10 +1355,16 @@ const functionPanelFunctions = (ut) => {
       }
     }
 
+    if (cmd == "" && inScenarioChk(ut, 'func-apirecreate-cmd')) {
+      // attention: this is for "recreating api"
+      cmd = 'recreateapi';
+      cancelableCmdList.push(cmd);
+    }
+
     if (cmd == "" && inScenarioChk(ut, 'common-post-cmd') ||
       (cmd == "" && inScenarioChk(ut, 'func-apicreate-cmd'))) {
       cmd = 'post';
-      cancelableCmdList.push("post");
+      cancelableCmdList.push(cmd);
     }
 
     if (cmd == "" && inScenarioChk(ut, 'func-api-test-cmd')) {
@@ -1381,14 +1387,14 @@ const functionPanelFunctions = (ut) => {
           preferent.original_apiout_str = $(`${COLUMNSPANEL} [name='apiout']`).text();
           showApiTestPanel(false);
           cmd = "apitest";
-          cancelableCmdList.push("apitest");
+          cancelableCmdList.push(cmd);
         } else {
           cmd = "preapitest";
-          cancelableCmdList.push("preapitest");
+          cancelableCmdList.push(cmd);
         }
       } else {
         cmd = "preapitest";
-        cancelableCmdList.push("preapitest");
+        cancelableCmdList.push(cmd);
       }
     }
 
@@ -1513,6 +1519,7 @@ const functionPanelFunctions = (ut) => {
         12.switchdb: switchng using database
         13.TABLEMIGRATION: table migration
         14.TABLEMIGRATIONCANCELLATION: table migration cancellation
+        15.recreatapi: recreate api
         default: non
   */
   switch (cmd) {
@@ -2167,6 +2174,23 @@ const functionPanelFunctions = (ut) => {
         m = chooseMsg("common-alert-msg", "", "");
       }
 
+      break;
+    case 'recreateapi':
+        let refreshtables = [];
+        $(`${TABLECONTAINER} span`).filter('.activeItem').each(function () {
+          refreshtables.push($(this).text());
+        });
+
+        if(refreshtables.length == 0){
+          m = chooseMsg('func-apirecreate-selecttable-msg', '', '');
+        }else{
+          let pd = {};
+          pd["table"] = refreshtables;
+          let data = JSON.stringify(pd);
+          postAjaxData(scenario["function-post-url"][12], data);
+        }
+
+        //rejectCancelableCmdList("recreateapi");
       break;
     default:
       break;

@@ -50,7 +50,7 @@ functions
     mig_revert_migration(tablelist::Vector) revert the migrated table to the origin
 
 -- special functions for recreating Apis due to the change in the table layout
-    recreateApis(tablename::String) recreate ji/ju/jd apis in ordering table
+    recreateApis(tablelist::Vector) recreate ji/ju/jd apis in ordering table
     replaceSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)	create and register insert/update/delete sql sentences to the API List
 """
 module PgDBController
@@ -1909,59 +1909,61 @@ end
 
 
 """
-function recreateApis(tablename::String)
+function recreateApis(tablelist::Vector)
 
     recreate ji/ju/jd apis in ordering table
 
 # Arguments
-- `talbename::String`: ordered table name
+- `talbename::Vector`: ordered table name
 - return: success -> Tupple(true, json form)
           error -> Tuple(false, error number)
 """
-function recreateApis(tablename::String)
+function recreateApis(tablelist::Vector)
     conn = open_connection()
     ret = ""
     procedureflg::Bool = true
     result::Bool = true
 
     try
-        #===
-            Tips:
-                in case the parameter is '1', mret is to be DataFrames. ref PgMigration.collect_columns_data()
-                mret[2][2][:,:type] has some types like '*.*' and '*' because eltype() in ..collect_columns_data().
-                so make it tidy up and push into column_type in below.
-        ===#
-        mret = mig_collect_columns_data(conn, tablename, 1)
-        if mret[1]
-            # create api
-            column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
-            p_column_type = mret[2][2][:,:type]
-            column_type = []
-            e_column_type = split.(p_column_type,'.')
-            for ii ∈ eachindex(e_column_type)
-                if 1<length(e_column_type[ii])
-                    push!(column_type, e_column_type[ii][2])
-                else
-                    push!(column_type, e_column_type[ii][1])
-                end
-            end
-
+        for i ∈ 1:length(tablelist)
             #===
                 Tips:
-                    to create apis, '*_jt_id' is unnecessary. it is in the way.
-                    so reject it in column_name and column_type at here.
+                    in case the parameter is '1', mret is to be DataFrames. ref PgMigration.collect_columns_data()
+                    mret[2][2][:,:type] has some types like '*.*' and '*' because eltype() in ..collect_columns_data().
+                    so make it tidy up and push into column_type in below.
             ===#
-            rejectjtid::String = string(tablename,"_jt_id")
-            rejectjtidindex::Integer = findfirst( x -> x == rejectjtid, column_name)
-            filter!( x -> x != rejectjtid, column_name)
-            deleteat!( column_type, rejectjtidindex)
+            mret = mig_collect_columns_data(conn, tablelist[i], 1)
+            if mret[1]
+                # create api
+                column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
+                p_column_type = mret[2][2][:,:type]
+                column_type = []
+                e_column_type = split.(p_column_type,'.')
+                for ii ∈ eachindex(e_column_type)
+                    if 1<length(e_column_type[ii])
+                        push!(column_type, e_column_type[ii][2])
+                    else
+                        push!(column_type, e_column_type[ii][1])
+                    end
+                end
 
-            str = createApiSentence(tablename,column_name,column_type)
-            if !replaceSqlToApiList(tablename,str[1],str[2],str[3])[1]
+                #===
+                    Tips:
+                        to create apis, '*_jt_id' is unnecessary. it is in the way.
+                        so reject it in column_name and column_type at here.
+                ===#
+                rejectjtid::String = string(tablelist[i],"_jt_id")
+                rejectjtidindex::Integer = findfirst( x -> x == rejectjtid, column_name)
+                filter!( x -> x != rejectjtid, column_name)
+                deleteat!( column_type, rejectjtidindex)
+
+                str = createApiSentence(tablelist[i],column_name,column_type)
+                if !replaceSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
+                    procedureflg = false
+                end
+            else
                 procedureflg = false
             end
-        else
-            procedureflg = false
         end
 
         if procedureflg
@@ -1976,7 +1978,7 @@ function recreateApis(tablename::String)
         JLog.writetoOperationHistoryfile(string("migration ", tablelist, " tables"))
     catch err
         errnum = JLog.getLogHash()
-        JLog.writetoLogfile("[errnum:$errnum] PgDBController.mig_execute_migration() error : $err")
+        JLog.writetoLogfile("[errnum:$errnum] PgDBController.recreateApis() error : $err")
         ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
         result = false
     finally

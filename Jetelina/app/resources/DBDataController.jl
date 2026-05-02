@@ -26,7 +26,7 @@
 		updateUserLoginData(uid::Integer) update user login data if it succeeded to login
 		deleteUserAccount(uid::Integer) user delete, but not physical deleting, set jetelina_delete_flg to 1. 
 		createApiSelectSentence(json_d::Dict,mode::String) create API and SQL select sentence from posting data.
-		recreateApiSentence(talbename::String) recreate ji/ju/jd apis in ordering table
+		recreateApiSentence(tablelist::Vector) recreate ji/ju/jd apis in ordering table
 		refStichWort(stichwort::String)	reference and matching with user_info->stichwort
 		prepareDbEnvironment(db::String,mode::String) database connection checking, and initializing database if needed
 
@@ -638,7 +638,7 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 	return ret
 end
 """
-function recreateApiSentence(tablename::String) 
+function recreateApiSentence(tablelist::Vector) 
 	
 	recreate ji/ju/jd apis in ordering table
 
@@ -647,12 +647,12 @@ function recreateApiSentence(tablename::String)
 - return: success to append it to  -> json {"apino":"<something no>"}
 		  fail to append it to     -> false
 """
-function recreateApiSentence(tablename::String)
+function recreateApiSentence(tablelist::Vector)
 	ret = ""
 
 	if j_config.JC["dbtype"] == "postgresql"
 		# Case in PostgreSQL
-		ret = PgDBController.recreateApis(tablename)
+		ret = PgDBController.recreateApis(tablelist)
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
 #		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)

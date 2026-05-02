@@ -5,7 +5,7 @@
 @jdic analyzed-data-collect-url:"/gettablecombivsaccessrelationdata", "/getperformancedata_real", "/getperformancedata_test","/chkexistimprapifile","/getapiaccessdata","/getdbaccessdata","/getapiexecspeed","/getsuggestiondata"
 
 # post urls for function panel 
-@jdic function-post-url:"/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns"
+@jdic function-post-url:"/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns","/recreateapi"
 @jdic function-post-fileupload-url:"/postcsvfile"
 @jdic function-mig-post-url:"/executedbmigration","/canceldbmigration"
 
@@ -173,8 +173,10 @@
 @jdic func-require-stichwort-msg:"put your pass phrase"
 
 @jdic func-apicreate-cmd:"create api","post api","post columns","create sql"
+@jdic func-apirecreate-cmd:"recreate api","rebuild api","renewal api"
 @jdic func-newapino-msg:"new apino {Q}"
 @jdic func-duplicateapi-msg:"there is a similar API already existing: "
+@jdic func-apirecreate-selecttable-msg:"Hey, select the target tables"
 #
 #  reject "delete" from this dic, but should be considered it later, because just "delete" was convenient.
 #@jdic func-apidelete-cmd:"delete","delete api","api delete","apidelete","deleteapi","remove api","reject api","api remove","api reject"

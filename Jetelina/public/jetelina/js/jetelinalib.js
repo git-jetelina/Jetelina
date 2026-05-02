@@ -1007,6 +1007,10 @@ const postAjaxData = (url, data) => {
 
                     let data = `{"${dbconfname}":"true"}`;
                     postAjaxData(scenario["function-post-url"][3], data);
+                } else if (url == posturls[12]){
+                    // recreate api
+                    refreshdisplayTablesAndApis();
+                    rejectCancelableCmdList("recreateapi");
                 } else if (url == scenario['analyzed-data-collect-url'][6]) {
                     /*
                         Tips:

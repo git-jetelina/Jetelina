@@ -168,8 +168,9 @@ function recreateApi()
 """
 function recreateApi()
     if !isnothing(JSession.get())
-        tablename::String = json_d["table"]
-        return DBDataController.recreateApiSentence(tablename)
+        tablelist::Vector = jsonpayload("table")
+
+        return DBDataController.recreateApiSentence(tablelist)
     else
         return nothing
     end

@@ -1,6 +1,6 @@
 let scenario = []; let config = [];
 scenario["analyzed-data-collect-url"]=["/gettablecombivsaccessrelationdata", "/getperformancedata_real", "/getperformancedata_test","/chkexistimprapifile","/getapiaccessdata","/getdbaccessdata","/getapiexecspeed","/getsuggestiondata"];
-scenario["function-post-url"]=["/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns"];
+scenario["function-post-url"]=["/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns","/recreateapi"];
 scenario["function-post-fileupload-url"]=["/postcsvfile"];
 scenario["function-mig-post-url"]=["/executedbmigration","/canceldbmigration"];
 scenario["function-japi-url"]=["/apiactions"];
@@ -100,8 +100,10 @@ scenario["func-tabledrop-ng-msg"]=["Hey open the table list first!","Huum?","Che
 scenario["func-register-stichwort-msg"]=["register your pass phrase first"];
 scenario["func-require-stichwort-msg"]=["put your pass phrase"];
 scenario["func-apicreate-cmd"]=["create api","post api","post columns","create sql"];
+scenario["func-apirecreate-cmd"]=["recreate api","rebuild api","renewal api"];
 scenario["func-newapino-msg"]=["new apino {Q}"];
 scenario["func-duplicateapi-msg"]=["there is a similar API already existing: "];
+scenario["func-apirecreate-selecttable-msg"]=["Hey, select the target tables"];
 scenario["func-apidelete-cmd"]=["delete api","api delete","apidelete","deleteapi","remove api","reject api","api remove","api reject"];
 scenario["func-apidelete-msg"]=["Which api do you want to delete?","correct order is 'delete <api name>' and so on"];
 scenario["func-apidelete-ng-msg"]=["Hey open the api list first!","Huum?","Check it first","Watch it"];
