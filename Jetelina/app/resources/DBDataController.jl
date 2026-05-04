@@ -655,7 +655,7 @@ function recreateApiSentence(tablelist::Vector)
 		ret = PgDBController.recreateApis(tablelist)
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
-#		ret = MySQLSentenceManager.createApiSelectSentence(json_d, mode)
+		ret = MyDBController.recreateApis(tablelist)
 	elseif j_config.JC["dbtype"] == "oracle"
 	end
 

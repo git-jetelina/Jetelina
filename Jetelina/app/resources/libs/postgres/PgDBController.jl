@@ -1906,8 +1906,6 @@ function mig_revert_migration(tablelist::Vector)
     return result, ret
 end
 
-
-
 """
 function recreateApis(tablelist::Vector)
 
