@@ -1009,6 +1009,14 @@ const postAjaxData = (url, data) => {
                     postAjaxData(scenario["function-post-url"][3], data);
                 } else if (url == posturls[12]){
                     // recreate api
+                    console.log("ret ", result.Jetelina);
+                    if(0<result.Jetelina.length){
+                        m = chooseMsg('func-renewapino-msg', `are ${result.Jetelina}.`, 'r');
+                        $(CHATBOXYOURTELL).text(m);
+                        $(".yourText").mouseover();
+                    }
+
+                    cleanUp("items");
                     refreshdisplayTablesAndApis();
                     rejectCancelableCmdList("recreateapi");
                 } else if (url == scenario['analyzed-data-collect-url'][6]) {

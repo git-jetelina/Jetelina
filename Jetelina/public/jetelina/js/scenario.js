@@ -102,6 +102,7 @@ scenario["func-require-stichwort-msg"]=["put your pass phrase"];
 scenario["func-apicreate-cmd"]=["create api","post api","post columns","create sql"];
 scenario["func-apirecreate-cmd"]=["recreate api","rebuild api","renewal api"];
 scenario["func-newapino-msg"]=["new apino {Q}"];
+scenario["func-renewapino-msg"]=["renewal apino {Q}"];
 scenario["func-duplicateapi-msg"]=["there is a similar API already existing: "];
 scenario["func-apirecreate-selecttable-msg"]=["Hey, select the target tables"];
 scenario["func-apidelete-cmd"]=["delete api","api delete","apidelete","deleteapi","remove api","reject api","api remove","api reject"];

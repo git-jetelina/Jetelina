@@ -175,6 +175,7 @@
 @jdic func-apicreate-cmd:"create api","post api","post columns","create sql"
 @jdic func-apirecreate-cmd:"recreate api","rebuild api","renewal api"
 @jdic func-newapino-msg:"new apino {Q}"
+@jdic func-renewapino-msg:"renewal apino {Q}"
 @jdic func-duplicateapi-msg:"there is a similar API already existing: "
 @jdic func-apirecreate-selecttable-msg:"Hey, select the target tables"
 #

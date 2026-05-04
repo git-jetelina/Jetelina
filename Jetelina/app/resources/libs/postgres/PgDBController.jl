@@ -1923,6 +1923,7 @@ function recreateApis(tablelist::Vector)
     ret = ""
     procedureflg::Bool = true
     result::Bool = true
+    updatedapino::Vector = []
 
     try
         for i ∈ 1:length(tablelist)
@@ -1958,8 +1959,11 @@ function recreateApis(tablelist::Vector)
                 deleteat!( column_type, rejectjtidindex)
 
                 str = createApiSentence(tablelist[i],column_name,column_type)
-                if !replaceSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
+                upret = replaceSqlToApiList(tablelist[i],str[1],str[2],str[3])
+                if !upret[1]
                     procedureflg = false
+                else
+                    push!(updatedapino, upret[2])
                 end
             else
                 procedureflg = false
@@ -1968,7 +1972,7 @@ function recreateApis(tablelist::Vector)
 
         if procedureflg
             jmsg = "complement me."
-            ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+            ret = json(Dict("result" => true, "Jetelina" => updatedapino, "message from Jetelina" => jmsg))
         else
             jmsg = "someting wrong"
             ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
