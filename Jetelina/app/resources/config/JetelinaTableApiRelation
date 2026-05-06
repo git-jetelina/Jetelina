@@ -1,16 +1,1 @@
-ji1:ftest2:postgresql
-ju2:ftest2:postgresql
-jd3:ftest2:postgresql
-ji4:ftest3:postgresql
-ju5:ftest3:postgresql
-jd6:ftest3:postgresql
-js7:ftest3,ftest2:postgresql
-js8:ftest3:postgresql
-ji9:people_1000:postgresql
-ju10:people_1000:postgresql
-jd11:people_1000:postgresql
-js12:people_1000:postgresql
-ji13:palt:postgresql
-ju14:palt:postgresql
-jd15:palt:postgresql
-js16:palt,people_1000:postgresql
+

@@ -107,7 +107,7 @@ file_column_api_execution_time = exectime
 #   defined database should be RDB, therefore postgresql org mysql so far
 #
 @jdic jetelnadb:"default db","default database","original db","original database","user db","user database"
-jetelinadb = postgresql
+jetelinadb = database
 
 #
 #  default database
@@ -119,11 +119,11 @@ jetelinadb = postgresql
 #                MongoDB    -> mongodb
 #                Oracle     -> oracle
 @jdic dbtype:"db","database","data base"
-dbtype = postgresql
+dbtype = database
 
 # PostgreSQL setting
 @jdic pg_work:"postgresql run","postgresql availability","start postgresql","postgresql start"
-pg_work = true
+pg_work = false
 @jdic pg_host:"postgresql host"
 pg_host = localhost
 @jdic pg_port:"postgresql port"
@@ -143,7 +143,7 @@ pg_testdbname = testdb
 #    pg_ivm: true -> the extension is installed, false -> not yet
 #
 @jdic pg_ivm:"postgresql ivm"
-pg_ivm = true
+pg_ivm = false
 
 #
 # mysql,oracle and so on are goin to do after postgre is done  2024/3/4
@@ -172,7 +172,7 @@ my_testdbname = testdb
 
 # Redis setting
 @jdic redis_work:"redis run","redis availability","start redis","redis start"
-redis_work = true
+redis_work = false
 @jdic redis_host:"redis host"
 redis_host = 127.0.0.1
 @jdic redis_port:"redis port"
