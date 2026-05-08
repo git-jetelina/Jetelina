@@ -43,6 +43,8 @@ function _logfileOpen()
 				# file rotation
 				_fileRotation(logfile)
 			end
+		else
+			touch(logfiel)
 		end
 
 		io = open(logfile, "a+")
