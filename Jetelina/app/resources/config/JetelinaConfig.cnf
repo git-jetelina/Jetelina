@@ -197,7 +197,7 @@ my_testdbname = testdb
 
 # Redis setting
 @jdic redis_work:"redis run","redis availability","start redis","redis start"
-redis_work = true
+redis_work = false
 @jdic redis_host:"redis host"
 redis_host = 127.0.0.1
 @jdic redis_port:"redis port"
@@ -210,7 +210,7 @@ redis_password =
 
 # MongoDB setting
 @jdic mongodb_work:"mongodb run","mongodb availability","start mongodb","mongodb start"
-mongodb_work = true
+mongodb_work = false
 @jdic monogodb_host:"monogodb host"
 mongodb_host = 127.0.0.1
 @jdic mongodb_port:"monogodb port"

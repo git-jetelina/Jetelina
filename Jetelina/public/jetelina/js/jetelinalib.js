@@ -333,7 +333,8 @@ const getdata = (o, t) => {
                                         case t=2: wanna show it in one line
                                         this is the api list.
                                 */
-                                if (loginuser.dbtype.indexOf(v.db) != -1) {
+//                                if (loginuser.dbtype.indexOf(v.db) != -1) {
+                                if (loginuser.dbtype == v.db) {
                                     str += `<span class="api">${v.apino}</span>`;
                                 }
                             } else if (t == 3) {
