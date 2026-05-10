@@ -58,7 +58,8 @@
 
 # etc 
 @jdic starting-3-msg:"What?","Are you kidding me?","Never mind"
-@jdic general-thanks-cmd:"thank you","thanks","thx","nice","nice job","well done","great","awesome","genious","incredible","super"
+@jdic general-thanks-cmd:"thank you","nice job","well done"
+#jdic general-thanks-cmd:"thank you","thanks","thx","nice","nice job","well done","great","awesome","genious","incredible","super"
 @jdic general-thanks-msg:"you're welcome","my pleasure, {Q}"
 @jdic what-did-i-say-cmd:"did i say","did i type"
 @jdic no-authority-js-msg:"you do not have the authority, yet"
