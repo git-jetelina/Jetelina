@@ -150,9 +150,9 @@ pg_host = localhost
 @jdic pg_port:"postgresql port"
 pg_port = 5432
 @jdic pg_user:"postgresql user","postgresql login"
-pg_user = postgres
+pg_user = onoke
 @jdic pg_password:"postgresql password","password in postgresql"
-pg_password = postgres
+pg_password = 
 @jdic pg_sslmode:"postgresql sslmode","postgresql ssl mode","postgresql ssl"
 pg_sslmode = prefer
 @jdic pg_dbname:"postgresql database name","postgresql db name","postgresql dbname"
