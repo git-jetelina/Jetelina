@@ -10,6 +10,7 @@
       isVisibleApiContainer() checking "#api_container" is visible or not
       isVisibleGenelicPanel() checking "#genelic_panel" is visible or not
       isVisibleColumns() checking "#columns" is visible or not
+      isVisibleMigTableListPanel() checking "#migration_table_list" is visible or not
       itemSelect(p) select table column
       deleteSelectedItems(p) delete the selected columns from #container field
       cleanUp(s)  droped items & columns of selecting table
@@ -192,6 +193,20 @@ const isVisibleColumns = () => {
   return ret;
 }
 /**
+ * @function isVisibleMigTableListPanel
+ * @returns {boolean}  true -> visible, false -> invisible
+ * 
+ * checking "#migration_table_list" is visible or not
+ */
+const isVisibleMigTableListPanel = () => {
+  let ret = false;
+  if ($(MIGRATIONTABLELIST).is(":visible")) {
+    ret = true;
+  }
+
+  return ret;
+}
+/**
  * @function itemSelect
  * @param {object} p  jquery tag object
  * 
@@ -298,6 +313,10 @@ const cleanupItems4Switching = () => {
   $(`${TABLECONTAINER} span`).removeClass("activeItem");
   $(`${APICONTAINER} span`).removeClass("activeItem");
   $(`${CONTAINERPANEL} span`).remove();
+
+  if (isVisibleMigTableListPanel()) {
+    $(`${MIGRATIONTABLELIST}  span`).removeClass("activeItem");
+  }
 }
 /**
 * @function cleanupContainers
@@ -394,7 +413,11 @@ const fileupload = () => {
   the excecution of getting column is judged by this 'activeItem' attribute.
 */
 $(document).on("click", ".table,.api", function () {
-  listClick($(this));
+  if (!isVisibleMigTableListPanel()) {
+    listClick($(this));
+  } else {
+    $(this).toggleClass("activeItem");
+  }
 });
 
 /**
@@ -560,10 +583,10 @@ const listClick = (p) => {
 
           and ignore showring table columns even if ivm table were clicked.
       */
-      if( t.startsWith("jv")){
+      if (t.startsWith("jv")) {
         let checkjvapi = t.replace("jv", "js")
-        $(`${APICONTAINER} span`).filter(".api").each(function(){
-          if( checkjvapi == $(this).text()){
+        $(`${APICONTAINER} span`).filter(".api").each(function () {
+          if (checkjvapi == $(this).text()) {
             $(this).addClass("relatedItem");
             isivmtable = true;
             /*
@@ -577,7 +600,11 @@ const listClick = (p) => {
         });
       }
 
-      if(!isivmtable){
+      /*
+        Tips:
+          getColumn() calls only Jetelina table. 
+      */
+      if (!isivmtable && !isVisibleMigTableListPanel()) {
         // get&show table columns
         getColumn(t);
       }
@@ -617,9 +644,10 @@ const listClick = (p) => {
 
     /*
       Tips:
-        because ivm table is not listed in JetelinaTableApiRelation file
+        because ivm table is not listed in JetelinaTableApiRelation file.
+        and migration target tables as well.
     */
-    if(!isivmtable){
+    if (!isivmtable && !isVisibleMigTableListPanel()) {
       let data = `{"table":"${related_table}","api":"${related_api}"}`;
       postAjaxData(scenario["function-post-url"][8], data);
     }
@@ -829,7 +857,7 @@ const setApiIF_Sql = (s) => {
       ret = ret.replaceAll(`,{${reject_jetelina_delete_flg}}`, '').replaceAll(`,${reject_jetelina_delete_flg}`, '');
     }
 
-    ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
+    ret = ret.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   } else {
     if (loginuser.dbtype == "redis") {
       let d = s.sql.split(":");
@@ -841,7 +869,7 @@ const setApiIF_Sql = (s) => {
         ret = `${d[0]} ${d[1]}`;
       }
 
-      ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
+      ret = ret.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
     } else if (loginuser.dbtype == "mongodb") {
       let ms = "";
       if (s.apino.startsWith("ji")) {
@@ -862,7 +890,7 @@ const setApiIF_Sql = (s) => {
     }
   }
 
-//  ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
+  //  ret = ret.replaceAll("<","&lt;").replaceAll(">","&gt;");
   return ret;
 }
 /**
@@ -1067,6 +1095,8 @@ const dropThisTable = (tables) => {
       m = result["message from Jetelina"];
       if (m == null || m == "") {
         m = chooseMsg('fail-msg', '', '');
+      } else if (m.indexOf("wrong pass phrase")) {
+        login.sw = null;
       }
     }
 
@@ -1270,13 +1300,20 @@ const functionPanelFunctions = (ut) => {
       cmdCandidates.push("open sub query panel");
     }
 
-    if (cmd == "" && inScenarioChk(ut, 'func-tabledrop-cmd')) {
+    if (cmd == "" && (inScenarioChk(ut, 'func-tabledrop-cmd') || inScenarioChk(ut, 'func-db-mig-exec-cmd') || inScenarioChk(ut, 'func-db-mig-revert-cmd'))) {
       /*
         Attention:
           only 'admin' can drop tables
       */
       if (loginuser.roll == "admin") {
-        cmd = TABLEAPIDELETE;
+        if (inScenarioChk(ut, 'func-tabledrop-cmd')) {
+          cmd = TABLEAPIDELETE;
+        } else if (inScenarioChk(ut, 'func-db-mig-exec-cmd')) {
+          cmd = TABLEMIGRATION;
+        } else if (inScenarioChk(ut, 'func-db-mig-revert-cmd')) {
+          cmd = TABLEMIGRATIONCANCELLATION;
+        }
+
         preferent.cmd = cmd;
         cmdCandidates.push("drop table");
       } else {
@@ -1318,11 +1355,16 @@ const functionPanelFunctions = (ut) => {
       }
     }
 
+    if (cmd == "" && inScenarioChk(ut, 'func-apirecreate-cmd')) {
+      // attention: this is for "recreating api"
+      cmd = 'recreateapi';
+      cancelableCmdList.push(cmd);
+    }
+
     if (cmd == "" && inScenarioChk(ut, 'common-post-cmd') ||
       (cmd == "" && inScenarioChk(ut, 'func-apicreate-cmd'))) {
       cmd = 'post';
-      //cmdCandidates.push("post");
-      cancelableCmdList.push("post");
+      cancelableCmdList.push(cmd);
     }
 
     if (cmd == "" && inScenarioChk(ut, 'func-api-test-cmd')) {
@@ -1345,14 +1387,14 @@ const functionPanelFunctions = (ut) => {
           preferent.original_apiout_str = $(`${COLUMNSPANEL} [name='apiout']`).text();
           showApiTestPanel(false);
           cmd = "apitest";
-          cancelableCmdList.push("apitest");
+          cancelableCmdList.push(cmd);
         } else {
           cmd = "preapitest";
-          cancelableCmdList.push("preapitest");
+          cancelableCmdList.push(cmd);
         }
       } else {
         cmd = "preapitest";
-        cancelableCmdList.push("preapitest");
+        cancelableCmdList.push(cmd);
       }
     }
 
@@ -1475,6 +1517,9 @@ const functionPanelFunctions = (ut) => {
         10.preapitest: api test before registering
         11.apitest: exist api test mode
         12.switchdb: switchng using database
+        13.TABLEMIGRATION: table migration
+        14.TABLEMIGRATIONCANCELLATION: table migration cancellation
+        15.recreatapi: recreate api
         default: non
   */
   switch (cmd) {
@@ -1525,7 +1570,7 @@ const functionPanelFunctions = (ut) => {
       break;
     case SELECTITEM:
       let findflg = false;
-      let t = ut.replaceAll(","," ").split(' ').filter(Boolean);
+      let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
 
       // for opening table 
       $(CONTAINERNEWAPINO).remove();
@@ -1535,33 +1580,44 @@ const functionPanelFunctions = (ut) => {
             -> in the case of 'ut' is 'close all', 'all close'
       */
       if (($.inArray('all', t) != -1) && ($.inArray('close', t) != -1)) {
-        $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem").each(function () {
-          if ($(this).hasClass("relatedItem")) {
-            $(this).removeClass("relatedItem");
-          }
-          if ($(this).hasClass("activeItem")) {
-            $(this).removeClass("activeItem");
-          }
-          if ($(this).hasClass("activeandrelatedItem")) {
-            $(this).removeClass("activeandrelatedItem");
-          }
+        if (isVisibleMigTableListPanel()) {
+          $(`${MIGRATIONTABLELIST} span`).filter(".activeItem").each(function () {
+            if (!$(this).hasClass("deleteItem")) {
+              $(this).toggleClass("activeItem");
+            }
+          });
+        } else {
+          $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem, .ivmItem").each(function () {
+            if ($(this).hasClass("relatedItem")) {
+              $(this).removeClass("relatedItem");
+            }
+            if ($(this).hasClass("activeItem")) {
+              $(this).removeClass("activeItem");
+            }
+            if ($(this).hasClass("activeandrelatedItem")) {
+              $(this).removeClass("activeandrelatedItem");
+            }
+            if($(this).hasClass("ivmItem")){
+              $(this).removeClass("ivmItem");
+            }
 
-          showGenelicPanel(false);
-          cleanUp("items");
-          let n = $(this).text();
-          if (relatedDataList[n] != null) {
-            delete relatedDataList[n];
-          }
-        });
+            showGenelicPanel(false);
+            cleanUp("items");
+            let n = $(this).text();
+            if (relatedDataList[n] != null) {
+              delete relatedDataList[n];
+            }
+          });
+        }
       }
 
       for (let n = 0; n < t.length; n++) {
         findflg = false;
-
         /*
           Tips:
             at the first, searching in the table list, then the api list if did not hit.
             respect table seaching if there were a word 'table' in 'ut'.
+            but migration list is respected anyhow if it were opened. <- Feb in 2026 :P
 
             because... may the name of table has variety, against it the name of api has a rule.
             if there were the same name in the both list, this selection hit both, but puting 'table' in the order,
@@ -1573,27 +1629,23 @@ const functionPanelFunctions = (ut) => {
                   case 2. order 'open table js100' hit the only table.
                   case 3. order 'open 100' hit the only api.
         */
-        $(`${TABLECONTAINER} span`).each(function (i, v) {
-          if (v.textContent == t[n]) {
-            listClick($(this));
-            m = chooseMsg('success-msg', "", "");
-            findflg = true;
-          }
-        });
+        if (isVisibleMigTableListPanel()) {
+          findflg = findItemnameFromlist(MIGRATIONTABLELIST, t[n]);
+        }
 
         if (!findflg) {
-          $(`${APICONTAINER} span`).each(function (i, v) {
-            if (v.textContent.indexOf(t[n]) != -1) {
-              listClick($(this));
-              m = chooseMsg('success-msg', "", "");
-              findflg = true;
-            }
-          });
+          findflg = findItemnameFromlist(TABLECONTAINER, t[n]);
+        }
+
+        if (!findflg) {
+          findflg = findItemnameFromlist(APICONTAINER, t[n]);
         }
       }
 
       // !findlg meaning is not for openging table or api, this time is for selecting columns in opening tables
       if (!findflg) {
+        m = chooseMsg('success-msg', "", "");
+
         if (inScenarioChk(ut, "func-item-select-all-cmd")) {
           // select all items
           $(`${COLUMNSPANEL} span`).filter(".item").each(function () {
@@ -1610,6 +1662,8 @@ const functionPanelFunctions = (ut) => {
             });
           }
         }
+      } else {
+        m = chooseMsg('success-msg', "", "");
       }
 
       if (m.length == 0) {
@@ -1618,7 +1672,7 @@ const functionPanelFunctions = (ut) => {
 
       break;
     case TABLEAPIDELETE:
-      let utarray = ut.replaceAll(","," ").split(' ').filter(Boolean);
+//      let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
 
       if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
         /*
@@ -1676,6 +1730,7 @@ const functionPanelFunctions = (ut) => {
           Attention:
             only 'js*' api can be deleted.
         */
+        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
         for (let n = 0; n < utarray.length; n++) {
           $(`${TABLECONTAINER} span`).each(function (i, v) {
             if (v.textContent == utarray[n]) {
@@ -1744,12 +1799,12 @@ const functionPanelFunctions = (ut) => {
               $(GENELICPANELINPUT).focus().get(0).setSelectionRange(p, p)
             }
           } else {
-//            postSelectedColumns("");
-              if (checkGenelicInput(subquerysentence)) {
-                postSelectedColumns("");
-              } else {
-                m = chooseMsg('func-api-subquery-chk-error', '', '');
-              }
+            //            postSelectedColumns("");
+            if (checkGenelicInput(subquerysentence)) {
+              postSelectedColumns("");
+            } else {
+              m = chooseMsg('func-api-subquery-chk-error', '', '');
+            }
 
           }
         } else {
@@ -1815,7 +1870,7 @@ const functionPanelFunctions = (ut) => {
         rejectCancelableCmdList(FILESELECTOROPEN);
         m = chooseMsg("cancel-msg", "", "");
       } else if (inCancelableCmdList([SELECTITEM])) {
-        let t = ut.replaceAll(","," ").split(' ').filter(Boolean);
+        let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
         // cancel selected columns
         if (inScenarioChk(ut, "func-selecteditem-all-cancel-cmd")) {
           // cancel all items
@@ -1833,7 +1888,7 @@ const functionPanelFunctions = (ut) => {
           m = chooseMsg('cancel-msg', "", "");
         } else {
           // cancel each item
-          for (cw in t){
+          for (cw in t) {
             $(`${CONTAINERPANEL} span`).filter(".selectedItem").each(function (i, v) {
               if (v.textContent.indexOf(t[cw]) != -1) {
                 itemSelect($(this));
@@ -1866,18 +1921,19 @@ const functionPanelFunctions = (ut) => {
         if (preferent.jsonokflg != null) {
           preferent.jsonokflg = null;
         }
-      }else if(inCancelableCmdList([USERMANAGE])){
+      } else if (inCancelableCmdList([USERMANAGE])) {
         rejectCancelableCmdList(USERMANAGE);
         m = chooseMsg('cancel-msg', "", "");
       } else {
         showPreciousPanel(false);
         showConfigPanel(false);
-        
+        showMigTableList(false);
+
         cancelableCmdList = [];
       }
 
       presentaction.cmd = null;
-      
+
       break;
     case 'cleanup': //clean up the panels
       cleanupItems4Switching();
@@ -1886,6 +1942,7 @@ const functionPanelFunctions = (ut) => {
       refreshdisplayTablesAndApis();
       showPreciousPanel(false);
       showConfigPanel(false);
+      showMigTableList(false);
       m = chooseMsg('refreshing-msg', '', '');
       break;
     case 'subquery': //open subquery panel
@@ -1899,8 +1956,8 @@ const functionPanelFunctions = (ut) => {
         // before hitting this command, should desplay 'func-api-test-msg' in anywhere.
         if (checkGenelicInput($(GENELICPANELINPUT).val())) {
           // check the subquery in case RDBMS
-          if ($.inArray(loginuser.dbtype,["postgresql","mysql"]) != -1) {
-            if(containsMultiTables()){
+          if ($.inArray(loginuser.dbtype, ["postgresql", "mysql"]) != -1) {
+            if (containsMultiTables()) {
               let subquerysentence = $.trim($(GENELICPANELINPUT).val());
               // 'where sentence' is demanded if there were multi tables
               if (subquerysentence.length < 6 || subquerysentence.indexOf("where") < 0 || subquerysentence == IGNORE) {
@@ -1915,7 +1972,7 @@ const functionPanelFunctions = (ut) => {
                 }
               }
 
-            }else{
+            } else {
               postSelectedColumns("pre");
             }
           } else {
@@ -1931,9 +1988,9 @@ const functionPanelFunctions = (ut) => {
               }
             });
 
-            if(hasjs){
+            if (hasjs) {
               apitestsuggestion += "<br>but you already have it. look at brinking 'js' api.";
-            }else{
+            } else {
               apitestsuggestion += "<br>you see";
             }
 
@@ -2034,6 +2091,106 @@ const functionPanelFunctions = (ut) => {
         cmdCandidates.push(cmd);
       }
 
+      break;
+    case TABLEMIGRATION: case TABLEMIGRATIONCANCELLATION:
+/*
+      if(cmd == TABLEMIGRATION){
+        cancelableCmdList.push(TABLEMIGRATION);
+      }else{
+        cancelableCmdList.push(TABLEMIGRATIONCANCELLATION);
+      }
+*/
+      if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
+        /*
+          Tips:
+            get 'pass phrase' confirmation here.
+            continue the process if ..sw is not null, ask it if it is not in loginuser.sw. 
+            the matching the 'pass phrase' is done in Jetelina.
+        */
+
+        if ((loginuser.sw == null || loginuser.sw == "") && (!$(SOMETHINGINPUT).is(":visible"))) {
+          showSomethingMsgPanel(true);
+          if (loginuser.available) {
+            showSomethingInputField(true, 2);
+            m = chooseMsg('func-require-stichwort-msg', '', '');
+          } else {
+            showSomethingInputField(true, 1);
+            m = chooseMsg('func-register-stichwort-msg', '', '');
+          }
+        } else {
+          /* execute table migration and/or revert table,
+            but 'pass phrase' is must item. 
+          */
+          if (($(SOMETHINGINPUT).is(":visible") && 0 < $(SOMETHINGINPUT).val().length) || (loginuser.sw != null && 0 < loginuser.sw.length)) {
+            let s = "exec";
+            if(cmd == TABLEMIGRATIONCANCELLATION ){
+              s = "cancel";
+            }
+
+            let p = postMigAjax(s);
+            if(p != null && 0<p.length ){
+              m = p;
+            }
+          }
+        }
+      } else {
+        preferent.cmd = cmd;
+
+        /*
+          Tips:
+            searching for all tables in MIGRATIONTABLELIST.
+  
+            ex. ut ->"execute migration mig_dum" utarray->[execute,migration,mig_dum]
+                mig_dum found in MIGRATIONTABLELIST
+                
+            must be opened MIGRATIONTABLELIST panel, because to prevent double migration execution on jetelina table.
+            of cause the safety lock is done in *.jl program, but wanna do forward check here.
+        */
+        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+        if(cmd == TABLEMIGRATION){
+          cancelableCmdList.push(TABLEMIGRATION);
+          for (let n = 0; n < utarray.length; n++) {
+            $(`${MIGRATIONTABLELIST} span`).each(function (i, v) {
+              if (v.textContent == utarray[n]) {
+                $(this).addClass("activeItem");
+                m = chooseMsg("common-confirm-msg", "", "");
+              }
+            });
+          }
+        }else{
+          cancelableCmdList.push(TABLEMIGRATIONCANCELLATION);
+          for (let n = 0; n < utarray.length; n++) {
+            $(`${TABLECONTAINER} span`).each(function (i, v) {
+              if (v.textContent == utarray[n]) {
+                $(this).addClass("activeItem");
+                m = chooseMsg("common-confirm-msg", "", "");
+              }
+            });
+          }
+        }
+      }
+
+      if (m.length == 0) {
+        m = chooseMsg("common-alert-msg", "", "");
+      }
+
+      break;
+    case 'recreateapi':
+        let refreshtables = [];
+        $(`${TABLECONTAINER} span`).filter('.activeItem').each(function () {
+          refreshtables.push($(this).text());
+        });
+
+        if(refreshtables.length == 0){
+          m = chooseMsg('func-apirecreate-selecttable-msg', '', '');
+        }else{
+          let pd = {};
+          pd["table"] = refreshtables;
+          let data = JSON.stringify(pd);
+          postAjaxData(scenario["function-post-url"][12], data);
+        }
+
+        //rejectCancelableCmdList("recreateapi");
       break;
     default:
       break;
@@ -2152,6 +2309,8 @@ const deleteThisApi = (apis) => {
       m = result["message from Jetelina"];
       if (m == null || m == "") {
         m = chooseMsg('fail-msg', '', '');
+      } else if (m.indexOf("wrong pass phrase")) {
+        login.sw = null;
       }
     }
 
@@ -2209,11 +2368,11 @@ const whichCommandsInOrders = (s) => {
  */
 const cleanupRelatedList = (b) => {
   //  $("#api_container span").remove();
-  if (b) {
-    for (let i in relatedDataList) {
-      delete relatedDataList[i];
-    }
+  //  if (b) {
+  for (let i in relatedDataList) {
+    delete relatedDataList[i];
   }
+  //  }
 }
 /**
  * @function refreshdisplayTablesAndApis

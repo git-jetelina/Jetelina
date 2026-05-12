@@ -13,11 +13,13 @@ functions
 	 getTableList(s::String) get all table name from 'jetelina' database
 	 getJetelinaSequenceNumber(t::Integer, tablename) 	get seaquence number from jetelina_sql_sequence, jetelina_user_id_sequence or <table>_id_sequence
 	 dataInsertFromCSV(fname::String) insert csv file data ordered by 'fname' into table. the table name is the csv file name.
+     createApiSentence(tableName::String, column_name::Vector, column_type::Vector)	create sql sentence for ji/ju/jd APIs
+     resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String) create and register insert/update/delete sql sentences to the API List
 	 dropTable(tableName::Vector) drop the tables and delete its related data from jetelina_table_manager table
 	 getColumns(tableName::String) get columns name of ordereing table.
 	 executeApi(json_d::Dict,target_api::DataFrame) execute API order by json data
-	doSelect(sql::String,mode::String) execute select data by ordering sql sentence, but get sql execution time of ordered sql if 'mode' is 'measure'.
-	measureSqlPerformance() measure exectution time of all listed sql sentences. then write it out to JC["sqlperformancefile"].
+	 doSelect(sql::String,mode::String) execute select data by ordering sql sentence, but get sql execution time of ordered sql if 'mode' is 'measure'.
+	 measureSqlPerformance() measure exectution time of all listed sql sentences. then write it out to JC["sqlperformancefile"].
 	 create_jetelina_user_table() create 'jetelina_table_user_table' table.
 	 userRegist(username::String) register a new user
 	 getUserData(s::String) get jetelina user data by ordering 's'.	
@@ -31,7 +33,17 @@ functions
 	 deleteUserAccount(uid::Integer) user delete, but not physical deleting, set jetelina_delete_flg to 1. 
 	 checkTheRoll(roll::String) check the ordered user's authority in order to 'roll'.
 	 refStichWort(stichwort::String)	reference and matching with user_info->stichwort
-    prepareDbEnvironment(mode::String) database connection checking, and initializing database if needed
+     prepareDbEnvironment(mode::String) database connection checking, and initializing database if needed
+
+-- special functions for RDBMS migration
+    mig_getTableList() get the table list of targeting migration.
+    mig_execute_migration(tablelist::Vector) execute the migration
+    mig_collect_columns_data(tablename::String, type::Integer) get the data type in the target table.
+    mig_revert_migration(tablelist::Vector) revert the migrated table to the origin
+
+-- special functions for recreating Apis due to the change in the table layout
+    recreateApis(tablelist::Vector) recreate ji/ju/jd apis in ordering table
+    replaceSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)	create and register insert/update/delete sql sentences to the API List
 """
 module MyDBController
 
@@ -44,11 +56,13 @@ JMessage.showModuleInCompiling(@__MODULE__)
 
 include("MyDataTypeList.jl")
 include("MySQLSentenceManager.jl")
+include("MyMigration.jl")
 
 export create_jetelina_database, create_jetelina_table, open_connection, close_connection,
-    getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, dropTable, getColumns,
+    getTableList, getJetelinaSequenceNumber, dataInsertFromCSV, createApiSentence, resisterSqlToApiList, dropTable, getColumns,
     executeApi, doSelect, measureSqlPerformance, create_jetelina_user_table, userRegist, getUserData, chkUserExistence, getUserInfoKeys,
-    refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment
+    refUserAttribute, updateUserInfo, refUserInfo, updateUserData, deleteUserAccount, checkTheRoll, refStichWort, prepareDbEnvironment,
+    mig_getTableList, mig_execute_migration, mig_collect_columns_data, mig_revert_migration, recreateApis, replaceSqlToApiList
 
 
 """
@@ -61,16 +75,19 @@ function create_jetelina_database()
     
 """
 function create_jetelina_database()
-    jetelinadb = "jetelina"
+    jetelinadb = j_config.JC["my_dbname"]
 
     conn = open_connection()
     #===
-            Tips:
-                jetelina works in 'jetelina' database in MySql, because of getTable().
-                and this function is called in DBControllerinit_Jetelina_table() as initializing process.
-                at the first, try to find existing 'jetelina' data base, then creat it if there were not.
-                after that, change j_config.JS["my_dbname"]. this "my_dbname" is defined in configuration file. 
-        ===#
+        Tips:
+            jetelina works in 'jetelina' database in MySql, because of getTable().
+            and this function is called in DBControllerinit_Jetelina_table() as initializing process.
+            at first, try to find existing 'jetelina' data base, then creat it if there were not.
+            after that, change j_config.JS["my_dbname"]. this "my_dbname" is defined in configuration file.
+			
+            'jetelina' is changeable by ordering 'my_dbname'. this order is in updating configuration parameter.
+			i hard to recommend to use 'mysql' database even you can change it.
+    ===#
     try
         sql = "show databases"
         df = DataFrame(DBInterface.execute(conn, sql))
@@ -138,9 +155,16 @@ function open_connection()
     host = j_config.JC["my_host"]
     user = j_config.JC["my_user"]
     pwd = j_config.JC["my_password"]
-    db = j_config.JC["my_dbname"]
+#    db = j_config.JC["my_dbname"]
+    db = ""
     nport = parse(Int, j_config.JC["my_port"])
     sock = j_config.JC["my_unix_socket"]
+
+    if j_config.JC["my_work"]
+        db = j_config.JC["my_dbname"]
+    else
+        db = "mysql"
+    end
 
     conn = DBInterface.connect(MySQL.Connection, "$host", "$user", "$pwd", db="$db", port=nport, unix_socket="$sock")
     #===
@@ -154,7 +178,7 @@ function open_connection()
 #        DBInterface.execute(conn, "use jetelina")
         DBInterface.execute(conn, "use $db")
     catch err
-        JLog.writetoLogfile("MyDBController.open_connection() error: $err")
+        JLog.writetoLogfile("MyDBController.open_connection() use the db error: $err")
         return false
     finally
         return conn
@@ -207,6 +231,12 @@ function _getTableList()
     table_str = """select table_name from information_schema.tables where table_schema='jetelina';"""
     try
         df = DataFrame(columntable(DBInterface.execute(conn, table_str)))
+        #===
+            Caution:
+                the column name in df by getting DBInterface... is TABLE_NAME. this is fixed name.
+                not tablename, not TABLENAME. it is TABLE_NAME.
+                will may get a trouble due to update the lib. :p.  20
+        ===#
         # do not include usertable
         DataFrames.filter!(row -> row.TABLE_NAME != "jetelina_user_table", df)
     catch err
@@ -242,9 +272,6 @@ function dataInsertFromCSV(fname::String)
 - return: boolean: true -> success, false -> get fail
 """
 function dataInsertFromCSV(fname::String)
-    keyword1::String = "jetelina_delete_flg"
-    keyword2::String = "jt_id"
-    keyword3::String = "unique"
     ret = ""
     jmsg::String = string("compliment me!")
 
@@ -256,11 +283,13 @@ function dataInsertFromCSV(fname::String)
     		ex. /home/upload/test.csv -> splitdir() -> ("/home/upload","test.csv") -> splitext() -> ("test",".csv")
     ===#
     tableName = splitext(splitdir(fname)[2])[1]
+
     #===
     	Tips:
     		MySql does not forgive to use '-' in a table name
     ===#
     tableName = replace(tableName, "-" => "_")
+
     #===
     	Tips:
     		original column names in the csv file are changed here because of making it unique.
@@ -273,11 +302,11 @@ function dataInsertFromCSV(fname::String)
     end
 
     rename!(df, Symbol.(colarray))
-    keyword2 = string(tableName, '_', keyword2)
 
-    # special column 'jetelina_delte_flg' is added to columns 
     #===
         Tips:
+            special column 'jetelina_delte_flg' is added to columns.
+
             the secound param in insertcols!() points to the insert position.
             if there is no param in there, default is at adding to the tail
             e.g
@@ -288,24 +317,114 @@ function dataInsertFromCSV(fname::String)
                  . |   .         .                  .
     ===#
     insertcols!(df, :jetelina_delete_flg => 0)
-
     column_name = names(df)
-
     column_type = eltype.(eachcol(df))
-#    column_type_string = Array{Union{Nothing,String}}(nothing, length(column_name)) # using for creating table
-    #==
+
+    #===
+    	make the sentece of sql( "id integer, name varchar(36)...")
+
+        Attention:
+            you may wonder why do not use 'alter' to put 'jt_id'&'jetelina_delete_flg'. i mean create table without them, then do 'alter'.
+            well, indeed it would be easy&smart here's logic if it used.
+            however i need 'column_str' to create the table, and it builds together 'insert*'&'update*' at once in the createApi.. api.
+            and these sql sentences require 'jt_id'&'jetelina_delete_flg' as well. so i set my priority on building the sql sentences, and that why 
+            the process of creating the table was to be stepfull a litte bit. :p 
+
+            may change this logic some day.
+    ===#
+    insert_column_str,insert_data_str,update_str,column_str = createApiSentence(tableName,column_name,column_type)
+
+    #===
+    	Tips:
+    	    create table and sequence with 'not exists'.
+    	    then insert csv data to there. this is because of forgiving adding data to the same table.
+    		put isempty(df_tl) in there as same as insert2JetelinaTableManager if it does not forgive it.
+    ===#
+    create_table_str = """create table if not exists $tableName($column_str);"""
+
+    conn = open_connection()
+    try
+        DBInterface.execute(conn, create_table_str)
+    catch err
+        close_connection(conn)
+        errnum = JLog.getLogHash()
+        ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.dataInsertFromCSV() at create table with $fname error : $err")
+        return ret
+    finally
+        # do not close the connection yet
+    end
+    #===
         Tips:
-            apply 'auto_increment' to 'jt_id' column.
-            this parameter is the special for MySQL.
-            'jt_id' is to be a sequence number because of this setting. 
-    ==#
-    column_str = string(keyword2, " integer not null auto_increment primary key,") # using for creating table
+            added column 'jt_id' is to be wanna auto increment primary key.
+            but it does not get sutisfied result if the target file were not modifiled.
+            because of getting mismatching in the column number between the file and the table.
+            to make fit them, a dummy data is inserted in to the file here.
+            this is tricky but worth. ＼(^o^)／
+    ===#
+    dum = "dum"
+    insertcols!(df,1,dum=>" ")
+    tmpf = string(fname,".tmp")
+    CSV.write(tmpf,df, force=true,writeheader=false)
+    #===
+    	Tips:
+    		there are no way to 'copy' csv file to table in APIS of MySQL.jl ver.1.1.2, so far.
+    		then anyway, have to use mysql special command 'load data ....', but to use this command, 
+    		the 'local_infile' that is the global variable in MySQL should be 'on'.
+    		unfortunately any APIs which can manage this global variable in the lib, therefore this setting
+    		is to be a precondition to use MySQL. Take care.
+    		and do not forget '..fields TERMINATED by', otherwise any data will not be inerted into there.
+    ===#
+    copyin = string("LOAD DATA LOCAL INFILE '$tmpf' INTO TABLE $tableName FIELDS TERMINATED BY ',';")
 
-    insert_column_str = string() # columns definition string
-    insert_data_str = string() # data string
-    update_str = string()
-    tablename_arr::Vector{String} = []
+    # change 'local_infile' setting to 'on' .  very important.
+    _infile_on(conn)
 
+    try
+        DBInterface.execute(conn, copyin)
+        ret = json(Dict("result" => true, "filename" => "$fname", "message from Jetelina" => jmsg))
+    catch err
+        errnum = JLog.getLogHash()
+        ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.dataInsertFromCSV() at data insertion with $fname error : $err")
+        return ret
+    finally
+        # change 'local_infile' setting to 'off'
+        _infile_off(conn)
+        # ok. close the connection finally
+        close_connection(conn)
+        # never use any more
+        rm(tmpf)
+    end
+
+    # register ji/ju/jd to the list
+    resisterSqlToApiList(tableName,insert_column_str,insert_data_str,update_str)
+
+    return ret
+end
+"""
+function createApiSentence(tableName::String, column_name::Vector, column_type::Vector)
+
+	create sql sentence for ji/ju/jd APIs
+
+# Arguments
+- `tableName::String`: target table name
+- `column_name: Vector`: table column names
+- `column_type: Vector`: table column data types
+- return: Vector: [(1),(2),(3),(4)]
+                    (1) string of column names for insert sql sentence
+                    (2) string of column data types for insert sql sentence
+                    (3) string of update sql sentence
+                    (4) string of column strings for create table sql sentence
+"""
+function createApiSentence(tableName::String, column_name::Vector, column_type::Vector)
+    keyword1::String = "jetelina_delete_flg"
+    keyword2::String = "jt_id"
+    keyword3::String = "unique"
+    column_str = string(tableName,'_',keyword2, " serial primary key,") # using for creating table
+    insert_column_str::String = ""
+    insert_data_str::String = ""
+    update_str::String = ""
     #===
     	make the sentece of sql( "id integer, name varchar(36)...")
     ===#
@@ -342,7 +461,7 @@ function dataInsertFromCSV(fname::String)
             #==
             	Tips:
             		because 'jetelina_delete_flg' always comes into the tail
-        	==#
+            ==#
             if i < length(column_name) - 1
                 update_str = string(update_str, ",")
             end
@@ -355,81 +474,47 @@ function dataInsertFromCSV(fname::String)
     		in the above, 'update_str' has ',' at its head because of rejecting 'jt_id' column.
     		'jt_id' is always head of the columns, and it puzzled to build 'update_str' if rejected it.
     		that's why using lstrip(). dum it. :p
+
+            2026/3/32 Now, ',' has a possibility to be in both head and tail becase of migration feature.
+                      So, try to cut it at both. 
+                      You may say the 'if' judgement does not need. Yes, it is, but i wanna make clear the logic.
     ===#
-    if startswith(update_str, ",")
-        update_str = lstrip(update_str, ',')
+    if startswith(update_str, ",") || endswith(update_str, ",")
+        strip(update_str, ',')
     end
 
-    if j_config.JC["debug"]
-        @info "MyDBController.dataInsertFromCSV() col str to create table: " column_str
-    end
-    #===
-    	Tips:
-    	    create table and sequence with 'not exists'.
-    	    then insert csv data to there. this is because of forgiving adding data to the same table.
-    		put isempty(df_tl) in there as same as insert2JetelinaTableManager if it does not forgive it.
-    ===#
-    create_table_str = """create table if not exists $tableName($column_str);"""
+    return [insert_column_str, insert_data_str, update_str, column_str]
 
-    conn = open_connection()
-    try
-        DBInterface.execute(conn, create_table_str)
-    catch err
-        errnum = JLog.getLogHash()
-        ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
-        JLog.writetoLogfile("[errnum:$errnum] MyDBController.dataInsertFromCSV() with $fname error : $err")
-        return ret
-    finally
-        # do not close the connection yet
-    end
+end
+"""
+function resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+
+	create and register insert/update/delete sql sentences to the API List
+
+# Arguments
+- `tableName: String`: insert targe table name
+- `insert_column_str: String`: part of columns definition in the insert sql
+- `insert_data_str: String`: part of data type definition in the insert sql
+- `update_str: String`: update sql sentece
+- return: tuple (boolean: true -> success/false -> get fail, JSON) <- return of ApiSqlListManager.writeTolist() or .sqlDuplicationCheck()
+"""
+function resisterSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
     #===
         Tips:
-            added column 'jt_id' is to be wanna auto increment primary key.
-            but it does not get sutisfied result if the target file were not modifiled.
-            because of getting mismatching in the column number between the file and the table.
-            to make fit them, a dummy data is inserted in to the file here.
-            this is tricky but worth. ＼(^o^)／
+            why'tableName' is put to 'tablename_arr', because ApiSqlListManager.writeTolist() requires the table name as Vector.
+            .writeTolist() manages both api/sql list and api/table relation list. indeed api/sql list needs only 'tableName',
+            however api/table relation list demands all relation tables name. in this process, cvs -> table, the table relation is 
+            not demanded, but no way, writeTolist() is like that. :P
     ===#
-    dum = "dum"
-    insertcols!(df,1,dum=>" ")
-    tmpf = string(fname,".tmp")
-    CSV.write(tmpf,df, force=true,writeheader=false)
-    #===
-    	Tips:
-    		there are no way to 'copy' csv file to table in APIS of MySQL.jl ver.1.1.2, so far.
-    		then anyway, have to use mysql special command 'load data ....', but to use this command, 
-    		the 'local_infile' that is the global variable in MySQL should be 'on'.
-    		unfortunately any APIs which can manage this global variable in the lib, therefore this setting
-    		is to be a precondition to use MySQL. Take care.
-    		and do not forget '..fields TERMINATED by', otherwise any data will not be inerted into there.
-    ===#
-    copyin = string("LOAD DATA LOCAL INFILE '$tmpf' INTO TABLE $tableName FIELDS TERMINATED BY ',';")
+    tablename_arr::Vector{String} = []
+    push!(tablename_arr, tableName)
 
-    # change 'local_infile' setting to 'on' .  very important.
-    _infile_on(conn)
-    try
-        DBInterface.execute(conn, copyin)
-        ret = json(Dict("result" => true, "filename" => "$fname", "message from Jetelina" => jmsg))
-    catch err
-        errnum = JLog.getLogHash()
-        ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
-        JLog.writetoLogfile("[errnum:$errnum] MyDBController.dataInsertFromCSV() with $fname error : $err")
-        return ret
-    finally
-        # change 'local_infile' setting to 'off'
-        _infile_off(conn)
-        # ok. close the connection finally
-        close_connection(conn)
-        # never use any more
-        rm(tmpf)
-    end
     #===
     		Tips:
-    		cols(see above) is ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
+    		cols is e.g. ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
     		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
-    		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
-    	===#
-    push!(tablename_arr, tableName)
+    		that why do not use cols here. writing select sentence is done in MySQLSentenceManager.createApiSelectSentence(). 
+    ===#
     insert_str = MySQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
     if ApiSqlListManager.sqlDuplicationCheck(insert_str, "", "mysql")[1] == false
         ApiSqlListManager.writeTolist(insert_str, "", tablename_arr, "mysql")
@@ -444,8 +529,6 @@ function dataInsertFromCSV(fname::String)
     if ApiSqlListManager.sqlDuplicationCheck(delete_str[1], delete_str[2], "mysql")[1] == false
         ApiSqlListManager.writeTolist(delete_str[1], delete_str[2], tablename_arr, "mysql")
     end
-
-    return ret
 end
 
 """
@@ -459,6 +542,7 @@ function dropTable(tableName::Vector)
 """
 function dropTable(tableName::Vector)
     ret = ""
+    result::Bool = true
     jmsg::String = string("compliment me!")
     rettables::String = join(tableName, ",") # ["a","b"] -> "a,b" oh ＼(^o^)／
 
@@ -467,12 +551,7 @@ function dropTable(tableName::Vector)
         for i in eachindex(tableName)
             # drop the tableName
             drop_table_str = string("drop table ", tableName[i],";drop table ", tableName[i], "_id_sequence")
-#            drop_table_str = string("drop table ", tableName[i])
-            # delete the related data from jetelina_table_manager
-            #				delete_data_str = string("delete from jetelina_table_manager where table_name = '", tableName[i], "'")
-
             DBInterface.execute(conn, drop_table_str)
-            #				DBInterface.execute(conn, delete_data_str)
         end
 
         ret = json(Dict("result" => true, "tablename" => "$rettables", "message from Jetelina" => jmsg))
@@ -483,12 +562,12 @@ function dropTable(tableName::Vector)
         errnum = JLog.getLogHash()
         ret = json(Dict("result" => false, "tablename" => "$rettables", "errmsg" => "$err", "errnum"=>"$errnum"))
         JLog.writetoLogfile("[errnum:$errnum] MyDBController.dropTable() with $rettables error : $err")
-        return false, ret
+        result = false
     finally
         close_connection(conn)
     end
 
-    return true, ret
+    return result, ret
 end
 
 """
@@ -503,7 +582,6 @@ function getColumns(tableName::String)
 function getColumns(tableName::String)
     ret = ""
     jmsg::String = string("compliment me!")
-
 
     sql = """   
      SELECT
@@ -1482,9 +1560,9 @@ function _mycheck()
         println(df)
         k = filter(x -> x.Variable_name == "local_infile", df)
         println(k)
-        @info "value? " k[:, :Value]
+#        @info "value? " k[:, :Value]
         if lowercase(k[:, :Value][1]) == "on"
-            @info "ok"
+#            @info "ok"
             sql = "set global local_infile = off"
             df = DataFrame(DBInterface.execute(conn, sql))
             println(df)
@@ -1502,5 +1580,433 @@ function _mycheck()
         close_connection(conn)
     end
 end
+
+
+
+#====================================
+    call migration functions
+    MyMigration.jl
+    Feb 2026
+====================================#
+"""
+function mig_getTableList()
+
+    get the table list of targeting migration.
+    the target table which has not been migrated yet are found by checking 
+      (1) wether exist its sequence table ex. ftest -> ftest_ftest_jt_id_seq
+      (2) wether exist unique column ex. ftest_jt_id or jetelina_delete_flg
+    mayby hiring (2)'jetelina_delete_flg' is the best.
+
+# Arguments
+- return: json contains true/false and/or error number
+"""
+function mig_getTableList()
+    conn = open_connection()
+
+    try
+        tlist = MyMigration.getTableList(conn)
+        return json(Dict("result" => true, "Jetelina" => copy.(eachrow(reverse(tlist)))))
+    catch err
+        ret = false
+        errnum = JLog.getLogHash()
+        ret = json(Dict("result" => false, "filename" => "$fname", "errmsg" => "$err", "errnum"=>"$errnum"))
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_getTableList() error : $err")
+        return ret
+    finally
+        close_connection(conn)
+    end
+end
+
+"""
+function mig_execute_migration(tablelist::Vector)
+
+    execute the migration
+
+    the target table names are passed as array by user
+
+# Arguments
+- `tablelist::Vector`: ordered table name list
+- return: json contains true/false and/or error number
+"""
+function mig_execute_migration(tablelist::Vector)
+    conn = open_connection()
+    ret = ""
+    result::Bool = true
+    procedureflg::Bool = true
+
+    try
+        # tablelist expects in array
+        if MyMigration.execute_migration(conn, tablelist)
+            for i ∈ 1:length(tablelist)
+                mret = mig_collect_columns_data(conn, tablelist[i], 1)
+                if mret[1]
+                    # create api
+                    column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
+                    p_column_type = mret[2][2][:,:type]
+                    column_type = []
+                    e_column_type = split.(p_column_type,'.')
+                    for ii ∈ eachindex(e_column_type)
+                        if 1<length(e_column_type[ii])
+                            push!(column_type, e_column_type[ii][2])
+                        else
+                            push!(column_type, e_column_type[ii][1])
+                        end
+                    end
+                    #===
+                        Tips:
+                            to create apis, '*_jt_id' is unnecessary. it is in the way.
+                            so reject it in column_name and column_type at here.
+                    ===#
+                    rejectjtid::String = string(tablelist[i],"_jt_id")
+                    rejectjtidindex::Integer = findfirst( x -> x == rejectjtid, column_name)
+                    filter!( x -> x != rejectjtid, column_name)
+                    deleteat!( column_type, rejectjtidindex)
+
+                    str = createApiSentence(tablelist[i],column_name,column_type)
+                    if !resisterSqlToApiList(tablelist[i],str[1],str[2],str[3])[1]
+                        procedureflg = false
+                        break
+                    end
+                else
+                    procedureflg = false
+                    break
+                end
+            end
+        else
+            procedureflg = false
+        end
+
+        if procedureflg
+            jmsg = "complement me."
+            ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        else
+            jmsg = "someting wrong"
+            ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        end
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("migration ", tablelist, " tables"))
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_execute_migration() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
+    finally
+        close_connection(conn)
+    end
+
+    return result, ret
+end
+
+"""
+function mig_collect_columns_data(conn, tablename::String, type::Integer)
+
+    get the data type in the target table.
+
+# Arguments
+- `tablename:String`: target table name
+- `type::Integer`: 1->return data in DataFrames
+                   2->return data is only column names in array
+                   3->return data is only column data type in array 
+- return: Tuple(ture/false, columns data due to 'type')	
+            e.g. type = 1 in case DataFrames
+                    Row |  name   |  type    |
+                        | String  | DataType |
+                    --------------------------
+                       1| jt_id   | Integer  |
+                       2| address | String   |
+                       .|     .   |    .     |
+                       .|     .   |    .     |
+"""
+function mig_collect_columns_data(conn, tablename::String, type::Integer)
+    result::Bool = true
+    ret = ""
+
+    try
+        ret = MyMigration.collect_columns_data(conn, tablename, type)
+    catch err
+        result = false
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_collect_columns_data() error : $err")
+        ret = errnum
+    finally
+    end
+
+    return result, ret
+end
+"""
+function mig_revert_migration(tablelist::Vector)
+
+        revert the migrated table to the origin
+
+# Arguments
+- `tablelist::Vector`: ordered table name list
+- return: json contains true/false and/or error number
+
+"""
+function mig_revert_migration(tablelist::Vector)
+    conn = open_connection()
+    ret = ""
+    result::Bool = true
+    jmsg = "complement me."
+
+    try
+        for i ∈ 1:length(tablelist)
+            ret = MyMigration.revert_migration(conn, tablelist[i])
+        end
+
+        ret = json(Dict("result" => true, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("revert ", tablelist, " tables"))
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.mig_revert_migration() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
+    finally
+        close_connection(conn)
+    end
+
+    return result, ret
+end
+
+"""
+function recreateApis(tablelist::Vector)
+
+    recreate ji/ju/jd apis in ordering table
+
+# Arguments
+- `talbename::Vector`: ordered table name
+- return: success -> Tupple(true, json form)
+          error -> Tuple(false, error number)
+"""
+function recreateApis(tablelist::Vector)
+    conn = open_connection()
+    ret = ""
+    procedureflg::Bool = true
+    result::Bool = true
+    updatedapino::Vector = []
+
+    try
+        for i ∈ 1:length(tablelist)
+            #===
+                Tips:
+                    in case the parameter is '1', mret is to be DataFrames. ref PgMigration.collect_columns_data()
+                    mret[2][2][:,:type] has some types like '*.*' and '*' because eltype() in ..collect_columns_data().
+                    so make it tidy up and push into column_type in below.
+            ===#
+            mret = mig_collect_columns_data(conn, tablelist[i], 1)
+            if mret[1]
+                # create api
+                column_name = mret[2][2][:,:name] # mret -> {bool,{bool,dataframs}}. column_name is to be Vector{String}
+                p_column_type = mret[2][2][:,:type]
+                column_type = []
+                e_column_type = split.(p_column_type,'.')
+                for ii ∈ eachindex(e_column_type)
+                    if 1<length(e_column_type[ii])
+                        push!(column_type, e_column_type[ii][2])
+                    else
+                        push!(column_type, e_column_type[ii][1])
+                    end
+                end
+
+                #===
+                    Tips:
+                        to create apis, '*_jt_id' is unnecessary. it is in the way.
+                        so reject it in column_name and column_type at here.
+                ===#
+                rejectjtid::String = string(tablelist[i],"_jt_id")
+                rejectjtidindex::Integer = findfirst( x -> x == rejectjtid, column_name)
+                filter!( x -> x != rejectjtid, column_name)
+                deleteat!( column_type, rejectjtidindex)
+
+                str = createApiSentence(tablelist[i],column_name,column_type)
+                upret = replaceSqlToApiList(tablelist[i],str[1],str[2],str[3])
+                if !upret[1]
+                    procedureflg = false
+                else
+                    push!(updatedapino, upret[2])
+                end
+            else
+                procedureflg = false
+            end
+        end
+
+        if procedureflg
+            jmsg = "complement me."
+            ret = json(Dict("result" => true, "Jetelina" => updatedapino, "message from Jetelina" => jmsg))
+        else
+            jmsg = "someting wrong"
+            ret = json(Dict("result" => false, "Jetelina" => "[{}]", "message from Jetelina" => jmsg))
+        end
+
+        # write to operationhistoryfile
+        JLog.writetoOperationHistoryfile(string("migration ", tablelist, " tables"))
+    catch err
+        errnum = JLog.getLogHash()
+        JLog.writetoLogfile("[errnum:$errnum] MyDBController.recreateApis() error : $err")
+        ret = json(Dict("result" => false, "errmsg" => "$err", "errnum"=>"$errnum"))
+        result = false
+    finally
+        close_connection(conn)
+    end
+
+    return result, ret
+end
+"""
+function replaceSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+
+	create and register insert/update/delete sql sentences to the API List
+
+# Arguments
+- `tableName: String`: insert targe table name
+- `insert_column_str: String`: part of columns definition in the insert sql
+- `insert_data_str: String`: part of data type definition in the insert sql
+- `update_str: String`: update sql sentece
+- return: tuple (boolean: true -> success/false -> get fail, JSON) <- return of ApiSqlListManager.writeTolist() or .sqlDuplicationCheck()
+"""
+function replaceSqlToApiList(tableName::String,insert_column_str::String,insert_data_str::String,update_str::String)
+    #===
+        Tips:
+            why'tableName' is put to 'tablename_arr', because ApiSqlListManager.writeTolist() requires the table name as Vector.
+            .writeTolist() manages both api/sql list and api/table relation list. indeed api/sql list needs only 'tableName',
+            however api/table relation list demands all relation tables name. in this process, cvs -> table, the table relation is 
+            not demanded, but no way, writeTolist() is like that. :P
+    ===#
+    tablename_arr::Vector{String} = []
+    push!(tablename_arr, tableName)
+
+    #===
+    	Tips:
+    		cols is e.g. ["id", "name", "sex", "age", "ave", "jetelina_delete_flg"], so can use it when
+    		wanna use column name, but need to judge the data type both the case of 'insert' and 'update', 
+    		that why do not use cols here. writing select sentence is done in PgSQLSentenceManager.createApiSelectSentence(). 
+    ===#
+    insert_str = MySQLSentenceManager.createApiInsertSentence(tableName, insert_column_str, insert_data_str)
+    # update    -> take care, retrun "update_str is tuple()
+    update_str = MySQLSentenceManager.createApiUpdateSentence(tableName, update_str)
+
+    #===
+        Tips:
+            searching JetelinaTableApiRelation by tablename with ApiSqlListManager.getRelatedList("table",tableName)
+            the .getRelatedList() returns apis that is registered in there. e.g. ["ji11","ju12","jd13","js23",....], only related in tableName.
+            then replace insert_str to "ji", update_str to "ju". delete_str is not necessary.
+    ===#
+    existapis::Vector = ApiSqlListManager.getRelatedList("table", tableName)
+
+    if 0<length(existapis)
+        updateapino::Vector = []
+        updatesqlstr::Vector = []
+
+        for i ∈ eachindex(existapis)
+            if startswith(existapis[i], "ji")
+                push!(updateapino, existapis[i])
+                push!(updatesqlstr,string(existapis[i], ",\"", insert_str, "\",\"\",","\"mysql\"") )
+            elseif startswith(existapis[i], "ju")
+                push!(updateapino, existapis[i])
+                push!(updatesqlstr, string(existapis[i], ",\"", update_str[1], "\",\"", update_str[2],"\",\"mysql\""))
+            end 
+        end
+
+        return ApiSqlListManager.updateApiList(updateapino, updatesqlstr)
+    end
+end
+
+#
+# test programs for migration
+#
+function createDummyTable(type::String)
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.createDummyTable(conn, type)
+    catch err
+        ret = false
+        @info "MyDBController.createDummyTable() error:: $err"
+
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.createDummyTable " ret
+end
+
+function dropDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.dropDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.dropDummyTable " ret
+end
+
+function dumdatainsert(type::String)
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.dumdatainsert(conn, type)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.dumdatainsert " ret
+end
+
+function selectDummyTable(colname::String)
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.selectDummyTable(conn,colname)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.selectDummyTable " ret
+end
+
+function columntypeofDummyTable()
+    conn = open_connection()
+    ret::Bool = true
+
+    try
+        ret = MyMigration.columntypeofDummyTable(conn)
+    catch err
+        ret = false
+#        errnum = JLog.getLogHash()
+#        JLog.writetoLogfile("[errnum:$errnum] MyDBController.compareJsAndJv() error : $err")
+#        return ret, errnum
+    finally
+        close_connection(conn)
+    end
+
+    @info "MyMigration.columntypeofDummyTable " ret
+end
+
 
 end

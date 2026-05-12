@@ -5,8 +5,9 @@
 @jdic analyzed-data-collect-url:"/gettablecombivsaccessrelationdata", "/getperformancedata_real", "/getperformancedata_test","/chkexistimprapifile","/getapiaccessdata","/getdbaccessdata","/getapiexecspeed","/getsuggestiondata"
 
 # post urls for function panel 
-@jdic function-post-url:"/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns"
+@jdic function-post-url:"/updateuserdata","/jetelinawords","/getconfigdata","/changeconfigdata","/createapi","/testapi","/chkaccount","/userregist","/getrelatedlist","/switchdb","/ispath","/getcolumns","/recreateapi"
 @jdic function-post-fileupload-url:"/postcsvfile"
+@jdic function-mig-post-url:"/executedbmigration","/canceldbmigration"
 
 # this post url is as same as the Jetelina-API is provided to user
 @jdic function-japi-url:"/apiactions"
@@ -15,7 +16,8 @@
 @jdic function-search-log-errnum-url:"/searcherror"
 
 # get urls for function panel 
-@jdic function-get-url:"/getapilist","/getalldbtable","/getconfigchangehistory","/goodbyenow","/getdbsavailability","/getoperationhistory"
+@jdic function-get-url:"/getapilist","/getalldbtable","/getconfigchangehistory","/goodbyenow","/getdbsavailability","/getoperationhistory","/getjsjvrelation"
+@jdic function-mig-get-url:"/getmigrationtablelist"
 
 # null 
 @jdic null-msg:"",""
@@ -56,7 +58,8 @@
 
 # etc 
 @jdic starting-3-msg:"What?","Are you kidding me?","Never mind"
-@jdic general-thanks-cmd:"thank you","thanks","thx","nice","nice job","well done","great","awesome","genious","incredible","super"
+@jdic general-thanks-cmd:"thank you","nice job","well done"
+#jdic general-thanks-cmd:"thank you","thanks","thx","nice","nice job","well done","great","awesome","genious","incredible","super"
 @jdic general-thanks-msg:"you're welcome","my pleasure, {Q}"
 @jdic what-did-i-say-cmd:"did i say","did i type"
 @jdic no-authority-js-msg:"you do not have the authority, yet"
@@ -108,6 +111,7 @@
 
 #open api list
 @jdic func-show-api-list-cmd:"open api","show me api","api list","apis list","apis","apilist"
+@jdic func-get-jv-api-list-cmd:"show ivm api","display ivm api","ivm api","show api of ivm","api of ivm","show apis of ivm","apis of ivm"
 
 ###@jdic 6cond:"Let me your command, if you need"
 @jdic stats-graph-show-msg:"here you are","tatta laan"
@@ -170,8 +174,11 @@
 @jdic func-require-stichwort-msg:"put your pass phrase"
 
 @jdic func-apicreate-cmd:"create api","post api","post columns","create sql"
+@jdic func-apirecreate-cmd:"recreate api","rebuild api","renewal api"
 @jdic func-newapino-msg:"new apino {Q}"
+@jdic func-renewapino-msg:"renewal apino {Q}"
 @jdic func-duplicateapi-msg:"there is a similar API already existing: "
+@jdic func-apirecreate-selecttable-msg:"Hey, select the target tables"
 #
 #  reject "delete" from this dic, but should be considered it later, because just "delete" was convenient.
 #@jdic func-apidelete-cmd:"delete","delete api","api delete","apidelete","deleteapi","remove api","reject api","api remove","api reject"
@@ -218,6 +225,14 @@
 @jdic func-use-mysql-cmd:"mysql"
 @jdic func-use-redis-cmd:"redis"
 @jdic func-use-mongodb-cmd:"mongodb"
+
+# migration in database table
+@jdic func-db-mig-exec-cmd:"do migration","do mig","execute migration","exec mig","exe mig","exec migration","exec table migration","exe table mig","execute table migration"
+@jdic func-db-mig-revert-cmd:"revert migration","revert mig","revert migration table","revert table","do revert","execute revert","exec revert"
+@jdic func-db-mig-show-tables:"show migration list","show migration table","show mig table","show mig list","open migration list","open migration table","open mig table","open mig list"
+@jdic func-db-mig-hide-tables:"hide migration list","hide migration table","hide mig table","hide mig list","close migration list","close migration table","close mig table","close mig list"
+@jdic func-db-mig-error-msg1:"Hey, open the migration panel first"
+@jdic func-db-mig-error-msg2:"Hey, select a migration table"
 
 #
 #  account management

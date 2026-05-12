@@ -10,6 +10,8 @@
       checkResult(o) check the 'return' field in the object when post/get ajax failed
       getdata(o, t) resolve the json object into each data
       getAjaxData(url) general purpose ajax get call function 
+      getMigAjax() get I/f ajax function for database migration
+      postMigAjax() post migration tables
       postAjaxData(url,data) general purpose ajax post call function 
       typingControll(m) typing character controller
       authAjax(chunk) Authentication ajax call
@@ -42,6 +44,7 @@
       apiTestAjax() ajax function for executing API test.
       searchLogAjax() ajax function for searching 'errnum' in the log file
       showConfigPanel(b) "#config_panel" show or hide
+      showMigTableList(b) "#migration_panel" show or hide
       showPreciousPanel(b) "#jetelina_teach_you_smg" show or hide
       jsonFromCheck(s) check for json form in mongodb
       guidancePageFootLinkController(n) create cmd and call guidancePageController in case of clickcing the page link on the footer 
@@ -49,6 +52,7 @@
       jetelinaPanelPositionController(b) JETELINAPANEL position change 
       determindDateStart2End(dates) pick the min date and max date within query date array
       changeChatGirlImage(imgtype) switching chat box image.
+      findItemnameFromlist(tag,name) finding 'name' in the list of ordering 'tag' panel.
 */
 const JETELINACHATTELL = `${JETELINAPANEL} [name='jetelina_tell']`;
 const SOMETHINGMSGPANEL = "#something_msg";
@@ -75,6 +79,8 @@ const TABLEAPILISTOPEN = "table-api-open";//  〃
 const SELECTITEM = "select-item";// 　　　　　〃
 const TABLEAPIDELETE = "table-api-delete";// 〃
 const FILESELECTOROPEN = "files-elector-open"; // 　〃
+const TABLEMIGRATION = "table-migration"; // 　〃 
+const TABLEMIGRATIONCANCELLATION = "table-migration-cancellation"; // 　〃 
 const LOCALPARAM = "login2jetelina"; // local strage parameter
 const CONFIGPANEL = "#config_panel ";
 const CONFIGPANELLIST = `${CONFIGPANEL} [name='config_list']`;
@@ -229,7 +235,9 @@ const checkResult = (o) => {
  *                     5->indicate available db 
  *                     6->operation history
  *                     7->fetch suggestion data
- *                     8 ->checking existing suggestion 
+ *                     8->checking existing suggestion 
+ *                     9->jv api list 
+ *                    -1->migration table list data
  *  @returns {object} only in the case of t=3, conifguration changing history object
  *
  *  resolve the json object into each data
@@ -307,6 +315,16 @@ const getdata = (o, t) => {
                                                 }
                                             }
                                         }
+                                    } else if (t == -1) {
+                                        // migration table list
+                                        let migList = [];
+                                        $(`${MIGRATIONTABLELIST}  span`).each(function () {
+                                            migList.push($(this).text());
+                                        });
+
+                                        if ($.inArray(value, migList) == -1) {
+                                            str += `<span class="table">${value}</span>`;
+                                        }
                                     }
                                 });
                             } else if (t == 2) {
@@ -315,7 +333,8 @@ const getdata = (o, t) => {
                                         case t=2: wanna show it in one line
                                         this is the api list.
                                 */
-                                if (loginuser.dbtype.indexOf(v.db) != -1) {
+//                                if (loginuser.dbtype.indexOf(v.db) != -1) {
+                                if (loginuser.dbtype == v.db) {
                                     str += `<span class="api">${v.apino}</span>`;
                                 }
                             } else if (t == 3) {
@@ -364,7 +383,7 @@ const getdata = (o, t) => {
                                 }
 
                                 // postgresql ivm function 
-                                if(v["pgivm"] !== null){
+                                if (v["pgivm"] !== null) {
                                     loginuser.pgivm = v["pgivm"];
                                 }
                             } else if (t == 6) {
@@ -397,6 +416,18 @@ const getdata = (o, t) => {
                                         isSuggestion = value;
                                     }
                                 });
+                            }else if(t == 9){
+                                // explicit ivm apis on the api list
+                                if (0 < v.length ){
+                                    $.each(v, function (name, value) {
+                                        $(`${APICONTAINER} span`).each(function(){
+                                            if($(this).text() == value ){
+//                                                $(this).addClass("activeItem");
+                                                $(this).addClass("ivmItem")
+                                            }
+                                        });
+                                    });
+                                }
                             }
 
                             let tagid = "";
@@ -406,6 +437,8 @@ const getdata = (o, t) => {
                                 tagid = `${COLUMNSPANEL} .item_area`;
                             } else if (t == 2) {
                                 tagid = APICONTAINER;
+                            } else if (t == -1) {
+                                tagid = MIGRATIONTABLELIST;
                             }
 
                             $(tagid).append(str);
@@ -423,7 +456,7 @@ const getdata = (o, t) => {
                         let aquisition_nubmer = `<span class='apitestresult'><p>-aquaiable data number is ${datanumber}</p></span>`;
                         let testdata = JSON.stringify(o[key]);
                         $(`${APITESTPANEL} [name='api-test-msg']`).append(`${testmsg}<br>${aquisition_nubmer}`);
-                        $(`${APITESTPANEL} [name='api-test-data'`).append(`<span class='apitestresult'><p>-return JSON data are</p><p>${testdata}</p></span>`);
+                        $(`${APITESTPANEL} [name='api-test-data']`).append(`<span class='apitestresult'><p>-return JSON data are</p><p>${testdata}</p></span>`);
                         if (0 < jetelinamessage.length) {
                             $(`${APITESTPANEL} [name='api-test-msg']`).append(`<span class='apitestresult'><p>Attention: ${jetelinamessage}</p></span>`);
                         }
@@ -466,7 +499,7 @@ const getAjaxData = (url) => {
                 Tips:
                     this 'result' gets 'syntax error {object Object} in json form' error sometimes,
                     because unmatch specific, maybe, who knows, therefore convert to a correct json object 
-                    by using .sstringify() -> .parse()    :p
+                    by using .stringify() -> .parse()    :p
             */
             result = JSON.stringify(result);
             result = JSON.parse(result);
@@ -526,14 +559,12 @@ const getAjaxData = (url) => {
                         if (!isSuggestion) {
                             iconface = "chat";
                             m = "success-msg";
-                        }else{
+                        } else {
                             m = 'stats-performance-improve-msg';
                         }
 
                         changeChatGirlImage(iconface);
                     }
-
-
                 } else if (inScenarioChk(url, 'analyzed-data-collect-url')) {
                     let type = "";
                     if (url == dataurls[0]) {
@@ -605,6 +636,9 @@ const getAjaxData = (url) => {
                     } else if (url == geturl[5]) {
                         // operation history
                         getdata(result, 6);
+                    } else if (url == geturl[6]){
+                        // show jv api on the list
+                        getdata(result, 9);
                     }
 
                     m = 'success-msg';
@@ -629,6 +663,184 @@ const getAjaxData = (url) => {
         typingControll(chooseMsg("unknown-msg", "", ""));
     }
 }
+/**
+ * 
+ * @function getMigAjax
+ * 
+ * get I/f ajax function for database migration
+ */
+const getMigAjax = () => {
+    url = scenario['function-mig-get-url'][0];
+    if (!url.startsWith("/")) url = "/" + url;
+
+    $.ajax({
+        url: url,
+        type: "GET",
+        data: "",
+        dataType: "json",
+        xhr: function () {
+            ret = $.ajaxSettings.xhr();
+            inprogress = true;// in progress. for priventing accept a new command.
+            typingControll(chooseMsg('inprogress-msg', "", ""));
+            return ret;
+        }
+    }).done(function (result, textStatus, jqXHR) {
+        /*
+            Tips:
+                this 'result' gets 'syntax error {object Object} in json form' error sometimes,
+                because unmatch specific, maybe, who knows, therefore convert to a correct json object 
+                by using .stringify() -> .parse()    :p
+        */
+        result = JSON.stringify(result);
+        result = JSON.parse(result);
+
+        let m = "";
+        // go data parse
+        if (checkResult(result)) {
+            getdata(result, -1);
+            showMigTableList(true);
+            m = 'success-msg';
+        } else {
+            cmdCandidates = [];
+            m = 'fail-msg';
+        }
+
+//        typingControll(chooseMsg(m, '', ''));
+        return m;
+    }).fail(function (result) {
+        checkResult(result);
+        cmdCandidates = [];
+        console.error("getMigAjax() fail: ", url);
+//        typingControll(chooseMsg("fail-msg", "", ""));
+        return chooseMsg("fail-msg", "", "");
+    }).always(function () {
+        // release it for allowing to input new command in the chatbox 
+        inprogress = false;
+    });
+}
+/**
+ * @function postMigAjax
+ * @param {string} s "exec" -> execute table migration
+ *                   "cancel" -> cancellation migrated table
+ * 
+ *  post migration or cancellation tables
+ */
+const postMigAjax = (s) => {
+    let m = "";
+    let url = ""
+    let pd = {};
+    let migtables = [];
+    let reverttables = [];
+
+    if (loginuser.sw == null || loginuser.sw == "") {
+        pd["pass"] = $(SOMETHINGINPUT).val();
+    } else {
+        pd["pass"] = loginuser.sw;
+    }
+
+    if (s == "exec") {
+        if (isVisibleMigTableListPanel()) {
+            url = scenario['function-mig-post-url'][0];
+
+            $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function (i, v) {
+                migtables.push($(this).text());
+            });
+
+            if (0 < migtables.length) {
+                pd["tablename"] = migtables;
+            } else {
+                console.error("postMigAjax() no migration tables");
+//                typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+                return chooseMsg("func-db-mig-error-msg2", "", "");
+            }
+        } else {
+            console.error("postMigAjax() never opened Migration panel");
+//            typingControll(chooseMsg("func-db-mig-error-msg1", "", ""));
+            return chooseMsg("func-db-mig-error-msg1", "", "");
+        }
+    } else {
+        // cancellation
+        url = scenario['function-mig-post-url'][1];
+        $(`${TABLECONTAINER} span`).filter('.activeItem').each(function () {
+            reverttables.push($(this).text());
+        });
+
+        if (0 < reverttables.length) {
+            pd["tablename"] = reverttables;
+        } else {
+            console.error("postMigAjax() no cancel migration tables");
+        //    typingControll(chooseMsg("func-db-mig-error-msg2", "", ""));
+            return chooseMsg("func-db-mig-error-msg2", "", "");
+        }
+    }
+
+    let dd = JSON.stringify(pd);
+
+    $.ajax({
+        url: url,
+        type: "post",
+        contentType: 'application/json',
+        data: dd,
+        dataType: "json",
+        xhr: function () {
+            ret = $.ajaxSettings.xhr();
+            inprogress = true;// in progress. for priventing accept a new command.
+            typingControll(chooseMsg('inprogress-msg', "", ""));
+            return ret;
+        }
+    }).done(function (result, textStatus, jqXHR) {
+        if (checkResult(result)) {
+            let specialmsg = "";
+            if (!result.result) {
+                specialmsg = result["message from Jetelina"];
+            }
+
+            if (specialmsg == "") {
+                m = chooseMsg("success-msg", "", "")
+            } else {
+                m = specialmsg;
+            }
+
+            if(s == "exec"){
+                rejectCancelableCmdList(TABLEMIGRATION);
+                for (let n = 0; n < migtables.length; n++) {
+                    $(`${MIGRATIONTABLELIST} span`).filter('.activeItem').each(function (i, v) {
+                        if (v.textContent == migtables[n]) {
+                            $(this).addClass("deleteItem");
+                        }
+                    });
+                }
+            }else{
+                rejectCancelableCmdList(TABLEMIGRATIONCANCELLATION);
+            }
+
+            loginuser.sw = pd["pass"];
+            showSomethingInputField(false);
+            showSomethingMsgPanel(false);
+            showGenelicPanel(false);
+            cleanupContainers();
+            cleanupItems4Switching();
+            preferent.cmd = "";
+            refreshdisplayTablesAndApis();
+            //typingControll(m, '', '');
+            return m;
+        } else {
+            cmdCandidates = [];
+            return chooseMsg("fail-msg", "", "");
+        }
+    }).fail(function (result) {
+        checkResult(result);
+        cmdCandidates = [];
+        console.error("postMigAjax() fail: ", url);
+//        typingControll(chooseMsg("fail-msg", "", ""));
+        return chooseMsg("fail-msg", "", "");
+    }).always(function () {
+        // release it for allowing to input new command in the chatbox 
+        inprogress = false;
+    });
+}
+
+
 /**
  * @function postAjaxData
  * @param {string} url execute url
@@ -796,6 +1008,18 @@ const postAjaxData = (url, data) => {
 
                     let data = `{"${dbconfname}":"true"}`;
                     postAjaxData(scenario["function-post-url"][3], data);
+                } else if (url == posturls[12]){
+                    // recreate api
+                    console.log("ret ", result.Jetelina);
+                    if(0<result.Jetelina.length){
+                        m = chooseMsg('func-renewapino-msg', `are ${result.Jetelina}.`, 'r');
+                        $(CHATBOXYOURTELL).text(m);
+                        $(".yourText").mouseover();
+                    }
+
+                    cleanUp("items");
+                    refreshdisplayTablesAndApis();
+                    rejectCancelableCmdList("recreateapi");
                 } else if (url == scenario['analyzed-data-collect-url'][6]) {
                     /*
                         Tips:
@@ -835,6 +1059,18 @@ const postAjaxData = (url, data) => {
 
                     $(CONFIGPANELLIST).append(dbparams);
                     showConfigPanel(true);
+                } else if (url == posturls[8]) {
+                    /*
+                        Tips:
+                            in case not migrated table, 'result.list' is '0'. so relatedDataList['table name'] is be null.
+                            it is not good on the scree operation, e.g. 'activeItem' css is not removed, i mean the target table
+                            is not be un-highlighted, because the target table is not listed in relatedDataList object.
+                            so a dummy data set in there at here, if 'result.list' is '0'.
+                            posturls[8] returns 'result=false' and 'list=0', in this case. this is the protocol.
+                    */
+                    if (result.list == 0) {
+                        relatedDataList[result.target] = ["dumdum"];
+                    }
                 }
 
                 cmdCandidates = [];
@@ -1136,14 +1372,14 @@ const chatKeyDown = (cmd) => {
         if (inScenarioChk(ut, 'guidance-goto-jetelinaorg-cmd')) {
             window.open(scenario["jetelina-web-site-url"][0], "_blank");
         } else {
-//            m = guidancePageController(ut);
-            if(ut.startsWith("go")){
+            //            m = guidancePageController(ut);
+            if (ut.startsWith("go")) {
                 let gcom = ut.split(" ");
-                if(0<gcom.length){
-                    for (k in gcom){
-                        if(gcom[k].startsWith("m") && 1<gcom[k].length){
+                if (0 < gcom.length) {
+                    for (k in gcom) {
+                        if (gcom[k].startsWith("m") && 1 < gcom[k].length) {
                             let gu = $(`#guidance div[name='page1'] span[name='${gcom[k]}'] a`).prop("href");
-                            window.open(gu,"_blank");
+                            window.open(gu, "_blank");
                             m = chooseMsg("starting-6a-msg", "", "");
                             break;
                         }
@@ -1313,7 +1549,7 @@ const chatKeyDown = (cmd) => {
                             the process is defined in initialprocess.js
                             and do not get out by the normal logout because of session data.
                         */
-                       showSomethingMsgPanel(false);
+                        showSomethingMsgPanel(false);
                         stage = 0;
                         $(JETELINAPANEL).hide();
                         jetelinaInitialize();
@@ -1343,6 +1579,20 @@ const chatKeyDown = (cmd) => {
                     m = "";
                     // chatbox moves to below
                     jetelinaPanelPositionController(false);
+
+                    // test for migration
+                    if (inScenarioChk(ut, 'func-db-mig-hide-tables')) {
+                        showMigTableList(false);
+                        m = "migration hide";
+                    } else if (inScenarioChk(ut, 'func-db-mig-show-tables')) {
+                        m = getMigAjax();
+                        if(m == null || m.length <1){
+                            m = "migration show";
+                        }
+                    } else if (inScenarioChk(ut, "func-get-jv-api-list-cmd")){
+                        getAjaxData(scenario["function-get-url"][6])
+                    }
+
                     if (!inScenarioChk(ut, 'config-show-cmd') && (presentaction.cmd != CONFIGCHANGE)) {
                         // if 'ut' is a command for driving function
                         m = functionPanelFunctions(ut);
@@ -1384,6 +1634,7 @@ const chatKeyDown = (cmd) => {
                                 showSomethingMsgPanel(false);
                                 showConfigPanel(false);
                                 showPreciousPanel(false);
+                                showMigTableList(false);
                                 if (inCancelableCmdList([CONFIGCHANGE])) {
                                     rejectCancelableCmdList(CONFIGCHANGE);
                                     presentaction = {};
@@ -1518,9 +1769,9 @@ const chatKeyDown = (cmd) => {
                         */
                     } else {
                         // do not have an authority
-                        
+
                         // v3.0 6/10/2025 'user-manage-delete' is not existance
-//                        if (inScenarioChk(ut, 'user-manage-add-cmd') || inScenarioChk(ut, 'user-manage-update') || inScenarioChk(ut, 'user-manage-delete') || inScenarioChk(ut, 'config-show-cmd')) {
+                        //                        if (inScenarioChk(ut, 'user-manage-add-cmd') || inScenarioChk(ut, 'user-manage-update') || inScenarioChk(ut, 'user-manage-delete') || inScenarioChk(ut, 'config-show-cmd')) {
                         if (inScenarioChk(ut, 'user-manage-add-cmd') || inScenarioChk(ut, 'user-manage-update') || inScenarioChk(ut, 'config-show-cmd')) {
                             m = chooseMsg("no-authority-js-msg", "", "");
                         } else {
@@ -1578,6 +1829,7 @@ const chatKeyDown = (cmd) => {
                     resetApiTestProcedure();
                     showConfigPanel(false);
                     showPreciousPanel(false);
+                    showMigTableList(false);
                     changeChatGirlImage("chat");
 
                     typingControll(chooseMsg('general-thanks-msg', loginuser.lastname, "c"));
@@ -1667,6 +1919,7 @@ const logout = () => {
     showSomethingMsgPanel(false);
     showConfigPanel(false);
     showPreciousPanel(false);
+    showMigTableList(false);
     setDBFocus("");
     isVisibleDatabaseList(false);
 
@@ -2032,7 +2285,7 @@ const subPanelCheck = () => {
             if (inCancelableCmdList([CONFIGCHANGE])) {
                 let e = chooseMsg('common-post-cmd', '', '');
                 typingControll(chooseMsg('config-update-msg', e, "r"));
-            } else if (inCancelableCmdList([TABLEAPIDELETE])) {
+            } else if (inCancelableCmdList([TABLEAPIDELETE, TABLEMIGRATION, TABLEMIGRATIONCANCELLATION])) {
                 typingControll(chooseMsg('common-confirm-msg', '', ""));
             }
         }
@@ -2167,7 +2420,7 @@ const apiTestAjax = () => {
     }).always(function () {
         // release it for allowing to input new command in the chatbox 
         inprogress = false;
-//        preferent.apitestparams = [];
+        //        preferent.apitestparams = [];
         preferent.apiparams_count = null;
     });
 }
@@ -2229,6 +2482,21 @@ const showConfigPanel = (b) => {
         // delete all test results
         $(CONFIGPANEL).hide();
         $(`${CONFIGPANEL} span`).filter(".configparams_key, .configparams_val").remove();
+    }
+}
+/**
+ * @function showMigTableList
+ * @param {boolean} true -> show, false -> hide
+ *  
+ * "#migration_panel" show or hide
+ */
+const showMigTableList = (b) => {
+    if (b) {
+        $(MIGRATIONPANEL).show().draggable();
+    } else {
+        // delete all test results
+        $(MIGRATIONPANEL).hide();
+        $(`${MIGRATIONTABLELIST} span`).remove();
     }
 }
 /**
@@ -2416,4 +2684,29 @@ const changeChatGirlImage = (imgtype) => {
     } else if (imgtype == "chat") {
         imgtag.hide();
     }
+}
+/**
+ * @function findItemnameFromlist
+ * @param {String} tag: searching panel id name. ex. TABLECONTAINER
+ * @param {String} name: searching target table/api name.
+ * @return {Boolean} : true -> find out, false -> the 'name' is not in 'tag' panel.
+ * 
+ * finding 'name' in the list of ordering 'tag' panel.
+ */
+const findItemnameFromlist = (tag, name) => {
+    let ret = false;
+
+    $(`${tag} span`).each(function (i, v) {
+        if (v.textContent == name) {
+            if (!isVisibleMigTableListPanel()) {
+                listClick($(this));
+            } else {
+                $(this).toggleClass("activeItem");
+            }
+
+            ret = true;
+        }
+    });
+
+    return ret;
 }

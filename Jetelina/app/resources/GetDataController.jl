@@ -20,6 +20,7 @@ functions
 	getConfigHistory() get configuration change history in json style.
 	getOperationHistory() get operation history in json style.
 	getWorkingDBList() get db list that is working.
+	mig_getTableList() calling DBDataController.mig_getTableList().
 """
 module GetDataController
 
@@ -29,7 +30,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export logout, getTableList, getTableCombiVsAccessRelationData, getPerformanceRealData, getPerformanceTestData, checkExistImproveApiFile, getSuggestionData, getApiList, getConfigHistory, getOperationHistory, getWorkingDBList
+export logout, getTableList, getTableCombiVsAccessRelationData, getPerformanceRealData, getPerformanceTestData, checkExistImproveApiFile, getSuggestionData, getApiList, getConfigHistory, getOperationHistory, getWorkingDBList, mig_getTableList
 
 """
 function logout()
@@ -400,6 +401,19 @@ function getWorkingDBList()
 		return Genie.Renderer.Json.json(Dict("result" => true, "Jetelina" => copy.(eachrow(df))))
 	else
 		return Genie.Renderer.Json.json(Dict("result" => false, "Jetelina" => "[{}]"))
+	end
+end
+"""
+function mig_getTableList()
+
+	calling DBDataController.mig_getTableList().
+	the return is json form naturally.
+"""
+function mig_getTableList()
+	if !isnothing(JSession.get())
+		return DBDataController.mig_getTableList()
+	else
+		return nothing
 	end
 end
 

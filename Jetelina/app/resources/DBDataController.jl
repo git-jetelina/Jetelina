@@ -26,12 +26,16 @@
 		updateUserLoginData(uid::Integer) update user login data if it succeeded to login
 		deleteUserAccount(uid::Integer) user delete, but not physical deleting, set jetelina_delete_flg to 1. 
 		createApiSelectSentence(json_d::Dict,mode::String) create API and SQL select sentence from posting data.
+		recreateApiSentence(tablelist::Vector) recreate ji/ju/jd apis in ordering table
 		refStichWort(stichwort::String)	reference and matching with user_info->stichwort
 		prepareDbEnvironment(db::String,mode::String) database connection checking, and initializing database if needed
 
 -- special functions for IVM ---
 		dropIVMtable(apis::Vector) special func for PostgreSQL, synchronized droppping ivm table with deleting api
-
+-- special functions for RDBMS migration
+		mig_getTableList() Get the ordered table list by executing *.mig_getTable() depend on DB type
+		mig_execute_migration(tableName::Vector, stichwort::String) execute db migration
+		mig_revert_migration(tableName::Vector, stichwort::String) cancellation the migrated table to the origin
 """
 
 module DBDataController
@@ -59,7 +63,8 @@ include("libs/mongo/MonSQLSentenceManager.jl")
 export init_Jetelina_table, createJetelinaDatabaseinMysql,
 	dataInsertFromCSV, getTableList, getSequenceNumber, dropTable, getColumns, doSelect,
 	executeApi, userRegist, chkUserExistence, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo, updateUserData, deleteUserAccount,
-	createApiSelectSentence, refStichWort, prepareDbEnvironment
+	createApiSelectSentence, recreateApiSentence, refStichWort, prepareDbEnvironment,
+	dropIVMtable, mig_getTableList, mig_execute_migration, mig_revert_migration
 
 
 """
@@ -151,6 +156,14 @@ function getTableList(s::String)
 		PgDBController.getTableList(s)
 	elseif j_config.JC["dbtype"] == "mysql"
 		# Case in MySQL
+		#===
+			Tips:
+				my_dbname is ordered by user, but initially it is 'mysql', 
+				meaning 'jetelina' database has not created yet.
+				this forced to use 'jetelina' database for Jetelina, not 'mysql'.
+				'jetelina' is changeable by ordering 'my_dbname'. this order is in updating configuration parameter.
+				i hard to recommend to use 'mysql' database even you can change it.
+		===#
 		if j_config.JC["my_dbname"] == "mysql"
 			createJetelinaDatabaseinMysql()
 		end
@@ -231,8 +244,8 @@ function dropTable(tableName::Vector, stichwort::String)
 		==#
 		return ret[2]
 	else
-		jmg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
-		return json(Dict("result" => false, "errmsg" => "$jmg"))
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+		return json(Dict("result" => false, "errmsg" => jmsg))
 	end
 
 end
@@ -625,6 +638,32 @@ function createApiSelectSentence(json_d::Dict, mode::String)
 	return ret
 end
 """
+function recreateApiSentence(tablelist::Vector) 
+	
+	recreate ji/ju/jd apis in ordering table
+
+# Arguments
+- `tablename::String`: target table name
+- return: success to append it to  -> json {"apino":"<something no>"}
+		  fail to append it to     -> false
+"""
+function recreateApiSentence(tablelist::Vector)
+	ret = ""
+
+	if j_config.JC["dbtype"] == "postgresql"
+		# Case in PostgreSQL
+		ret = PgDBController.recreateApis(tablelist)
+	elseif j_config.JC["dbtype"] == "mysql"
+		# Case in MySQL
+		ret = MyDBController.recreateApis(tablelist)
+	elseif j_config.JC["dbtype"] == "oracle"
+	end
+
+	return ret[2]
+end
+
+
+"""
 function refStichWort(stichwort::String)
 
 	reference and matching with user_info->stichwort
@@ -681,4 +720,110 @@ function dropIVMtable(apis::Vector)
 	ivmapis = replace.(apis,"js"=>"jv")
 	return PgDBController.dropTable(ivmapis)
 end
+"""
+function mig_getTableList()
+
+	Get the ordered table list by executing *.mig_getTable() depend on DB type
+	this function is only for RDBMS
+"""
+function mig_getTableList()
+	if j_config.JC["dbtype"] == "postgresql"
+		# Case in PostgreSQL
+		PgDBController.mig_getTableList()
+	elseif j_config.JC["dbtype"] == "mysql"
+		# Case in MySQL
+		MyDBController.mig_getTableList()
+	elseif j_config.JC["dbtype"] == "oracle"
+	end
+end
+"""
+function mig_execute_migration(tableName::Vector, stichwort::String)
+		
+	execute db migration
+	this function is only for RDBMS	
+# Arguments
+- `tableName: Vector`: name of the tables
+- `stichwort: String`: a kind of pass phrase for executing
+"""
+function mig_execute_migration(tableName::Vector, stichwort::String)
+	stichret::Bool = false
+	ret::Any = ""
+
+	#===
+		Tips:
+			check the stichwort in user_info.
+			in the case of nothing, register it into there,
+			in the case of being, take the matching.
+	===#
+	if j_config.JC["jetelinadb"] == "postgresql"
+		stichret = PgDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "mysql"
+		stichret = MyDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "oracle"
+	end
+
+	if stichret
+		if j_config.JC["dbtype"] == "postgresql"
+			# Case in PostgreSQL
+			ret = PgDBController.mig_execute_migration(tableName)
+		elseif j_config.JC["dbtype"] == "mysql"
+			# Case in MySQL
+			ret = MyDBController.mig_execute_migration(tableName)
+		elseif j_config.JC["dbtype"] == "oracle"
+		end
+
+		return ret[2]
+	else
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+		return json(Dict("result" => false, "errmsg" => jmsg))
+	end
+end
+"""
+function mig_revert_migration(tableName::Vector, stichwort::String) 
+	
+	cancellation the migrated table to the origin
+	this function is only for RDBMS	
+# Arguments
+- `tableName: Vector`: name of the tables
+- `stichwort: String`: a kind of pass phrase for executing
+"""
+function mig_revert_migration(tableName::Vector, stichwort::String)
+	stichret::Bool = false
+	ret::Any = ""
+
+	#===
+		Tips:
+			check the stichwort in user_info.
+			in the case of nothing, register it into there,
+			in the case of being, take the matching.
+	===#
+	if j_config.JC["jetelinadb"] == "postgresql"
+		stichret = PgDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "mysql"
+		stichret = MyDBController.refStichWort(stichwort)
+	elseif j_config.JC["jetelinadb"] == "oracle"
+	end
+
+	if stichret
+		if j_config.JC["dbtype"] == "postgresql"
+			# Case in PostgreSQL
+			ret = PgDBController.mig_revert_migration(tableName)
+		elseif j_config.JC["dbtype"] == "mysql"
+			# Case in MySQL
+			ret = MyDBController.mig_revert_migration(tableName)
+		elseif j_config.JC["dbtype"] == "oracle"
+		end
+
+		if ret[1]
+			# update SQL list
+			ApiSqlListManager.deleteTableFromlist(tableName)
+		end
+
+		return ret[2]
+	else
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+		return json(Dict("result" => false, "errmsg" => jmsg))
+	end
+end
+
 end

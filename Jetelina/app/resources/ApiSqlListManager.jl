@@ -11,6 +11,7 @@ functions
 	getApiSequenceNumber()  get api sequence number from apisequencenumber in dataframe then update it +1
 	readSqlList2DataFrame() import registered SQL sentence list in JC["sqllistfile"] to DataFrame.this function set the sql list data in the global variable 'Df_JetelinaSqlList' as DataFrame object.
 	writeTolist(sql::String, subquery::String, tablename_arr::Vector{String}, db::String) create api no and write it to JC["sqllistfile"] order by SQL sentence.
+    updateApiList(apino::Vector, sql::Vector) update api because of changing in a table layout and/or etc..
 	deleteTableFromlist(tablename::Vector) delete tables name from JC["sqllistfile"] synchronized with dropping table.
 	deleteApiFromList(apis:Vector) delete api by ordering from JC["sqllistfile"] file, then refresh the DataFrame.
 	getRelatedList(searchKey::String,target::String) earch in JetelinaTableApiRelation file to find 'target' due to 'searchKey'
@@ -29,7 +30,7 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export Df_JetelinaSqlList, readSqlList2DataFrame, writeTolist, deleteTableFromlist, sqlDuplicationCheck, jsjvmatching2DataFrame, Df_JsJvList
+export Df_JetelinaSqlList, readSqlList2DataFrame, writeTolist, updateApiList, deleteTableFromlist, sqlDuplicationCheck, jsjvmatching2DataFrame, Df_JsJvList
 
 """
 function __init__()
@@ -55,7 +56,9 @@ function _setApiSequenceNumber
 	how to update apisequencenumber ..ApiSqlListManager.apisequencenumber.apino[1] += 1
 """
 function _setApiSequenceNumber()
-    global Df_JetelinaSqlList = DataFrame()
+    global Df_JetelinaSqlList = DataFrame(apino="",sql="",subquery="",db="")
+    global apisequencenumber = DataFrame(apino=1)
+
     p = readSqlList2DataFrame()
     if p[1]
         df = p[2]
@@ -72,7 +75,7 @@ function _setApiSequenceNumber()
             nextapino = maximum(parse.(Int, existapino)) + 1
         end
 
-        global apisequencenumber = DataFrame(apino=nextapino)
+        apisequencenumber = DataFrame(apino=nextapino)
 
         if j_config.JC["debug"]
             @info apisequencenumber
@@ -256,6 +259,64 @@ function writeTolist(sql::String, subquery::String, tablename_arr::Vector{String
 
     return true, string(suffix, seq_no)
 end
+
+"""
+function updateApiList(apino::Vector, sql::Vector) 
+    
+    update api because of changing in a table layout and/or etc..
+	
+# Arguments
+- `apino::Vector`: target api no  e.g. ji11, ju12
+- `sql::Vector`: sql sentence
+- return: Tuple: suceeded (true::Boolean, api number name::Vector)
+				 failed   (false::Boolean, nothing)
+"""
+function updateApiList(apino::Vector, sql::Vector)
+    sql = strip.(sql)
+    sqlFile = JFiles.getFileNameFromConfigPath(j_config.JC["sqllistfile"])
+    sqlTmpFile = string(sqlFile, ".tmp")
+    replacedapino::Vector = []
+
+    # take the backup file
+    JFiles.fileBackup(sqlFile)
+
+    # remain SQL sentence not include in the target api
+    try
+        i::Integer = 1
+        open(sqlTmpFile, "w") do tf
+            open(sqlFile, "r") do f
+                for ss in eachline(f, keep=false)
+                    p = split(ss, "\"") # js1,"select..."
+                    if rstrip(p[1], ',') ∉ apino
+                        # keep this line
+                        println(tf, ss)
+                    else
+                        # update this line
+                        println(tf, sql[i])
+                        push!(replacedapino, apino[i])
+                        if i < length(apino)
+                            i += 1
+                        end
+                    end
+                end
+            end
+        end
+    catch err
+        JLog.writetoLogfile("ApiSqlListManager.updateApiList() error: $err")
+        return false
+    end
+
+    # change the file name
+    mv(sqlTmpFile, sqlFile, force=true)
+
+    # update DataFrame
+    readSqlList2DataFrame()
+
+    # write to operationhistoryfile
+    JLog.writetoOperationHistoryfile(string("update api", ",", "suffix", replacedapino))
+
+    return true, replacedapino
+end
 """
 function deleteTableFromlist(tablename::Vector)
 
@@ -282,17 +343,17 @@ function deleteTableFromlist(tablename::Vector)
         open(tableapiTmpFile, "w") do ttaf
             open(tableapiFile, "r") do taf
                 #===
-                					Tips: 
-                						'keep=false' omits the line-feed in each line, then do println()
-                				===#
+                	Tips: 
+                		'keep=false' omits the line-feed in each line, then do println()
+                ===#
                 for ss in eachline(taf, keep=false)
                     if contains(ss, ':')
                         p = split(ss, ":") # api_name:table,table,....
                         #===
-                        							Tips:
-                        								there is a chance to exist the same table name in postgres and mysql,
-                        								therefore look at p[3]
-                        						===#
+                        	Tips:
+                        		there is a chance to exist the same table name in postgres and mysql,
+                        		therefore look at p[3]
+                        ===#
                         if (p[3] == j_config.JC["dbtype"])
                             tmparr = split(p[2], ',')
                             for i in eachindex(tablename)
@@ -309,15 +370,15 @@ function deleteTableFromlist(tablename::Vector)
                 end
 
                 #===
-                					Tips:
-                						return to the file top ＼(^o^)／
-                						indeed, there are 3 funcs in julia
-                						   - seek(taf,0) move 'taf' to the position '0'
-                						   - seekstart(taf) same above
-                						   - seekend(taf) move 'taf' to the position tail
+                	Tips:
+                		return to the file top ＼(^o^)／
+                		indeed, there are 3 funcs in julia
+                		   - seek(taf,0) move 'taf' to the position '0'
+                		   - seekstart(taf) same above
+                		   - seekend(taf) move 'taf' to the position tail
 
-                						seek(taf,0) can apply here, but use seekstart(taf) because the position is obvioous
-                				===#
+                		seek(taf,0) can apply here, but use seekstart(taf) because the position is obvioous
+                ===#
                 seekstart(taf)
 
                 for ss in eachline(taf, keep=false)
@@ -471,10 +532,10 @@ function getRelatedList(searchKey::String, target::String)
                 p = split(ss, ':')
                 if searchKey == "table"
                     #===
-                    						Tips:
-                    							there is a chance to exist the same table name in postgres and mysql,
-                    							therefore look at p[3]
-                    					===#
+                    	Tips:
+                    		there is a chance to exist the same table name in postgres and mysql,
+                    		therefore look at p[3]
+                    ===#
                     if (p[3] == j_config.JC["dbtype"])
                         c = split(p[2], ',')
                         keys = split(target, ',')
@@ -489,14 +550,14 @@ function getRelatedList(searchKey::String, target::String)
                 else
                     c = p[1]
                     #===
-                    						Tips:
-                    							p[1] is unique api number.
-                    					===#
+                    	Tips:
+                    		p[1] is unique api number.
+                    ===#
                     if target == p[1]
                         #===
-                        							Tips:
-                        								p[2] has possibility multi data. e.g table1,table2
-                        						===#
+                    		Tips:
+                     			p[2] has possibility multi data. e.g table1,table2
+                        ===#
                         c = split(p[2], ',')
                         for i in eachindex(c)
                             push!(ret, c[i])
@@ -561,7 +622,7 @@ function jsjvmatching2DataFrame()
 
 """
 function jsjvmatching2DataFrame()
-    global Df_JsJvList = DataFrame()
+    global Df_JsJvList = DataFrame(js="",jv="")
     jsjvFile = JFiles.getFileNameFromConfigPath(j_config.JC["jsjvmatchingfile"])
     if isfile(jsjvFile)
         df = CSV.read(jsjvFile, DataFrame)
@@ -648,12 +709,12 @@ function deleteJvApiFromMatchingList(apis::Vector)
                 for ss in eachline(f, keep=false)
                     p = split(ss, ",")
                     if p[1] ∉ apis
-                        # remain others in the file
-                        println(tf, ss)
+                            # remain others in the file
+                            println(tf, ss)
+                        end
                     end
                 end
             end
-        end
     catch err
         JLog.writetoLogfile("ApiSqlListManager.deleteJvApiFromMatchingList() error: $err")
         return false

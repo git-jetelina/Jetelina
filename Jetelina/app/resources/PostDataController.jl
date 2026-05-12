@@ -12,6 +12,7 @@ functions
 	getConfigData()	get a configuration parameter data ordered by posting data.
 	handleApipostdata() execute ordered API by posting data.
 	createApi()  create API and SQL select sentence from posting data.
+    recreateApi() recreate ji/ju/jd apis in ordering table
 	getColumns()  get ordered tables's columns with json style.ordered table name is posted as the name 'tablename' in jsonpayload().
 	deleteTable()  delete table by ordering. this function calls DBDataController.dropTable(tableName,stichwort), so 'delete' meaning is really 'drop'.ordered table name is posted as the name 'tablename' in jsonpayload().
 	userRegist() register a new user
@@ -29,6 +30,11 @@ functions
 	searchErrorLog() searching orderd log as 'errnum' in log file
 	prepareDbEnvironment() database connection checking, and initializing database if needed
 	getApiExecutionSpeed()	get api execution speed data.
+    getJvApiList() read Df_JsJvList to show the js/jv api relation.
+
+-- special functions for RDBMS migration
+    mig_execute_migration() execute DB migration.
+    mig_revert_migration() cancellation the migrated table to the origin
 """
 module PostDataController
 
@@ -38,8 +44,9 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
-export initialDb, initialUser, getConfigData, handleApipostdata, createApi, getColumns, deleteTable, userRegist, login, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo,
-    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed
+export initialDb, initialUser, getConfigData, handleApipostdata, createApi, recreateApi, getColumns, deleteTable, userRegist, login, getUserInfoKeys, refUserAttribute, refUserInfo, updateUserInfo,
+    updateUserData, updateUserLoginData, deleteUserAccount, deleteApi, configParamUpdate, searchErrorLog, prepareDbEnvironment, getApiExecutionSpeed, getJvApiList,
+    mig_execute_migration, mig_revert_migration
 
 """
 	function initialDb() 
@@ -147,6 +154,28 @@ function createApi()
         return nothing
     end
 end
+
+    
+"""
+function recreateApi() 
+    
+    recreate ji/ju/jd apis in ordering table
+
+# Arguments
+- return: this sql is already existing -> json {"resembled":true}
+		  new sql then success to append it to  -> json {"apino":"<something no>"}
+					   fail to append it to     -> false
+"""
+function recreateApi()
+    if !isnothing(JSession.get())
+        tablelist::Vector = jsonpayload("table")
+
+        return DBDataController.recreateApiSentence(tablelist)
+    else
+        return nothing
+    end
+end
+
 """
 function getColumns()
 
@@ -457,10 +486,12 @@ function deleteApi()
 
             ret = json(Dict("result" => true, "apiname" => "$retapis", "message from Jetelina" => jmsg))
         else
-            ret = json(Dict("result" => false, "apiname" => "$retapis", "errmsg" => "Oh my, failed the deleting. Type 'show error' to show somethin' if you're lucky."))
+            jmsg = "Oh my, failed the deleting. Type 'show error' to show somethin' if you're lucky."
+            ret = json(Dict("result" => false, "apiname" => "$retapis", "errmsg" => jmsg))
         end
     else
-        ret = json(Dict("result" => false, "message from Jetelina" => "wrong pass phrase"))
+		jmsg = "Hum, wrong pass phrase, was it? type 'cancel' then try it again."
+        ret = json(Dict("result" => false, "message from Jetelina" => jmsg))
     end
 
     return ret
@@ -540,7 +571,7 @@ function getRelatedTableApi()
     if (0 < length(ret))
         json(Dict("result" => true, "target" => target, "list" => ret, "message from Jetelina" => jmsg))
     else
-        json(Dict("result" => false, "target" => target, "list" => 0, "errmsg" => "Oh my, there is no initial APIs, guess somethi' had happend at uploading file, ah..... sorry"))
+        json(Dict("result" => false, "target" => target, "list" => 0, "errmsg" => "Oh my, there is no initial APIs, guess somethi' had happend at uploading file or this table should be migrated under my control,  ah..... sorry"))
     end
 end
 """
@@ -555,6 +586,17 @@ function switchDB()
     jmsg::String = string("compliment me!")
 
     if (!isnothing(db) && db != "")
+        #===
+            Tips:
+                in case MySQL, the database is 'jetelina', but it can be ordered.
+                there is a possibility that the database has not created yet.
+                so check it anyhow.
+                .createJetelinaDatabaseinMysql() is for creating 'jetelina' database with 'if not exist'.
+        ===#
+        if(db == "mysql")
+            DBDataController.createJetelinaDatabaseinMysql()
+        end
+
         JSession.setDBType(db)
         j_config.JC["dbtype"] = db
     end
@@ -674,6 +716,64 @@ function getApiExecutionSpeed()
     end
 
     return ret
+end
+"""
+function mig_execute_migration()
+
+	execute DB migration.
+	ordered table name is posted as the name 'tablename' in jsonpayload().
+
+"""
+function mig_execute_migration()
+    if !isnothing(JSession.get())
+        ret = ""
+        tableName::Vector = jsonpayload("tablename")
+        stichwort::String = jsonpayload("pass")
+
+        if !isnothing(tableName)
+            ret = DBDataController.mig_execute_migration(tableName, stichwort)
+        end
+
+        return ret
+    else
+        return nothing
+    end
+end
+"""
+function mig_revert_migration() 
+        
+    cancellation the migrated table to the origin
+	ordered table name is posted as the name 'tablename' in jsonpayload().
+
+"""
+function mig_revert_migration()
+    if !isnothing(JSession.get())
+        ret = ""
+        tableName::Vector = jsonpayload("tablename")
+        stichwort::String = jsonpayload("pass")
+
+        if !isnothing(tableName)
+            ret = DBDataController.mig_revert_migration(tableName, stichwort)
+        end
+
+        return ret
+    else
+        return nothing
+    end
+end
+"""
+function getJvApiList() 
+        
+    read Df_JsJvList to show the js/jv api relation.
+    
+# Arguments
+- return: json: contains the list data
+"""
+function getJvApiList()
+    jmsg::String = string("compliment me!")
+
+    df = ApiSqlListManager.Df_JsJvList
+    return json(Dict("result" => true, "Jetelina" => copy.(eachrow(df[:,:js])), "message from Jetelina" => jmsg))
 end
 
 end

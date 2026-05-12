@@ -211,7 +211,8 @@ function createApiSelectSentence(json_d, mode::String)
         end
 
         if (0 < length(tableName))
-            if (!contains(tableName, t1))
+#            if (!contains(tableName, t1))
+            if t1 ∉ tablename_arr
                 tableName = """$tableName,$t1 as $t1"""
                 push!(tablename_arr, t1)
             end

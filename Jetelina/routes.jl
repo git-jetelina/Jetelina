@@ -84,6 +84,8 @@ route("/ispath", PostDataController.prepareDbEnvironment, method = POST)
 ===#
 # create api from posting data of db table columns
 route( "/createapi", PostDataController.createApi, method = POST )
+# recreate api order to changing db table columns
+route("/recreateapi", PostDataController.recreateApi, method = POST)
 # api test before doing createapi
 #     indeed '/createapi' and 'testapi' are same, but wanna indicate them difference url
 route( "/testapi", PostDataController.createApi, method = POST )
@@ -95,6 +97,8 @@ route("/deleteapi", PostDataController.deleteApi, method = POST)
 route("/getrelatedlist", PostDataController.getRelatedTableApi, method = POST)
 # search error log
 route("/searcherror", PostDataController.searchErrorLog, method = POST)
+# ivm special: js/jv relation
+route("/getjsjvrelation", PostDataController.getJvApiList)
 #===
     -Handle CSV file
 ===#
@@ -131,3 +135,9 @@ route("/getconfigdata", PostDataController.getConfigData, method = POST)
 route("/changeconfigdata", PostDataController.configParamUpdate, method = POST)
 route("/getconfigchangehistory", GetDataController.getConfigHistory)
 route("/getoperationhistory", GetDataController.getOperationHistory)
+#===
+    -Handle DB Migration
+===#
+route("/getmigrationtablelist",GetDataController.mig_getTableList)
+route("/executedbmigration", PostDataController.mig_execute_migration, method = POST)
+route("/canceldbmigration", PostDataController.mig_revert_migration, method = POST)
