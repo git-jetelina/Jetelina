@@ -1,7 +1,7 @@
 name = "Jetelina"
 uuid = "00b54ba8-8f95-4a02-aa59-537074d87a5a"
-authors = ["'onoke123' <'ono@net8.co.jp'>"]
-version = "0.1.0"
+authors = ["'git-jetelina' <'me@jetelina.org'>"]
+version = "3.2.0"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
