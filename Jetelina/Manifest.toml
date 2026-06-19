@@ -1,8 +1,14 @@
 # This file is machine-generated - editing it directly is not advised
 
+<<<<<<< HEAD
 julia_version = "1.12.0"
 manifest_format = "2.0"
 project_hash = "6ed2c1eabe831ec57eb837e63701290a45eb99ba"
+=======
+julia_version = "1.12.6"
+manifest_format = "2.0"
+project_hash = "90ef9744876eb1b2bfc3ed704f5fd6501e89a858"
+>>>>>>> 95425570 (st update)
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "2d9c9a55f9c93e8887ad391fbae72f8ef55e1177"
@@ -54,6 +60,10 @@ version = "1.0.9+0"
 git-tree-sha1 = "389ad5c84de1ae7cf0e28e381131c98ea87d54fc"
 uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 version = "0.5.0"
+
+[[deps.CRC32c]]
+uuid = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
+version = "1.11.0"
 
 [[deps.CSV]]
 deps = ["CodecZlib", "Dates", "FilePathsBase", "InlineStrings", "Mmap", "Parsers", "PooledArrays", "PrecompileTools", "SentinelArrays", "Tables", "Unicode", "WeakRefStrings", "WorkerUtilities"]
@@ -301,7 +311,7 @@ version = "1.9.1"
 [[deps.Downloads]]
 deps = ["ArgTools", "FileWatching", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
-version = "1.6.0"
+version = "1.7.0"
 
 [[deps.EpollShim_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -440,21 +450,21 @@ version = "0.4.0"
 
 [[deps.Genie]]
 deps = ["ArgParse", "Base64", "Dates", "Distributed", "DotEnv", "EzXML", "FilePathsBase", "HTTP", "HttpCommon", "Inflector", "JSON", "JuliaFormatter", "Logging", "LoggingExtras", "LoweredCodeUtils", "MIMEs", "Markdown", "Millboard", "Nettle", "OrderedCollections", "Pkg", "REPL", "Random", "Reexport", "Revise", "SHA", "Serialization", "Sockets", "UUIDs", "Unicode", "XML2_jll", "YAML"]
-git-tree-sha1 = "a46899376abe9952677f05af653644c87d397fad"
+git-tree-sha1 = "3172f6300fb2d97f429d3d718f92bd49e9a932f5"
 uuid = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
-version = "5.35.14"
+version = "5.35.15"
 
 [[deps.GenieSession]]
 deps = ["Dates", "Genie", "HTTP", "Logging", "Random", "SHA"]
-git-tree-sha1 = "936838b4eccdd5a2b62b695558d5dbc1f5f56560"
+git-tree-sha1 = "58a358281dcfff95bafb9d8413d5d9bd02d883a9"
 uuid = "03cc5b98-4f21-4eb6-99f2-22eced81f962"
-version = "1.1.2"
+version = "1.1.3"
 
 [[deps.GenieSessionFileSession]]
 deps = ["Genie", "GenieSession", "Logging", "Serialization"]
-git-tree-sha1 = "5f5ffc33251d0d5f110072f7a0c07717c9453c97"
+git-tree-sha1 = "0dd1faf1013a1bb9da969763074217b7540d5196"
 uuid = "5c4fdc26-39e3-47cf-9034-e533e09961c2"
-version = "1.1.0"
+version = "1.1.1"
 
 [[deps.GettextRuntime_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll"]
@@ -481,9 +491,9 @@ version = "1.5.0"
 
 [[deps.Graphite2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "8a6dbda1fd736d60cc477d99f2e7a042acfa46e8"
+git-tree-sha1 = "69ffb934a5c5b7e086a0b4fee3427db2556fba6e"
 uuid = "3b182d85-2403-5c21-9c21-1e1f0cc25472"
-version = "1.3.15+0"
+version = "1.3.16+0"
 
 [[deps.Grisu]]
 git-tree-sha1 = "53bb909d1151e57e2484c3d1b53e19552b887fb2"
@@ -606,7 +616,11 @@ weakdeps = ["ArrowTypes"]
     JSON3ArrowExt = ["ArrowTypes"]
 
 [[deps.Jetelina]]
+<<<<<<< HEAD
 deps = ["CSV", "CSVFiles", "Clustering", "DataFrames", "Dates", "DelimitedFiles", "Genie", "GenieSession", "GenieSessionFileSession", "Inflector", "IterTools", "JSON", "JSON3", "LibPQ", "Logging", "LoggingExtras", "MbedTLS", "Mongoc", "MySQL", "Plots", "RDatasets", "Redis", "Revise", "SQLite", "SearchLight", "StatsBase", "Tables"]
+=======
+deps = ["CSV", "CSVFiles", "Clustering", "DataFrames", "Dates", "DelimitedFiles", "Genie", "GenieSession", "GenieSessionFileSession", "Inflector", "IterTools", "JSON", "JSON3", "LibPQ", "Logging", "LoggingExtras", "MbedTLS", "Mongoc", "MySQL", "Plots", "RDatasets", "Redis", "Revise", "SQLite", "SearchLight", "SearchLightSQLite", "StatsBase", "Tables"]
+>>>>>>> 95425570 (st update)
 path = "."
 uuid = "00b54ba8-8f95-4a02-aa59-537074d87a5a"
 version = "3.2.0"
@@ -619,9 +633,15 @@ version = "3.1.5+0"
 
 [[deps.JuliaFormatter]]
 deps = ["CommonMark", "Glob", "JuliaSyntax", "PrecompileTools", "TOML", "Test"]
+<<<<<<< HEAD
 git-tree-sha1 = "ff75f7303b01d678d607152433630141152acb6f"
 uuid = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 version = "2.6.8"
+=======
+git-tree-sha1 = "2386065c7169a47d8e7fed570e8acdf16512bb09"
+uuid = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
+version = "2.9.0"
+>>>>>>> 95425570 (st update)
 
 [[deps.JuliaInterpreter]]
 deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
@@ -699,7 +719,11 @@ version = "0.6.4"
 [[deps.LibCURL_jll]]
 deps = ["Artifacts", "LibSSH2_jll", "Libdl", "OpenSSL_jll", "Zlib_jll", "nghttp2_jll"]
 uuid = "deac9b47-8bc7-5906-a0fe-35ac56dc84c0"
+<<<<<<< HEAD
 version = "8.11.1+1"
+=======
+version = "8.15.0+0"
+>>>>>>> 95425570 (st update)
 
 [[deps.LibGit2]]
 deps = ["LibGit2_jll", "NetworkOptions", "Printf", "SHA"]
@@ -801,9 +825,15 @@ version = "1.2.0"
 
 [[deps.LoweredCodeUtils]]
 deps = ["CodeTracking", "Compiler", "JuliaInterpreter"]
+<<<<<<< HEAD
 git-tree-sha1 = "a2d6be586f4bb29b5b1400ea32c62c60d32f255e"
 uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
 version = "3.5.3"
+=======
+git-tree-sha1 = "0aad96d7b987a5600e260eec50147b254d5ff7e6"
+uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
+version = "3.6.0"
+>>>>>>> 95425570 (st update)
 
 [[deps.MIMEs]]
 git-tree-sha1 = "c64d943587f7187e751162b3b84445bbbd79f691"
@@ -817,9 +847,9 @@ version = "0.5.16"
 
 [[deps.MariaDB_Connector_C_jll]]
 deps = ["Artifacts", "JLLWrappers", "LibCURL_jll", "Libdl", "Libiconv_jll", "OpenSSL_jll", "Zlib_jll"]
-git-tree-sha1 = "c91882f72ac229ed6d3567b354a92bfcc7c63263"
+git-tree-sha1 = "58119dd029281eba10783f5e2a61a076e1eee9a9"
 uuid = "aabc7e14-95f1-5e66-9f32-aea603782360"
-version = "3.4.8+0"
+version = "3.4.9+1"
 
 [[deps.Markdown]]
 deps = ["Base64", "JuliaSyntaxHighlighting", "StyledStrings"]
@@ -845,9 +875,9 @@ version = "0.3.3"
 
 [[deps.Memento]]
 deps = ["Dates", "Distributed", "Requires", "Serialization", "Sockets", "Test", "UUIDs"]
-git-tree-sha1 = "bb2e8f4d9f400f6e90d57b34860f6abdc51398e5"
+git-tree-sha1 = "e03a25cb3b6569623f8246d3d8b3faa7ce86f4ad"
 uuid = "f28f55f0-a522-5efc-85c2-fe41dfb9b2d9"
-version = "1.4.1"
+version = "1.5.0"
 
 [[deps.Millboard]]
 git-tree-sha1 = "ea6a5b7e56e76d8051023faaa11d91d1d881dac3"
@@ -884,7 +914,11 @@ version = "0.10.1"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
+<<<<<<< HEAD
 version = "2025.5.20"
+=======
+version = "2025.11.4"
+>>>>>>> 95425570 (st update)
 
 [[deps.MySQL]]
 deps = ["DBInterface", "Dates", "DecFP", "Libdl", "MariaDB_Connector_C_jll", "OpenSSL_jll", "Parsers", "Random", "Tables"]
@@ -894,9 +928,9 @@ version = "1.5.1"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
-git-tree-sha1 = "9b8215b1ee9e78a293f99797cd31375471b2bcae"
+git-tree-sha1 = "dbd2e8cd2c1c27f0b584f6661b4309609c5a685e"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
-version = "1.1.3"
+version = "1.1.4"
 
 [[deps.NearestNeighbors]]
 deps = ["AbstractTrees", "Distances", "StaticArrays"]
@@ -961,7 +995,11 @@ version = "1.6.1"
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
+<<<<<<< HEAD
 version = "3.5.1+0"
+=======
+version = "3.5.4+0"
+>>>>>>> 95425570 (st update)
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl"]
@@ -993,9 +1031,15 @@ version = "1.57.1+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
+<<<<<<< HEAD
 git-tree-sha1 = "468dbe2b510c876dc091b2c74ed52c7c34f48b9b"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.5"
+=======
+git-tree-sha1 = "32a4e09c5f29402573d673901778a0e03b0807b9"
+uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
+version = "2.8.6"
+>>>>>>> 95425570 (st update)
 
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl"]
@@ -1006,7 +1050,11 @@ version = "0.46.4+0"
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "Random", "SHA", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+<<<<<<< HEAD
 version = "1.12.0"
+=======
+version = "1.12.1"
+>>>>>>> 95425570 (st update)
 weakdeps = ["REPL"]
 
     [deps.Pkg.extensions]
@@ -1092,9 +1140,9 @@ version = "6.10.2+2"
 
 [[deps.Qt6Declarative_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6ShaderTools_jll", "Qt6Svg_jll"]
-git-tree-sha1 = "d5b7dd0e226774cbd87e2790e34def09245c7eab"
+git-tree-sha1 = "159d253ab126d5b29230cf53521899bea4ef4648"
 uuid = "629bc702-f1f5-5709-abd5-49b8460ea067"
-version = "6.10.2+1"
+version = "6.10.2+2"
 
 [[deps.Qt6ShaderTools_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll"]
@@ -1182,10 +1230,17 @@ uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.1"
 
 [[deps.Revise]]
+<<<<<<< HEAD
 deps = ["CodeTracking", "FileWatching", "InteractiveUtils", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "Preferences", "REPL", "UUIDs"]
 git-tree-sha1 = "2f722c6581f297014be42c95d36f862e9bc2d668"
 uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
 version = "3.14.5"
+=======
+deps = ["CRC32c", "CodeTracking", "FileWatching", "InteractiveUtils", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "Preferences", "REPL", "UUIDs"]
+git-tree-sha1 = "27e3ee13fc8739a59b380d6163d6a82f52c03bd7"
+uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
+version = "3.15.1"
+>>>>>>> 95425570 (st update)
 weakdeps = ["Distributed"]
 
     [deps.Revise.extensions]
@@ -1202,15 +1257,15 @@ version = "0.1.0"
 
 [[deps.SQLite]]
 deps = ["DBInterface", "Random", "SQLite_jll", "Serialization", "Tables", "WeakRefStrings"]
-git-tree-sha1 = "87b47a05946c50f44531b447b1f24968345316a4"
+git-tree-sha1 = "e06c74d1b23a4180c3f79a718235c8a15c165849"
 uuid = "0aa819cd-b072-5ff4-a722-6bc24af294d9"
-version = "1.8.0"
+version = "1.8.1"
 
 [[deps.SQLite_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll", "dlfcn_win32_jll"]
-git-tree-sha1 = "0b5f220f90642566b65ba86549d1ee4118ab2579"
+git-tree-sha1 = "324744e40b84e6dc2cfaa4122ce969a083c40a6f"
 uuid = "76ed43ae-9a5d-5a62-8c75-30186b810ce8"
-version = "3.51.2+0"
+version = "3.53.2+0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
@@ -1315,9 +1370,15 @@ version = "1.8.0"
 
 [[deps.StatsBase]]
 deps = ["AliasTables", "DataAPI", "DataStructures", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
+<<<<<<< HEAD
 git-tree-sha1 = "c6f18e5a52a176a383f6f6c635e0f81feed1d6d4"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.34.11"
+=======
+git-tree-sha1 = "e4d7a1a0edc20af42689ea6f4f3587a2175d50ee"
+uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+version = "0.34.12"
+>>>>>>> 95425570 (st update)
 
 [[deps.StringEncodings]]
 deps = ["Libiconv_jll"]
@@ -1705,7 +1766,11 @@ version = "0.17.4+0"
 [[deps.libblastrampoline_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
+<<<<<<< HEAD
 version = "5.13.1+1"
+=======
+version = "5.15.0+0"
+>>>>>>> 95425570 (st update)
 
 [[deps.libdecor_jll]]
 deps = ["Artifacts", "Dbus_jll", "JLLWrappers", "Libdl", "Libglvnd_jll", "Pango_jll", "Wayland_jll", "xkbcommon_jll"]
@@ -1767,9 +1832,13 @@ uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
 version = "1.64.0+1"
 
 [[deps.p7zip_jll]]
-deps = ["Artifacts", "Libdl"]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
+<<<<<<< HEAD
 version = "17.5.0+2"
+=======
+version = "17.7.0+0"
+>>>>>>> 95425570 (st update)
 
 [[deps.snappy_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
