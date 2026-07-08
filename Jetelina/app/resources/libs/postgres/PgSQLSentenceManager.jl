@@ -225,16 +225,18 @@ function createApiSelectSentence(json_d, mode::String)
     selectSql = """select $selectSql from $tableName"""
 
     if j_config.JC["debug"]
-        @info "---------chk for ....-------------"
+        @info "--------- PgSQLSentenceManager.createApiSelectSentence -------------"
         @info "before subq_d is " subq_d
         @info "table array is " tablename_arr
+        @info "--------------------------------------------------------------------"
     end
 
     subq_d = _addJetelinaDeleteFlg2Subquery(subq_d, tablename_arr)
 
     if j_config.JC["debug"]
+        @info "--------- PgSQLSentenceManager.createApiSelectSentence -------------"
         @info "after subq_d is " subq_d
-        @info "----------------------------------"
+        @info "--------------------------------------------------------------------"
     end
 
     if mode != "pre"

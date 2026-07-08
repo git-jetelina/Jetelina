@@ -332,7 +332,9 @@ function createAnalyzedJsonFile()
             sql_df.access_numbers = sql_df.access_numbers / maximum(sql_df.access_numbers)
 
             if j_config.JC["debug"]
+                @info "---- SQLAnalyer.createAnalyzedJsonFile----"
                 @info "SQLAnalyzer.createAnalyzedJsonFile(): " JSON.json(Dict("Jetelina" => copy.(eachrow(sql_df))))
+                @info "------------------------------------------"
             end
             #===
             				Tips:
@@ -461,9 +463,10 @@ function experimentalCreateView(df::DataFrame)
     df_test = CSV.read(sqlPerformanceFile_test, DataFrame)
 
     if j_config.JC["debug"]
-        println("===SQLAnalyer.experimentalCreateView()===")
-        println("before normalize df_real", df_real)
-        println("before normalize df_test", df_test)
+        @info "---- SQLAnalyer.experimentalCreateView ----"
+        @info "before normalize df_real" df_real
+        @info "before normalize df_test", df_test
+        @info "-------------------------------------------"
     end
     #===
     		Tips:
@@ -488,12 +491,13 @@ function experimentalCreateView(df::DataFrame)
     df_test.mean = df_test.mean / std_mean
 
     if j_config.JC["debug"]
-        println("===SQLAnalyer.experimentalCreateView()===")
-        println("after normalize df_real", df_real)
-        println("std_max:", std_max, " std_min:", std_min, " std_mean:", std_mean)
-        println("df_real.max:", df_real.max, " df_real.min:", df_real.min, " df_real.mean:", df_real.mean)
-        println("after normalize df_test", df_test)
-        println("df_test.max:", df_test.max, " df_test.min:", df_test.min, " df_test.mean:", df_test.mean)
+        @info "------ SQLAnalyer.experimentalCreateView -------"
+        @info "after normalize df_real", df_real
+        @info "std_max std_min std_mean " std_max, std_min, std_mean
+        @info "df_real.max df_real.min df_real.mean " df_real.max, df_real.min, df_real.mean
+        @info "after normalize df_test", df_test
+        @info "df_test.max df_test.min df_test.mean ", df_test.max, df_test.min, df_test.mean
+        @info "------------------------------------------------"
     end
 
     sqlPerformanceFile_real_json = JFiles.getFileNameFromLogPath(string(j_config.JC["sqlperformancefile"], ".json"))
@@ -529,8 +533,11 @@ function experimentalCreateView(df::DataFrame)
             diff_speed = df_test[p, :mean] / df_real[p, :mean]
 
             if j_config.JC["debug"]
-                println("===SQLAnalyer.experimentalCreateView()===")
-                println("diff_speed:", dict_apino_arr[i], " -> ", diff_speed[1], " ", typeof(diff_speed))
+                @info "------- SQLAnalyer.experimentalCreateView --------"
+                @info "diff_speed ", dict_apino_arr[i]
+                @info " -> " diff_speed[1]
+                @info "diff_speed type " typeof(diff_speed)
+                @info "--------------------------------------------------"
             end
             #===
             				Tips:
@@ -873,9 +880,11 @@ function compareJsAndJv()
             jvspeed = executeIVMtest(conn, string(apino))
 
             if j_config.JC["debug"]
+                @info "------ SQLAnalyer.collectIvmCandidateApis --------"
                 @info "jsspeed: " jsspeed
                 @info "jvspeed: " jvspeed
                 @info "speed compare: jv_mean - js_mean " (jvspeed[3] - jsspeed[3])
+                @info "--------------------------------------------------"
             end
 
             if jsspeed[3] < jvspeed[3]

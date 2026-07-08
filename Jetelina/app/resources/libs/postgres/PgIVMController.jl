@@ -188,9 +188,11 @@ function compareJsAndJv(conn, apino)
                     jvspeed = executeJVApi(conn, ivmapino)
 
                     if j_config.JC["debug"]
+                        @info "--------- PgIVMController.compareJsAndJv --------"
                         @info "jsspeed: " jsspeed
                         @info "jvspeed: " jvspeed
                         @info "speed compare: jv_mean - js_mean " (jvspeed[3] - jsspeed[3])
+                        @info "-------------------------------------------------"
                     end
 
                     #===

@@ -78,7 +78,9 @@ function _setApiSequenceNumber()
         apisequencenumber = DataFrame(apino=nextapino)
 
         if j_config.JC["debug"]
-            @info apisequencenumber
+            @info "---- ApiSqlListManager._setApiSequenceNumber----"
+            @info "api sequence number is " apisequencenumber
+            @info "------------------------------------------------"
         end
     end
 
@@ -122,7 +124,9 @@ function readSqlList2DataFrame()
     if isfile(sqlFile)
         df = CSV.read(sqlFile, DataFrame)
         if j_config.JC["debug"]
+            @info "---- ApiSqlListManager.getApiSequenceNumber----"
             @info "ApiSqlListManager.readSqlList2DataFrame() sql list in DataFrame: ", df
+            @info "-----------------------------------------------"
         end
 
         #===
@@ -627,7 +631,9 @@ function jsjvmatching2DataFrame()
     if isfile(jsjvFile)
         df = CSV.read(jsjvFile, DataFrame)
         if j_config.JC["debug"]
+            @info "---- ApiSqlListManager.jsjvmatching2DataFrame----"
             @info "ApiSqlListManager.jsjvmatching2DataFrame() list in DataFrame: ", df
+            @info "-------------------------------------------------"
         end
 
         Df_JsJvList = df
