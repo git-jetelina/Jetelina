@@ -28,7 +28,7 @@
 version = 3.3
 
 @jdic debug:"debug"
-debug = false
+debug = true
 
 @jdic logfile:"log name","log file name","log-name"
 logfile = log.log
@@ -275,3 +275,10 @@ config_change_history_file = config_history.log
 
 @jdic configchangehistoryreadlinecount:"config change history line count", "config histroy line","config history count"
 configchangehistoryreadlinecount = 100
+
+#
+# path of test files, many csv test files are belonged in there
+#
+#    this path is unchangeable
+#
+testpath = tests
