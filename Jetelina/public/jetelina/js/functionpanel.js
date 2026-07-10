@@ -1271,6 +1271,13 @@ const functionPanelFunctions = (ut) => {
       cmdCandidates.push("clean up");
     }
 
+    /*
+     * execute development test here
+    */
+    if (cmd == "" && inScenarioChk(ut, 'dev-test-db-command')){
+      getAjaxData(scenario['function-dev-test-url'][0]);
+    }
+
     if (cmd == "" && $(UPFILE).val() != "" && inScenarioChk(ut, 'func-fileupload-cmd')) {
       cmd = 'fileupload';
       cmdCandidates.push("file upload");

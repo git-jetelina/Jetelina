@@ -11,7 +11,7 @@
 
 module Jtest
 
-using DataFrames, Genie, Genie.Renderer, Genie.Renderer.Json
+using DataFrames, Genie, Genie.Renderer, Genie.Renderer.Json, GenieSession
 using Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.JMessage, Jetelina.JLog, Jetelina.JSession
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
@@ -22,15 +22,22 @@ function __init__()
 end
 
 function doDbtest()
-    setSession()
+#   if isnothing(JSession.get())
+#        setSession()
+#    end
+
     execDbTest()
 end
 
 function execDbTest() 
     if j_config.JC["debug"]
+        include("app/resources/DBDataController.jl")
+        csvfile::String = ""
         if j_config.JC["dbtype"] == "postgresql"
             @info "read postgresql"
             csvfile == "testdata4postgres.csv"
+            include("app/resources/libs/postgres/PgDBController.jl")
+            include("app/resources/libs/postgres/PgSQLSentenceManager.jl")
         elseif j_config.JC["dbtype"] == "mysql"
             @info "read mysql"
             csvfile == "testdata4mysql.csv"
@@ -46,6 +53,7 @@ function execDbTest()
 
         testdatapath::String = "testdata"
         fname::String = joinpath(@__DIR__, j_config.JC["testpath"], testdatapath, csvfile)
+        @info "test csv file name is " fname
         DBDataController.dataInsertFromCSV(fname)
     else
         @info "need to be debug mode"
@@ -53,7 +61,10 @@ function execDbTest()
 end
 
 function setSession()
-    # after loginなら不要かなぁ
+    un = "keiji"
+    id = 1
+    @info "set session data in GenieSession " un, i
+    JSession.set(un,id);
 end
 
 end

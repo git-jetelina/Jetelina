@@ -25,7 +25,7 @@ functions
 module GetDataController
 
 using Genie, Genie.Requests, Genie.Renderer.Json, DataFrames, Dates, JSON
-using Jetelina.JFiles, Jetelina.JLog, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession
+using Jetelina.JFiles, Jetelina.JLog, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession, Jetelina.Jtest
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
@@ -415,6 +415,10 @@ function mig_getTableList()
 	else
 		return nothing
 	end
+end
+
+function doDbtest()
+	Jtest.doDbtest()
 end
 
 end

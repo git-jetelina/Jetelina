@@ -141,3 +141,8 @@ route("/getoperationhistory", GetDataController.getOperationHistory)
 route("/getmigrationtablelist",GetDataController.mig_getTableList)
 route("/executedbmigration", PostDataController.mig_execute_migration, method = POST)
 route("/canceldbmigration", PostDataController.mig_revert_migration, method = POST)
+
+#===
+      for development test
+===#
+route("/autodbtest", GetDataController.doDbtest)
