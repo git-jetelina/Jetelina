@@ -281,4 +281,4 @@ configchangehistoryreadlinecount = 100
 #
 #    this path is unchangeable
 #
-testpath = tests
+testpath = testdata

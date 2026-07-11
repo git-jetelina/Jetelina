@@ -26,7 +26,7 @@ function showModuleInCompiling(m::Module)
 - `m: Module`: target module.
 """
 function showModuleInCompiling(m::Module)
-#	@info """$m compiling...""" parentmodule(m)
+	@info """$m compiling...""" parentmodule(m)
 end
 
 # for myself :)

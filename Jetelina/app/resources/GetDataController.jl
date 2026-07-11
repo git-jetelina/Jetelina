@@ -25,12 +25,14 @@ functions
 module GetDataController
 
 using Genie, Genie.Requests, Genie.Renderer.Json, DataFrames, Dates, JSON
-using Jetelina.JFiles, Jetelina.JLog, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession, Jetelina.Jtest
+using Jetelina.JFiles, Jetelina.JLog, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
 
 export logout, getTableList, getTableCombiVsAccessRelationData, getPerformanceRealData, getPerformanceTestData, checkExistImproveApiFile, getSuggestionData, getApiList, getConfigHistory, getOperationHistory, getWorkingDBList, mig_getTableList
+
+include("tests/Jtest.jl")
 
 """
 function logout()
