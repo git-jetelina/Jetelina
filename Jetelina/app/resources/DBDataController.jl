@@ -12,7 +12,7 @@
 		init_Jetelina_table() Execute *.create_jetelina_table() depend on DB type.
 		dataInsertFromCSV(csvfname::String) CSV data inserts into DB. It executes in *.dataInsertFromCSV depend on DB type.
 		getTableList(s::String) Get the ordered table list by executing *.getTable() depend on DB type
-		dropTable(tableName::Vector) Drop the tables and delete its related data from jetelina_table_manager table
+		dropTable(tableName::Vector, stichwort::String) Drop the tables and delete its related data from jetelina_table_manager table
 		getColumns(tableName::String) Get columns of ordered table name depend on DB type.
 		doSelect(sql::String,mode::String)
 		executeApi(json_d) Execute SQL sentence order by json_d: json raw data.

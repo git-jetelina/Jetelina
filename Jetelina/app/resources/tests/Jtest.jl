@@ -11,7 +11,7 @@
 
 module Jtest
 
-using DataFrames, Genie, Genie.Renderer, Genie.Renderer.Json, GenieSession
+using DataFrames, Genie, Genie.Renderer, Genie.Renderer.Json, GenieSession, JSON3
 using Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.JMessage, Jetelina.JLog, Jetelina.JSession, Jetelina.DBDataController
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
@@ -22,10 +22,6 @@ function __init__()
 end
 
 function doDbtest()
-#   if isnothing(JSession.get())
-#        setSession()
-#    end
-
     execDbTest()
 end
 
@@ -33,36 +29,41 @@ function execDbTest()
     if j_config.JC["debug"]
         csvfile::String = ""
         if j_config.JC["dbtype"] == "postgresql"
-            @info "read postgresql"
-            csvfile = "testdata4postgres.csv"
+            csvfile = j_config.JC["test4pg"]
         elseif j_config.JC["dbtype"] == "mysql"
-            @info "read mysql"
-            csvfile = "testdata4mysql.csv"
+            csvfile = j_config.JC["test4my"]
         elseif j_config.JC["dbtype"] == "redis"
-            @info "read redis"
-            csvfile = "testdata4redis.csv"
+            csvfile = j_config.JC["test4rd"]
         elseif j_config.JC["dbtype"] == "mongodb"
-            @info "read mongodb"
-            csvfile = "testdata4mongodb.csv"
+            csvfile = j_config.JC["test4md"]
         elseif j_config.JC["dbtype"] == "oracle"
-            @info "read oracle"
         end
 
-#        testdatapath::String = "testdata"
-#        fname::String = joinpath(@__DIR__, j_config.JC["testpath"], testdatapath, csvfile)
         fname::String = joinpath(@__DIR__, j_config.JC["testpath"], csvfile)
-        @info "test csv file name is " fname
-        DBDataController.dataInsertFromCSV(fname)
+        #
+        #  create test table & jetelina apis
+        #
+        ri = DBDataController.dataInsertFromCSV(fname)
+        insert_ret = JSON3.read(String(ri.body))
+        if insert_ret.result
+            uid = JSession.get()[2]
+            ur = DBDataController.refUserInfo(uid, "stichwort", 1)
+            if !ismissing(ur[:,:stichwort][1])
+                sw = replace(ur[:,:stichwort][1], "\""=>"")
+                tableName = [string(splitext(splitdir(fname)[2])[1])]
+                #
+                #  delete the created test table & jetelina apis
+                #
+                rd = DBDataController.dropTable(tableName, sw)
+                return rd
+            end
+        else 
+            @info "oh smth error"
+            return ri
+        end
     else
         @info "need to be debug mode"
     end
-end
-
-function setSession()
-    un = "keiji"
-    id = 1
-    @info "set session data in GenieSession " un, i
-    JSession.set(un,id);
 end
 
 end

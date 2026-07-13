@@ -282,3 +282,11 @@ configchangehistoryreadlinecount = 100
 #    this path is unchangeable
 #
 testpath = testdata
+#
+# test csv files for databases
+#    these test csf files expect to exist in "tests/testdata" path
+#
+test4pg = testdata4postgres.csv
+test4my = testdata4mysql.csv
+test4rd = testdata4redis.csv
+test4md = testdata4mongodb.csv
