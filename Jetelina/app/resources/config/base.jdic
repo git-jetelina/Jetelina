@@ -282,3 +282,4 @@
 #
 @jdic dev-test-db-command:"test database"
 @jdic dev-test-db-msg:"everything fine"
+@jdic success-test-db-msg:"congra, database test has succeeded"

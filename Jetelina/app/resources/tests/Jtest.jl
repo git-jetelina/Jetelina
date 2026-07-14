@@ -18,7 +18,9 @@ import Jetelina.InitConfigManager.ConfigManager as j_config
 JMessage.showModuleInCompiling(@__MODULE__)
 
 function __init__()
-    @info "init Jtest"
+    if j_config.JC["debug"]
+        @info "init Jtest"
+    end
 end
 
 function doDbtest()

@@ -642,6 +642,10 @@ const getAjaxData = (url) => {
                     }
 
                     m = 'success-msg';
+
+                    if(url == scenario['function-dev-test-url'][0]){
+                        m = 'success-test-db-msg';
+                    }
                 }
             } else {
                 cmdCandidates = [];

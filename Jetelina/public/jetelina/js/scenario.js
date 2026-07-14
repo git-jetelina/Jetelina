@@ -168,6 +168,7 @@ scenario["config-update-alert-msg"]=["Hey hey hey, put a new param in there"];
 scenario["config-update-alert-config-update-error-msg"]=["Hey, no pointed configuration data"];
 scenario["dev-test-db-command"]=["test database"];
 scenario["dev-test-db-msg"]=["everything fine"];
+scenario["success-test-db-msg"]=["congra, database test has succeeded"];
 config["pg_password"]=["postgresql password","password in postgresql"];
 config["my_testdbname"]=["mysql test database"];
 config["pg_port"]=["postgresql port"];
