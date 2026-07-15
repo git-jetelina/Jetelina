@@ -425,19 +425,31 @@ function dropKey(keyname::Vector)
 
 	delete keys in redis
 
-    Attention:
-       redis lib does not have any delete functions yet. So this function is dummy. :p
-		
 # Arguments
 - `keyname: Vector`: name of the keys
 - return: success -> true, fail -> false
 """
 function dropKey(keyname::Vector)
     jmsg::String = string("compliment me!")
-    keys::String = join(keyname, ",") # ["a","b"] -> "a,b" oh ＼(^o^)／
+#    keys::String = join(keyname, ",") # ["a","b"] -> "a,b" oh ＼(^o^)／
 
-    ret = json(Dict("result" => true, "tablename" => "$keys", "message from Jetelina" => jmsg))
-    return true, ret
+    conn = open_connection()
+    try
+        v = Redis.del(conn, keyname)
+        #===
+            Tips:
+                v: 0< -> hit the number of keys
+                   0  -> miss the key (not existanse)
+        ===#
+
+        ret = json(Dict("result" => true, "tablename" => "$keyname", "message from Jetelina" => jmsg))
+        return true, ret
+    catch err
+        JLog.writetoLogfile("RsDBController.del() error: $err")
+        return false
+    finally
+        close_connection(conn)
+    end
 end
 
 end
