@@ -176,7 +176,7 @@ pg_allowclauses = order by,limit,offset
 
 # MySQL setting
 @jdic my_work:"mysql run","mysql availability","start mysql","mysql start"
-my_work = false
+my_work = true
 @jdic my_host:"mysql host"
 my_host = localhost
 @jdic my_port:"mysql port"
@@ -197,7 +197,7 @@ my_testdbname = testdb
 
 # Redis setting
 @jdic redis_work:"redis run","redis availability","start redis","redis start"
-redis_work = false
+redis_work = true
 @jdic redis_host:"redis host"
 redis_host = 127.0.0.1
 @jdic redis_port:"redis port"
@@ -210,7 +210,7 @@ redis_password =
 
 # MongoDB setting
 @jdic mongodb_work:"mongodb run","mongodb availability","start mongodb","mongodb start"
-mongodb_work = false
+mongodb_work = true
 @jdic monogodb_host:"monogodb host"
 mongodb_host = 127.0.0.1
 @jdic mongodb_port:"monogodb port"
