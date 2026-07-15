@@ -228,6 +228,8 @@ function dropTable(tableName::Vector, stichwort::String)
 					because MonDBController is an experimental implementation yet.
 			===#
 			ret = MonDBController.dropTable("", tableName)
+		elseif j_config.JC["dbtype"] == "redis"
+			ret = RsDBController.dropTable(tableName)
 		end
 
 		if ret[1]

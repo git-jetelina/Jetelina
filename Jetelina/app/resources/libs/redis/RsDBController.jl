@@ -18,6 +18,8 @@ functions
     matchingScan(i,k) scan, indeed searching, data to find matching from 'i' cursor position with 'k' string
     simpleScan(i,n) scan, indeed searching, data from 'i' cursor position order by 'n' counts.
     prepareDbEnvironment(mode::String) database connection checking, and initializing database if needed
+    dropTable(tablename::Vector) wrapper function for dropkey(). because to match the function name with other database in DBDataController
+    dropKey(keyname::Vector) delete keys in redis
 """
 module RsDBController
 
@@ -405,6 +407,37 @@ function prepareDbEnvironment(mode::String)
         return ret, errnum
     finally
     end
+end
+"""
+function dropTable(tablename::Vector)
+
+	wrapper function for dropkey(). because to match the function name with other database in DBDataController
+		
+# Arguments
+- `tablename: Vector`: name of the tables
+- return: success -> true, fail -> false
+"""
+function dropTable(tablename::Vector)
+    return dropKey(tablename)
+end
+"""
+function dropKey(keyname::Vector)
+
+	delete keys in redis
+
+    Attention:
+       redis lib does not have any delete functions yet. So this function is dummy. :p
+		
+# Arguments
+- `keyname: Vector`: name of the keys
+- return: success -> true, fail -> false
+"""
+function dropKey(keyname::Vector)
+    jmsg::String = string("compliment me!")
+    keys::String = join(keyname, ",") # ["a","b"] -> "a,b" oh ＼(^o^)／
+
+    ret = json(Dict("result" => true, "tablename" => "$keys", "message from Jetelina" => jmsg))
+    return true, ret
 end
 
 end
