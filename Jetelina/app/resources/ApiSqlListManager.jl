@@ -604,7 +604,7 @@ function sqlDuplicationCheck(nsql::String, subq::String, dbtype::String)
                     Tips:
                         only one 'ji*' api for mongodb
                 ===#
-                if startswith("ji", df[!, :apino][i])
+                if startswith(df[!, :apino][i], "ji")
                     return true, df[!, :apino][i]
                 end
             end

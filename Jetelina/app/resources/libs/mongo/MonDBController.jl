@@ -224,8 +224,8 @@ function _createApis(collectionname::String, j_table::String, insertapi::Bool)
 		if 0 < nrow(df)
 			dfc = subset(df, :subquery => ByRow(contains(collectionname)), skipmissing = true)
 			for i ∈ 1:nrow(dfc)
-				if startswith("ji", dfc[!, :apino][i])
-					return true, dfc[!, :apino][i]
+				if startswith(dfc[!, :apino][i], "ji")
+					return true
 				end
 			end
 		end

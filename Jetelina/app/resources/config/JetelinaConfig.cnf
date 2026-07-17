@@ -289,4 +289,4 @@ testpath = testdata
 test4pg = testdata4postgres.csv
 test4my = testdata4mysql.csv
 test4rd = testdata4redis.csv
-test4md = testdata4mongodb.csv
+test4md = testdata4mongodb.json
