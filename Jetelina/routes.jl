@@ -131,3 +131,5 @@ route("/getconfigdata", PostDataController.getConfigData, method = POST)
 route("/changeconfigdata", PostDataController.configParamUpdate, method = POST)
 route("/getconfigchangehistory", GetDataController.getConfigHistory)
 route("/getoperationhistory", GetDataController.getOperationHistory)
+
+route("/aichat", PostDataController.getAiChatCommand, method = POST)

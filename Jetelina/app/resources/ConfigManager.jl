@@ -136,6 +136,7 @@ function createScenario()
 	basefile = getFileNameFromConfigPath("base.jdic")
 	scenariofile = getJsFileNameFromPublicPath("scenario.js")
 	scenariofile_tmp = getJsFileNameFromPublicPath("scenario.js.tmp")
+	commandlistfile = getFileNameFromConfigPath("commands")
 	jdicmark::String = "@jdic"
 
 	try
@@ -150,6 +151,7 @@ function createScenario()
 		# create scenario temp file then write base.jdic into it
 		#
 		tf = open(scenariofile_tmp, "w")
+		cf = open(commandlistfile, "w")
 		#
 		# Tips:
 		#   this "let scena..." is for definiting as parameters in js file.
@@ -163,6 +165,11 @@ function createScenario()
 
 				println(tf, string("scenario[\"", ret[1], "\"]=", ret[2], ";"))
 			end
+
+			if startswith(l[i], "func-") && endswith(l[i],"-cmd")
+				ret[2] = replace.(ret[2], "\"" => "\"\"")
+				println(cf, string(ret[1], "\"", ret[2], "\""))
+			end
 		end
 
 		#
@@ -174,6 +181,7 @@ function createScenario()
 		end
 
 		close(tf)
+		close(cf)
 		mv(scenariofile_tmp, scenariofile, force = true)
 	catch err
 		@error "ConfigManager._fileupdate() error $param changes with $prev -> $var: $err"

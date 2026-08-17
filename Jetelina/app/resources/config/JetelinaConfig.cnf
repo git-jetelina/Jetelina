@@ -242,3 +242,9 @@ config_change_history_file = config_history.log
 
 @jdic configchangehistoryreadlinecount:"config change history line count", "config histroy line","config history count"
 configchangehistoryreadlinecount = 100
+
+onnxfile = model_quantized.onnx
+onnxprefix = jetelina_chat_message
+chatcommandlist = commands
+onnxthreshold = 0.70
+

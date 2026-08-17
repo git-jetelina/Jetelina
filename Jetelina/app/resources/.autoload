@@ -4,6 +4,7 @@ JSession.jl
 InitConfigManager.jl
 JLog.jl
 InitApiSqlListManager.jl
+JAiE5ChatController.jl
 DBDataController.jl
 FileUploadController.jl
 GetDataController.jl

@@ -33,7 +33,7 @@ functions
 module PostDataController
 
 using Genie, Genie.Requests, Genie.Renderer.Json, DataFrames, CSV
-using Jetelina.JFiles, Jetelina.JLog, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession
+using Jetelina.JFiles, Jetelina.JLog, Jetelina.InitApiSqlListManager.ApiSqlListManager, Jetelina.DBDataController, Jetelina.JMessage, Jetelina.JSession, Jetelina.JAiE5ChatController
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)
@@ -667,4 +667,22 @@ function getApiExecutionSpeed()
     return ret
 end
 
+function getAiChatCommand()
+    chatsentence::String = jsonpayload("chat_sentence")
+    ret = ""
+
+    if !isnothing(chatsentence)
+        cmd_id, score = JAiE5ChatController.getAiChatCommand(strip(chatsentence))
+
+        if cmd_id != "CMD_NOT_FOUND"
+            ret = json(Dict("result" => true, "action" => cmd_id, "score" => score))
+        else
+            ret = json(Dict("result" => false, "action" => cmd_id, "score" => score))
+        end
+    else
+        ret = json(Dict("result" => false, "action" => "", "score" => "", "message from Jetelina" => "no input character"))
+    end
+
+    return ret
+end
 end
