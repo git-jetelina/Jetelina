@@ -43,11 +43,10 @@ Thumbs.db
 .vscode
 .tags*
 .tags
+*.onnx
 
 # NPM packages folder.
 node_modules/
 
 # Database
 db/*.sqlite
-
-*.onnx
