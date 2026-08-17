@@ -166,6 +166,7 @@ function createScenario()
 				println(tf, string("scenario[\"", ret[1], "\"]=", ret[2], ";"))
 			end
 
+			
 			if startswith(l[i], "func-") && endswith(l[i],"-cmd")
 				ret[2] = replace.(ret[2], "\"" => "\"\"")
 				println(cf, string(ret[1], "\"", ret[2], "\""))

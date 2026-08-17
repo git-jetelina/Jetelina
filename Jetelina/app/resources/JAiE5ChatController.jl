@@ -22,6 +22,7 @@ JMessage.showModuleInCompiling(@__MODULE__)
 
 export getAiChatCommand
 
+
 const MODEL_PATH = getFileNameFromConfigPath(j_config.JC["onnxfile"])
 const PREFIX = j_config.JC["onnxprefix"]
 const CSV_PATH = getFileNameFromConfigPath(j_config.JC["chatcommandlist"])
