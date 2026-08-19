@@ -296,5 +296,5 @@ jsscenariofile = scenario.js
 #wordanalyzethreshold = 0.35
 onnxfile = model_quantized.onnx
 onnxprefix = jetelina_chat_message
-hatcommandlist = commands
+chatcommandlist = commands
 onnxthreshold = 0.70

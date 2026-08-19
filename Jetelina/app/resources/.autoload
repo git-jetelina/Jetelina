@@ -13,6 +13,8 @@ ApiAccessCounter.jl
 JTimer.jl
 
 -#'these are neglected in auto loading'
+-libs
+-tests
 -ApiAccessCounter.jl
 -SQLAnalyzer.jl
 -ConfigManager.jl

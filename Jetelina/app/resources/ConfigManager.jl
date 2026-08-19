@@ -164,12 +164,11 @@ function createScenario()
 				ret = _getDic(l[i])
 
 				println(tf, string("scenario[\"", ret[1], "\"]=", ret[2], ";"))
-			end
-
 			
-			if startswith(ret[1], "func-") && endswith(ret[1],"-cmd")
-				ret[2] = replace.(ret[2], "\"" => "\"\"")
-				println(cf, string(ret[1], "\"", ret[2], "\""))
+				if startswith(ret[1], "func-") && endswith(ret[1],"-cmd")
+					ret[2] = replace.(ret[2], "\"" => "\"\"")
+					println(cf, string(ret[1], ",\"", ret[2], "\""))
+				end
 			end
 		end
 
@@ -185,7 +184,7 @@ function createScenario()
 		close(cf)
 		mv(scenariofile_tmp, scenariofile, force = true)
 	catch err
-		@error "ConfigManager._fileupdate() error $param changes with $prev -> $var: $err"
+		@error "ConfigManager.createScenario() error: $err"
 	end
 end
 """
