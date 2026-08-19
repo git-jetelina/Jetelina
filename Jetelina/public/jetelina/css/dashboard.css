@@ -69,6 +69,10 @@ body {
   animation: blinkItem 1s infinite alternate;
 }
 
+.ivmItem {
+  background-color: rgb(178, 141, 209);
+}
+
 @keyframes blinkItem{
   0% { background-color: #7dc37f}
   100% { background-color: rgb(228, 218, 130)}

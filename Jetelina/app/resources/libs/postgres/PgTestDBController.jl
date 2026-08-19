@@ -16,7 +16,7 @@ functions
 module PgTestDBController
 
 using CSV, LibPQ, DataFrames, IterTools, Tables
-using Jetelina.JFiles, Jetelina.JLog, Jetelina.JMessage
+using Jetelina.JFiles, Jetelina.JLog, Jetelina.JMessage, Jetelina.InitApiSqlListManager.ApiSqlListManager
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
 JMessage.showModuleInCompiling(@__MODULE__)

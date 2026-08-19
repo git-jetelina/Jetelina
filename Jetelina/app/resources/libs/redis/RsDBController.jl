@@ -18,6 +18,8 @@ functions
     matchingScan(i,k) scan, indeed searching, data to find matching from 'i' cursor position with 'k' string
     simpleScan(i,n) scan, indeed searching, data from 'i' cursor position order by 'n' counts.
     prepareDbEnvironment(mode::String) database connection checking, and initializing database if needed
+    dropTable(tablename::Vector) wrapper function for dropkey(). because to match the function name with other database in DBDataController
+    dropKey(keyname::Vector) delete keys in redis
 """
 module RsDBController
 
@@ -404,6 +406,49 @@ function prepareDbEnvironment(mode::String)
         JLog.writetoLogfile("[errnum:$errnum] RsDBController.prepareDbEnvironment() error : $err")
         return ret, errnum
     finally
+    end
+end
+"""
+function dropTable(tablename::Vector)
+
+	wrapper function for dropkey(). because to match the function name with other database in DBDataController
+		
+# Arguments
+- `tablename: Vector`: name of the tables
+- return: success -> true, fail -> false
+"""
+function dropTable(tablename::Vector)
+    return dropKey(tablename)
+end
+"""
+function dropKey(keyname::Vector)
+
+	delete keys in redis
+
+# Arguments
+- `keyname: Vector`: name of the keys
+- return: success -> true, fail -> false
+"""
+function dropKey(keyname::Vector)
+    jmsg::String = string("compliment me!")
+#    keys::String = join(keyname, ",") # ["a","b"] -> "a,b" oh ＼(^o^)／
+
+    conn = open_connection()
+    try
+        v = Redis.del(conn, keyname)
+        #===
+            Tips:
+                v: 0< -> hit the number of keys
+                   0  -> miss the key (not existanse)
+        ===#
+
+        ret = json(Dict("result" => true, "tablename" => "$keyname", "message from Jetelina" => jmsg))
+        return true, ret
+    catch err
+        JLog.writetoLogfile("RsDBController.del() error: $err")
+        return false
+    finally
+        close_connection(conn)
     end
 end
 

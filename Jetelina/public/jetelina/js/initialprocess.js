@@ -1,1 +1,212 @@
-function _0x592e(){const _0xd6579b=['{\x22uid\x22:0}','\x20input[name=\x27my_port\x27]','/initialdb','Great,\x20everything\x20fine.\x20Hit\x20the\x20\x27GO..\x27\x20button\x20to\x20login\x20screen,\x20let\x27s\x20enjoy.','application/json','\x20[name=\x27params4postgres\x27]','\x20[name=\x27message\x27]','\x20input[name=\x27my_password\x27]','\x22,\x22my_port\x22:\x22','location','click','post','text','done','1914805JfMwAl','trim','/initialuser','880744JvRyQV','\x22,\x22pg_dbname\x22:\x22','fail','\x20[name=\x27gologinbutton\x27]','\x20[name=\x27gologinbutton\x27],\x20','\x20input[name=\x27my_dbname\x27]','json','append','\x22,\x22pg_password\x22:\x22','stringify','\x22,\x22my_dbname\x22:\x22','checked','\x20[name=\x27userregbutton\x27]','href','\x22,\x22pg_port\x22:\x22','1761000SlTAhk','\x20input[name=\x27pg_dbname\x27]','{\x22jetelinadb\x22:\x22','ATTENTION:\x20Hey,\x20i\x20have\x20already\x20been\x20initialized\x20with\x20','/getconfigdata','\x22,\x22dbtype\x22:\x22','\x20input[name=\x27primarydb\x27]','\x20input[name=\x27pg_port\x27]','prop','\x22,\x22my_user\x22:\x22','{\x22param\x22:\x22jetelinadb\x22}','Hey\x20no\x20users,\x20are\x20you\x20kidding\x20me?\x20(・・?','\x20input[name=\x27my_host\x27]','\x22,\x22my_work\x22:\x22true\x22,\x22my_host\x22:\x22','3157968HJmVxr','\x20input[name=\x27pg_password\x27]','3538104nLQJjW','hide','postgresql','4193644msCmlp','2824950azQNti','length','\x20[name=\x27initialalert\x27]','show','mysql','\x22,\x22my_unix_socket\x22:\x22','push','val','\x20[name=\x27paramsetbutton\x27]','\x20[name=\x27cancelbutton\x27]','{\x22users\x22:','\x20input[name=\x27pg_host\x27]','Done,\x20congra\x20＼(^o^)／,\x20next\x20user\x20registration,\x20here\x20we\x20go','\x20input[name=\x27my_user\x27]','#initialize'];_0x592e=function(){return _0xd6579b;};return _0x592e();}const _0x250adc=_0x4d8b;(function(_0x1ce4ca,_0x493c96){const _0x1fc697=_0x4d8b,_0x507393=_0x1ce4ca();while(!![]){try{const _0x4a7f22=-parseInt(_0x1fc697(0x211))/0x1+-parseInt(_0x1fc697(0x220))/0x2+parseInt(_0x1fc697(0x1ed))/0x3+parseInt(_0x1fc697(0x1eb))/0x4+-parseInt(_0x1fc697(0x20e))/0x5+parseInt(_0x1fc697(0x1f1))/0x6+parseInt(_0x1fc697(0x1f0))/0x7;if(_0x4a7f22===_0x493c96)break;else _0x507393['push'](_0x507393['shift']());}catch(_0x49346b){_0x507393['push'](_0x507393['shift']());}}}(_0x592e,0xda66c));const initialparams={},INITIALIZEPANEL=_0x250adc(0x1ff),POSTGREINITIALIZE=INITIALIZEPANEL+_0x250adc(0x205),MYSQLINITIALIZE=INITIALIZEPANEL+'\x20[name=\x27params4mysql\x27]',FIRSTUSERS=INITIALIZEPANEL+'\x20[name=\x27firstusers\x27]',initialUrl=[_0x250adc(0x202),_0x250adc(0x210),'/deleteuser',_0x250adc(0x1e1)],jetelinaInitialize=()=>{const _0xa81bba=_0x250adc;let _0x450d95=_0xa81bba(0x1e7);initialAjax(initialUrl[0x3],_0x450d95);};function _0x4d8b(_0x2d7f4d,_0x3bd505){const _0x592e8d=_0x592e();return _0x4d8b=function(_0x4d8be4,_0x4c1263){_0x4d8be4=_0x4d8be4-0x1de;let _0xb448bc=_0x592e8d[_0x4d8be4];return _0xb448bc;},_0x4d8b(_0x2d7f4d,_0x3bd505);}$(INITIALIZEPANEL+_0x250adc(0x1e3))['on'](_0x250adc(0x20a),function(){const _0x279bd5=_0x250adc;initialparams['db']=$(this)[_0x279bd5(0x1f8)](),$(INITIALIZEPANEL+'\x20[name=\x27paramsetbutton\x27]')[_0x279bd5(0x1f4)](),initialparams['db']==_0x279bd5(0x1ef)?($(POSTGREINITIALIZE)['show'](),$(MYSQLINITIALIZE)[_0x279bd5(0x1ee)]()):($(POSTGREINITIALIZE)[_0x279bd5(0x1ee)](),$(MYSQLINITIALIZE)['show']());}),$(INITIALIZEPANEL+_0x250adc(0x1f9))['on'](_0x250adc(0x20a),function(){const _0x512b7b=_0x250adc;let _0x4f2227={};if(initialparams['db']==_0x512b7b(0x1ef)){let _0x52a85f=$(POSTGREINITIALIZE+_0x512b7b(0x1fc))[_0x512b7b(0x1f8)](),_0x100da5=$(POSTGREINITIALIZE+_0x512b7b(0x1e4))[_0x512b7b(0x1f8)](),_0x3b66da=$(POSTGREINITIALIZE+'\x20input[name=\x27pg_user\x27]')['val'](),_0xc54bdc=$(POSTGREINITIALIZE+_0x512b7b(0x1ec))[_0x512b7b(0x1f8)](),_0x1c0cee=$(POSTGREINITIALIZE+_0x512b7b(0x1de))[_0x512b7b(0x1f8)]();_0x4f2227=_0x512b7b(0x1df)+initialparams['db']+_0x512b7b(0x1e2)+initialparams['db']+'\x22,\x22pg_work\x22:\x22true\x22,\x22pg_host\x22:\x22'+_0x52a85f+_0x512b7b(0x21f)+_0x100da5+'\x22,\x22pg_user\x22:\x22'+_0x3b66da+_0x512b7b(0x219)+_0xc54bdc+_0x512b7b(0x212)+_0x1c0cee+'\x22}';}else{let _0x4418c=$(MYSQLINITIALIZE+_0x512b7b(0x1e9))['val'](),_0x354e04=$(MYSQLINITIALIZE+_0x512b7b(0x201))[_0x512b7b(0x1f8)](),_0x17991f=$(MYSQLINITIALIZE+_0x512b7b(0x1fe))[_0x512b7b(0x1f8)](),_0x226cca=$(MYSQLINITIALIZE+_0x512b7b(0x207))[_0x512b7b(0x1f8)](),_0x4a3c19=$(MYSQLINITIALIZE+_0x512b7b(0x216))[_0x512b7b(0x1f8)](),_0x1b1213=$(MYSQLINITIALIZE+'\x20input[name=\x27my_unix_socket\x27]')['val']();_0x4f2227=_0x512b7b(0x1df)+initialparams['db']+_0x512b7b(0x1e2)+initialparams['db']+_0x512b7b(0x1ea)+_0x4418c+_0x512b7b(0x208)+_0x354e04+_0x512b7b(0x1e6)+_0x17991f+'\x22,\x22my_password\x22:\x22'+_0x226cca+_0x512b7b(0x21b)+_0x4a3c19+_0x512b7b(0x1f6)+_0x1b1213+'\x22}';}initialAjax(initialUrl[0x0],_0x4f2227);}),$(INITIALIZEPANEL+'\x20[name=\x27userregbutton\x27]')['on'](_0x250adc(0x20a),function(){const _0xa00750=_0x250adc;let _0x541f2a=[],_0x1ad323='';for(let _0x4b717e=0x1;_0x4b717e<0xa;_0x4b717e++){_0x1ad323=$[_0xa00750(0x20f)]($(FIRSTUSERS+'\x20input[name=\x27pu'+_0x4b717e+'\x27]')[_0xa00750(0x1f8)]()),_0x1ad323!=''&&_0x541f2a[_0xa00750(0x1f7)](_0x1ad323);}if(0x0<_0x541f2a[_0xa00750(0x1f2)]){let _0x5d278d=JSON[_0xa00750(0x21a)](_0x541f2a),_0x18e45c=_0xa00750(0x1fb)+_0x5d278d+'}';initialAjax(initialUrl[0x1],_0x18e45c);}else initializeMsg(_0xa00750(0x1e8));}),$(INITIALIZEPANEL+_0x250adc(0x215)+INITIALIZEPANEL+_0x250adc(0x1fa))['on'](_0x250adc(0x20a),function(){const _0x5bd0a1=_0x250adc;cleanupMyself(),window[_0x5bd0a1(0x209)]['href']=location[_0x5bd0a1(0x21e)];});const cleanupMyself=()=>{const _0x44a19c=_0x250adc;let _0x227cd2=_0x44a19c(0x200);initialAjax(initialUrl[0x2],_0x227cd2);},initializeMsg=_0x2fcc33=>{const _0x484042=_0x250adc;$(INITIALIZEPANEL+_0x484042(0x206))['text'](_0x2fcc33);},initializeAlertMsg=_0xe94fd4=>{const _0x3b1c87=_0x250adc;$(INITIALIZEPANEL+_0x3b1c87(0x1f3))[_0x3b1c87(0x20c)](_0xe94fd4);},initialAjax=(_0x187bbd,_0x3ee197)=>{const _0xb6b02=_0x250adc;$['ajax']({'url':_0x187bbd,'type':_0xb6b02(0x20b),'contentType':_0xb6b02(0x204),'data':_0x3ee197,'async':![],'dataType':_0xb6b02(0x217)})[_0xb6b02(0x20d)](function(_0x84bc5d,_0xcff68b,_0x408a79){const _0x1bf962=_0xb6b02;if(_0x84bc5d['result']){if(_0x187bbd==initialUrl[0x0])initializeMsg(_0x1bf962(0x1fd)),$(INITIALIZEPANEL+_0x1bf962(0x1f9))[_0x1bf962(0x1ee)](),$(INITIALIZEPANEL+_0x1bf962(0x21d))[_0x1bf962(0x1f4)](),$(INITIALIZEPANEL+_0x1bf962(0x1fa))[_0x1bf962(0x1f4)](),$(POSTGREINITIALIZE)[_0x1bf962(0x1ee)](),$(MYSQLINITIALIZE)[_0x1bf962(0x1ee)](),$(FIRSTUSERS)[_0x1bf962(0x1f4)]();else{if(_0x187bbd==initialUrl[0x1])initializeMsg(_0x1bf962(0x203)),$(INITIALIZEPANEL+'\x20[name=\x27userregbutton\x27]')[_0x1bf962(0x1ee)](),$(INITIALIZEPANEL+_0x1bf962(0x214))[_0x1bf962(0x1f4)]();else{if(_0x187bbd==initialUrl[0x2])$(INITIALIZEPANEL+_0x1bf962(0x21d))[_0x1bf962(0x1ee)](),$(INITIALIZEPANEL+'\x20[name=\x27gologinbutton\x27]')[_0x1bf962(0x1ee)](),$(INITIALIZEPANEL+'\x20[name=\x27cancelbutton\x27]')['hide'](),$(POSTGREINITIALIZE)['hide'](),$(MYSQLINITIALIZE)[_0x1bf962(0x1ee)](),$(FIRSTUSERS)[_0x1bf962(0x1ee)](),$(INITIALIZEPANEL+'\x20input[name=\x27primarydb\x27]')[_0x1bf962(0x1e5)](_0x1bf962(0x21c),![]),$(INITIALIZEPANEL)[_0x1bf962(0x1ee)](),$(JETELINAPANEL)['show']();else _0x187bbd==initialUrl[0x3]&&$['each'](_0x84bc5d,function(_0x515c08,_0x43ae7e){const _0x56cb06=_0x1bf962;if(_0x515c08!='result'){if($['inArray'](_0x43ae7e,[_0x56cb06(0x1ef),_0x56cb06(0x1f5)])!=-0x1){$(JETELINAPANEL)[_0x56cb06(0x1f4)]();let _0x5bc456=_0x56cb06(0x1e0)+_0x43ae7e;return $(SOMETHINGMSGPANELMSG)[_0x56cb06(0x218)](_0x5bc456),showSomethingMsgPanel(!![]),stage=0x0,![];}else $(''+INITIALIZEPANEL)['show']();}});}}}else initializeMsg('Fail\x20to\x20connect,\x20review\x20the\x20parameters\x20once\x20more.');})[_0xb6b02(0x213)](function(_0x5c3dd2){console['error']('initialAjax()\x20fail');})['always'](function(){});};
+/**
+ * JS library for Jetelina initialization
+ * @author Ono Keiji
+ * 
+ * This js lib is for initializing Jetelina database at the very first season.
+ * I mean the first user who is trying to start Jetelina must decide the initial database
+ * that contains jetelina user table. This determined database is the primary database in Jetelina.
+ * 
+ * Functions:
+ *      jetelinaInitialize() initialize the primary database that is selected by the first user(it's me)
+ *      cleanupMyself() delete 'myself' user account from jetelina_user_table
+ *      initializeMsg(s) set message order by initialize process
+ *      initializeAlertMsg(s) set alert message order by initialize process
+ *      initialAjax(url,data) general ajax function for initialization
+ */
+const initialparams = {};
+const INITIALIZEPANEL = "#initialize";
+const POSTGREINITIALIZE = `${INITIALIZEPANEL} [name='params4postgres']`;
+const MYSQLINITIALIZE = `${INITIALIZEPANEL} [name='params4mysql']`;
+const FIRSTUSERS = `${INITIALIZEPANEL} [name='firstusers']`;
+/*
+    Attention:
+        indeed, "/getconfigdata" is as same as scenario["function-post-url"][2]
+*/
+const initialUrl = ["/initialdb", "/initialuser", "/deleteuser", "/getconfigdata"];
+/**
+ * @function jetelinaInitialize
+ * 
+ * initialize the primary database that is selected by the first user(it's me)
+ * 
+ */
+const jetelinaInitialize = () => {
+    /*
+        1.display database selection panel
+        2.display database connection parameters that is selected database
+        3.post these parameter to update
+        4.connection check and create jetelina_user_table
+        5.generation '0' user register
+        6.switch to the normal login screen 
+    */
+    //    $(`${INITIALIZEPANEL}`).show();
+    let data = `{"param":"jetelinadb"}`;
+    initialAjax(initialUrl[3], data);
+}
+
+$(`${INITIALIZEPANEL} input[name='primarydb']`).on("click", function () {
+    initialparams.db = $(this).val();
+    $(`${INITIALIZEPANEL} [name='paramsetbutton']`).show();
+
+    if (initialparams.db == "postgresql") {
+        $(POSTGREINITIALIZE).show();
+        $(MYSQLINITIALIZE).hide();
+    } else {
+        $(POSTGREINITIALIZE).hide();
+        $(MYSQLINITIALIZE).show();
+    }
+});
+
+$(`${INITIALIZEPANEL} [name='paramsetbutton']`).on('click', function () {
+    let data = {};
+
+    if (initialparams.db == "postgresql") {
+        let host = $(`${POSTGREINITIALIZE} input[name='pg_host']`).val();
+        let port = $(`${POSTGREINITIALIZE} input[name='pg_port']`).val();
+        let user = $(`${POSTGREINITIALIZE} input[name='pg_user']`).val();
+        let pw = $(`${POSTGREINITIALIZE} input[name='pg_password']`).val();
+        let dbname = $(`${POSTGREINITIALIZE} input[name='pg_dbname']`).val();
+
+        data = `{"jetelinadb":"${initialparams.db}","dbtype":"${initialparams.db}","pg_work":"true","pg_host":"${host}","pg_port":"${port}","pg_user":"${user}","pg_password":"${pw}","pg_dbname":"${dbname}"}`;
+    } else {
+        let host = $(`${MYSQLINITIALIZE} input[name='my_host']`).val();
+        let port = $(`${MYSQLINITIALIZE} input[name='my_port']`).val();
+        let user = $(`${MYSQLINITIALIZE} input[name='my_user']`).val();
+        let pw = $(`${MYSQLINITIALIZE} input[name='my_password']`).val();
+        let dbname = $(`${MYSQLINITIALIZE} input[name='my_dbname']`).val();
+        let unix_socket = $(`${MYSQLINITIALIZE} input[name='my_unix_socket']`).val();
+
+        data = `{"jetelinadb":"${initialparams.db}","dbtype":"${initialparams.db}","my_work":"true","my_host":"${host}","my_port":"${port}","my_user":"${user}","my_password":"${pw}","my_dbname":"${dbname}","my_unix_socket":"${unix_socket}"}`;
+    }
+
+    initialAjax(initialUrl[0], data);
+});
+
+$(`${INITIALIZEPANEL} [name='userregbutton']`).on('click', function () {
+    let users = [];
+    let user = "";
+
+    for (let i = 1; i < 10; i++) {
+        user = $.trim($(`${FIRSTUSERS} input[name='pu${i}']`).val());
+        if (user != "") {
+            users.push(user);
+        }
+    }
+
+    if (0 < users.length) {
+        let um = JSON.stringify(users);
+        let data = `{"users":${um}}`;
+        initialAjax(initialUrl[1], data);
+    } else {
+        initializeMsg("Hey no users, are you kidding me? (・・?");
+    }
+});
+
+$(`${INITIALIZEPANEL} [name='gologinbutton'], ${INITIALIZEPANEL} [name='cancelbutton']`).on('click', function () {
+    cleanupMyself();
+    window.location.href = location.href;
+});
+/**
+ * @function cleanupMyself
+ * 
+ * delete 'myself' user account from jetelina_user_table
+ */
+
+const cleanupMyself = () => {
+    let data = `{"uid":0}`;
+    initialAjax(initialUrl[2], data);
+}
+/**
+ * @function initializeMsg
+ * @param {string} s 
+ * 
+ * set message order by initialize process
+ */
+const initializeMsg = (s) => {
+    $(`${INITIALIZEPANEL} [name='message']`).text(s);
+}
+/**
+ * @function initializeAlertMsg
+ * @param {string} s 
+ * 
+ * set alert message order by initialize process
+ */
+const initializeAlertMsg = (s) => {
+    $(`${INITIALIZEPANEL} [name='initialalert']`).text(s);
+}
+
+/**
+ * @function initialAjax
+ * @param {string} url 
+ * @param {object} data 
+ * 
+ * general ajax function for initialization
+ */
+const initialAjax = (url, data) => {
+    $.ajax({
+        url: url,
+        type: "post",
+        contentType: 'application/json',
+        data: data,
+        async: false,
+        dataType: "json",
+    }).done(function (result, textStatus, jqXHR) {
+        if (result.result) {
+            if (url == initialUrl[0]) {
+                // initialize database
+                initializeMsg("Done, congra ＼(^o^)／, next user registration, here we go");
+                $(`${INITIALIZEPANEL} [name='paramsetbutton']`).hide();
+                $(`${INITIALIZEPANEL} [name='userregbutton']`).show();
+                $(`${INITIALIZEPANEL} [name='cancelbutton']`).show();
+                $(POSTGREINITIALIZE).hide();
+                $(MYSQLINITIALIZE).hide();
+                $(FIRSTUSERS).show();
+            } else if (url == initialUrl[1]) {
+                // register users
+                initializeMsg("Great, everything fine. Hit the 'GO..' button to login screen, let's enjoy.");
+                $(`${INITIALIZEPANEL} [name='userregbutton']`).hide();
+                $(`${INITIALIZEPANEL} [name='gologinbutton']`).show();
+                $(`${INITIALIZEPANEL} [name='cancelbutton']`).hide();
+            } else if (url == initialUrl[2]) {
+                $(`${INITIALIZEPANEL} [name='userregbutton']`).hide();
+                $(`${INITIALIZEPANEL} [name='gologinbutton']`).hide();
+                $(`${INITIALIZEPANEL} [name='cancelbutton']`).hide();
+                $(POSTGREINITIALIZE).hide();
+                $(MYSQLINITIALIZE).hide();
+                $(FIRSTUSERS).hide();
+                $(`${INITIALIZEPANEL} input[name='primarydb']`).prop("checked", false);
+
+                $(INITIALIZEPANEL).hide();
+                $(JETELINAPANEL).show();
+            } else if (url == initialUrl[3]) {
+                $.each(result, function (name, value) {
+                    if (name != "result") {
+                        if ($.inArray(value, ["postgresql", "mysql"]) != -1) {
+                            /*
+                                Tips:
+                                    in the case of trying to initialize me, even I've already been done it,
+                                    showing the attention.
+                                    JETELINAPANEL is hidden before executin' this loop, therefore it's to be showing,
+                                    and also 'stage' must be '1', turn it to '0', means initial for restarting the first greeting.
+
+                                    I mean the initialization is forbidden in V3. Should work it with admin account insted of. 
+                            */
+                            $(JETELINAPANEL).show();
+                            let p = `ATTENTION: Hey, i have already been initialized with ${value}`;
+                            $(SOMETHINGMSGPANELMSG).append(p);
+                            showSomethingMsgPanel(true);
+                            stage = 0;
+                            return false;
+                        } else {
+                            $(`${INITIALIZEPANEL}`).show();
+                        }
+                    }
+                });
+            }
+        } else {
+            initializeMsg("Fail to connect, review the parameters once more.");
+        }
+    }).fail(function (result) {
+        console.error("initialAjax() fail");
+    }).always(function () {
+    });
+}
