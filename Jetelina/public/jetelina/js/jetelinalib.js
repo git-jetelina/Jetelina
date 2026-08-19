@@ -1367,9 +1367,11 @@ const chatKeyDown = (cmd) => {
         ut = original_chatbox_input_text.toLowerCase();
         ut = ut.replaceAll(',', ' ').replaceAll(':', ' ').replaceAll(';', ' ');
 
-        // chat ai test
-        let data = `{"message":"${ut}","state":""}`;
-        postAjaxData(scenario["function-chat-ai-url"][0], data);
+        if(stage == "lets_do_something"){
+            // chat ai test
+            let data = `{"chat_sentence":"${ut}","stage":"${stage}"}`;
+            postAjax2AI(scenario["function-chat-ai-url"][0], data);
+        }
     } else {
         ut = cmd.toLowerCase();
     }
