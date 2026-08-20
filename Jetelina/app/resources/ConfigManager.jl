@@ -15,7 +15,7 @@ contain functions
 """
 
 module ConfigManager
-using Dates
+using Dates, CSV
 using Jetelina.JFiles, Jetelina.JMessage, Jetelina.JSession
 
 JMessage.showModuleInCompiling(@__MODULE__)
@@ -166,8 +166,17 @@ function createScenario()
 				println(tf, string("scenario[\"", ret[1], "\"]=", ret[2], ";"))
 			
 				if startswith(ret[1], "func-") && endswith(ret[1],"-cmd")
-					ret[2] = replace.(ret[2], "\"" => "\"\"")
-					println(cf, string(ret[1], ",\"", ret[2], "\""))
+					@info "ret2 " ret[2]
+					cmdraw= replace(ret[2], "[" => "", "]" => "")
+#					cmdraw= replace(ret[2], "\"" => "\"\"")
+					@info "cmdraw " cmdraw typeof(cmdraw)
+					arr = String.(collect(first(CSV.File(IOBuffer(cmdraw), delim=',', header=false, quotechar='"', types=String))))
+					@info "arr " arr
+					for ii ∈ 1:length(arr)
+#						cmdstr = string("jetelia_chat_message:",arr[ii])
+						println(cf, string(ret[1], ",\"", string("jetelia_chat_message:",arr[ii]), "\""))
+#						println(cf, string(ret[1], ",\"", ret[2], "\""))
+					end
 				end
 			end
 		end

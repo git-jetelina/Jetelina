@@ -1593,10 +1593,10 @@ const chatKeyDown = (cmd) => {
                     jetelinaPanelPositionController(false);
 
                     // test for migration
-                    if (inScenarioChk(ut, 'func-db-mig-hide-tables')) {
+                    if (inScenarioChk(ut, 'func-db-mig-hide-tables-cmd')) {
                         showMigTableList(false);
                         m = "migration hide";
-                    } else if (inScenarioChk(ut, 'func-db-mig-show-tables')) {
+                    } else if (inScenarioChk(ut, 'func-db-mig-show-tables-cmd')) {
                         m = getMigAjax();
                         if(m == null || m.length <1){
                             m = "migration show";
