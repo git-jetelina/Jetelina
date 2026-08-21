@@ -29,12 +29,12 @@
 # command list order 
 #@jdic guidance-cmd:"what can i","can you","start","manual","guide me","guidance","teach me","tell me"
 @jdic guidance-cmd:"guide me"
-@jdic guidance-control-prev-cmd:"prev"
-@jdic guidance-control-next-cmd:"next"
-@jdic guidance-control-first-cmd:"first","head"
-@jdic guidance-control-last-cmd:"last","end","tail"
-@jdic guidance-control-page-cmd:"page"
-@jdic guidance-goto-jetelinaorg-cmd:"jetelina.org","jetelina site","web site of jetelina","your web site"
+@jdic guidance-control-prev-cmd:"guide to previous page"
+@jdic guidance-control-next-cmd:"guide to next page"
+@jdic guidance-control-first-cmd:"guide to first page","guide to head page"
+@jdic guidance-control-last-cmd:"guide to last page","guide to end page","guide to tail page"
+@jdic guidance-control-page-cmd:"go to page","show page"
+@jdic guidance-goto-jetelinaorg-cmd:"go to jetelina home page","jetelina web site"
 @jdic jetelina-web-site-url:"https://jetelina.org"
 @jdic waiting-next-msg:"then?","next please","Huh (p_-)","(・・? (・・? (・・? (・・? (・・? (・・? (・・?","＿|￣|○ il||li"
 
@@ -62,10 +62,9 @@
 
 # etc 
 @jdic starting-3-msg:"What?","Are you kidding me?","Never mind"
-@jdic general-thanks-cmd:"thank you","nice job","well done"
-#jdic general-thanks-cmd:"thank you","thanks","thx","nice","nice job","well done","great","awesome","genious","incredible","super"
+@jdic general-thanks-cmd:"thank you","nice job","well done","good job"
 @jdic general-thanks-msg:"you're welcome","my pleasure, {Q}"
-@jdic what-did-i-say-cmd:"did i say","did i type"
+@jdic what-did-i-say-cmd:"what did i say","what did i type"
 @jdic no-authority-js-msg:"you do not have the authority, yet"
 @jdic no-authority-jl-msg:"you cannot cheat me, you do not have the authority"
 
@@ -103,49 +102,49 @@
 @jdic success-msg:"Done","Success","I am so happy","Yes","Yeeeeeah","Here we go","Com'on"
 @jdic fail-msg:"Uge","Noooooooo","Sorry something wrong"
 @jdic cancel-msg:"It has been canceld","Has been withdrawn","Canceled","Withdrew","Called off"
-@jdic confirmation-sentences-cmd:"yes","sure","why not","do it","do","i want to do it","i wanna do it","kick ass"
+@jdic confirmation-sentences-cmd:"of course yes","of course sure","why not","i want to do it"
 @jdic func-post-err-msg:"Hey, no columns","You should select post data","Boo"
-@jdic config-show-cmd:"show me parameter","show parameter","show configuration","show me configuration","server parameter","server parameter","change parameter","parameter change","configuration change","change configuration","update configuration","configuration update","update parameter","parameter update","config change","change config","update config","config update"
+@jdic config-show-cmd:"show me parameter","show me configuration","show server parameter","change configuration parameter","change server configuration","update server configuration","update server parameter"
 @jdic config-update-msg:"type '{Q}' for updating ..or 'cancel'"
-@jdic get-config-change-history-cmd:"configuration history", "change history","update history"
-@jdic get-operation-history-cmd:"operation history","operation log","who did","who has done"
+@jdic get-config-change-history-cmd:"show configuration history", "show parameter change history","show parameter update history"
+@jdic get-operation-history-cmd:"show operation history","show operation log","who did the operation"
 
 #open table list
-@jdic func-show-table-list-cmd:"open table list","show me table","show table","table list","tables","tablelist","tableslist"
+@jdic func-show-table-list-cmd:"open database table list","show me database table","show table list"
 
 #open api list
-@jdic func-show-api-list-cmd:"open api","show me api","api list","apis list","apis","apilist"
-@jdic func-get-jv-api-list-cmd:"show ivm api","display ivm api","ivm api","show api of ivm","api of ivm","show apis of ivm","apis of ivm"
+@jdic func-show-api-list-cmd:"open api list","show me api list"
+@jdic func-get-jv-api-list-cmd:"show ivm api list","show ivm's api in api list"
 
 ###@jdic 6cond:"Let me your command, if you need"
 @jdic stats-graph-show-msg:"here you are","tatta laan"
 
 # Checking the suggestions
-@jdic stats-check-suggestion-cmd:"report","suggestion","alert"
+@jdic stats-check-suggestion-cmd:"report me","do you have any suggestion","do you have any alert"
 @jdic stats-check-safe-msg:"no report","everything fine","feel so good"
-@jdic stats-hide-jetelina-concern-img-cmd:"do not worry","don't worry","do not need to worry","don't need to worry","no problem","never mind"
+#@jdic stats-hide-jetelina-concern-img-cmd:"do not worry","don't worry","do not need to worry","don't need to worry","no problem","never mind"
 
 # Api Access numbers list controll
-@jdic stats-apiaccessnumberslist-prev-cmd:"prev","previous"
-@jdic stats-apiaccessnumberslist-next-cmd:"next"
-@jdic stats-apiaccessnumberslist-first-cmd:"first","head"
-@jdic stats-apiaccessnumberslist-last-cmd:"last","end","tail"
-@jdic stats-apiaccessnumberslist-search-cmd:"search"
-@jdic stats-apiaccessnumberslist-search-clear-cmd:"search clear"
-@jdic stats-apiaccessnumberslist-again-cmd:"all"
+@jdic stats-apiaccessnumberslist-prev-cmd:"api access stats page control go to previous"
+@jdic stats-apiaccessnumberslist-next-cmd:"api access stats page control go to next"
+@jdic stats-apiaccessnumberslist-first-cmd:"api access stats page control go to first","api access stats page control go to head"
+@jdic stats-apiaccessnumberslist-last-cmd:"api access stats page control go to last","api access stats page control go to end","api access stats page control go to tail"
+@jdic stats-apiaccessnumberslist-search-cmd:"search api access stats by api number"
+@jdic stats-apiaccessnumberslist-search-clear-cmd:"search clear in api access stats page"
+@jdic stats-apiaccessnumberslist-again-cmd:"show api access stats all page"
 
 # Access Numbers list/chart 
-@jdic stats-api-access-numbers-list-show-cmd:"show api access","show me api access","display api access","open api access"
-@jdic stats-api-access-numbers-list-hide-cmd:"for api access","hide api access","close api access"
-@jdic stats-api-exec-speed-show-cmd:"show api speed","show me api speed","show api speed of","display api speed","display api speed of","open api speed","open api speed of"
-@jdic stats-api-exec-speed-hide-cmd:"for api speed","hide api speed","close api speed"
-@jdic stats-db-access-numbers-chart-show-cmd:"show db access","show me db access","display db access","show me database access","show database access","display database access","open database access"
-@jdic stats-db-access-numbers-chart-hide-cmd:"for db access","hide db access","close db access","hide database access","close database access"
-@jdic stats-all-graph-show-cmd:"show all stats","show me all stats","show me all graph","show all graph","show all stats","display all stats","display all graph","show me every stat","show every stat","display every graph"
-@jdic stats-all-graph-hide-cmd:"hide all stats","hide every graph","clear all graphs","all graphs clear","every stat clear","clear every stat"
+@jdic stats-api-access-numbers-list-show-cmd:"show api access stats","open api access stats"
+@jdic stats-api-access-numbers-list-hide-cmd:"hide api access stats","close api access stats"
+@jdic stats-api-exec-speed-show-cmd:"show api speed stats","open api speed stats"
+@jdic stats-api-exec-speed-hide-cmd:"hide api speed stats","close api speed stats"
+@jdic stats-db-access-numbers-chart-show-cmd:"show db access stats","open database access stats"
+@jdic stats-db-access-numbers-chart-hide-cmd:"hide db access stats","close db access stats"
+@jdic stats-all-graph-show-cmd:"show all stats data","open all stats graph"
+@jdic stats-all-graph-hide-cmd:"hide all stats","close all stats graph"
 
 # SQL Execution Time graph
-@jdic stats-sql-performance-graph-show-cmd:"your suggestion","suggest","improved performance"
+@jdic stats-sql-performance-graph-show-cmd:"any suggestion","idea in improving performance"
 
 @jdic stats-performance-improve-msg:"There is an improving suggestion.","Attention please. I have a message."
 @jdic stats-no-suggestion-msg:"I do not have any suggestions so far.","No suggestions","I do not give it to you.","Hey, Nothing at all"
@@ -156,20 +155,20 @@
 #
 # basic commands in function panel
 #
-@jdic common-post-cmd:"post","send","push"
-@jdic common-cancel-cmd:"cancel","withdraw","abandon","postpone","give up","quit"
+@jdic common-post-cmd:"post ajax data","send ajax data"
+@jdic common-cancel-cmd:"cancel all"
 @jdic common-confirm-msg:"Sure?","Really?","Do it now?"
 @jdic common-alert-msg:"Boo","no hit","could not make it"
 @jdic common-ajax-error-msg:"Oh my, something server error happened:"
 @jdic common-comand-duplicated-msg:"which do you point to {Q}","Oh oh,{Q},which one?","you makes me confuse, which one {Q}?"
 
-@jdic func-table-api-open-close-cmd:"open","close","select","find","show"
-@jdic func-item-select-cmd:"select","choose","pick"
-@jdic func-item-select-all-cmd:"select all", "select everything", "select all columns","choose all","choose everything","choose all columns","pic all","pic everything","pic all columns"
-@jdic func-selecteditem-cancel-cmd:"cancel","remove","reject","withdraw"
-@jdic func-selecteditem-all-cancel-cmd:"cancel all","all cancel","remove all","all remove","reject all","all reject","withdraw all","all withdraw"
-@jdic func-cleanup-cmd:"refresh","cleanup","clean","reset"
-@jdic func-tabledrop-cmd:"drop","drop table","table drop","tabledrop","droptable","delete document","document delete"
+@jdic func-table-api-open-close-cmd:"open table and api list panel"
+@jdic func-item-select-cmd:"select item among showing columns"
+@jdic func-item-select-all-cmd:"select all columns"
+@jdic func-selecteditem-cancel-cmd:"cancel selected columns"
+@jdic func-selecteditem-all-cancel-cmd:"cancel all selected columns"
+@jdic func-cleanup-cmd:"refresh display","cleanup display"
+@jdic func-tabledrop-cmd:"drop database table","delete document from database"
 @jdic func-tabledrop-msg:"Which table do you want to drop?","correct order is 'droptable <table name>' and so on"
 @jdic func-tabledrop-ng-msg:"Hey open the table list first!","Huum?","Check it first","Watch it"
 
@@ -177,7 +176,7 @@
 @jdic func-register-stichwort-msg:"register your pass phrase first"
 @jdic func-require-stichwort-msg:"put your pass phrase"
 
-@jdic func-apicreate-cmd:"create api","post api","post columns","create sql"
+@jdic func-apicreate-cmd:"create new api","post api to create new api"
 @jdic func-apirecreate-cmd:"recreate api","rebuild api","renewal api"
 @jdic func-newapino-msg:"new apino {Q}"
 @jdic func-renewapino-msg:"renewal apino {Q}"
@@ -185,16 +184,15 @@
 @jdic func-apirecreate-selecttable-msg:"Hey, select the target tables"
 #
 #  reject "delete" from this dic, but should be considered it later, because just "delete" was convenient.
-#@jdic func-apidelete-cmd:"delete","delete api","api delete","apidelete","deleteapi","remove api","reject api","api remove","api reject"
-@jdic func-apidelete-cmd:"delete api","api delete","apidelete","deleteapi","remove api","reject api","api remove","api reject"
+@jdic func-apidelete-cmd:"delete api from list"
 
 @jdic func-apidelete-msg:"Which api do you want to delete?","correct order is 'delete <api name>' and so on"
 @jdic func-apidelete-ng-msg:"Hey open the api list first!","Huum?","Check it first","Watch it"
 @jdic func-apidelete-forbidden-msg:"some api cannot be deleted, sorry"
 
-@jdic func-fileupload-open-cmd:"file open","open file","open filebox","file box","csv file","upload file","file upload"
+@jdic func-fileupload-open-cmd:"open file directory","select file for uploading"
 @jdic func-fileupload-open-msg:"Which file?"
-@jdic func-fileupload-cmd:"upload","fileup","fileupload","up","csv up"
+@jdic func-fileupload-cmd:"upload file"
 @jdic func-fileupload-msg:"File?"
 @jdic func-fileupload-upload-msg:"you've selected '{Q}'. then hit 'upload' ..or 'cancel'."
 @jdic func-csv-format-error-msg:"CSV format is not good, see the error message","Unacceptable CSV format, see the error message,"
@@ -204,9 +202,9 @@
 @jdic func-postcolumn-available-msg:"Now you can hit 'post' ..or 'cancel'","Do post them by 'post' ..or 'cancel'","Type 'post' now ..or 'cancel'"
 #
 # in 'func-subpanel-open-cmd', because 'open' is already taken in 'func-table-api-open-close-cmd'. need to think something alternative words, maybe.
-@jdic func-subpanel-open-cmd:"show query","show me query","show me subquery","show subquery","show me sub","show sub","sub query","subquery"
-@jdic func-subpanel-focus-cmd:"go subquery","go sub","get focust on sub","move to sub","move sub"
-@jdic func-subpanel-close-cmd:"close query","hide query","close subquery","hide subquery","close sub","hide sub"
+@jdic func-subpanel-open-cmd:"show query panel"
+@jdic func-subpanel-focus-cmd:"go subquery panel"
+@jdic func-subpanel-close-cmd:"close query panel"
 @jdic func-subpanel-opened-msg:"Set your sub query in 'Sub Query' field","Ready to 'Sub Query' field"
 @jdic func-api-test-set-params-msg:"set {Q}"
 @jdic func-api-test-msg:"Why do not you try it, type 'sql test' to execute this SQL","Let's check it with typing 'sql check'"
@@ -214,35 +212,35 @@
 @jdic func-api-test-ready-msg:"all params set, type '{Q}' ..or 'cancel'","we are in ready, type '{Q}' ..or 'cancel'","here we go with typing '{Q}' ..or 'cancel'"
 @jdic func-api-test-ready-no-param-msg:"no params, type '{Q}' ..or 'cancel'","here we go with typing '{Q}' ..or 'cancel'"
 
-@jdic func-api-test-cmd:"do sql test","do api test","test sql","test api","api test","sql check","do api check","check sql","check api","execute sql test","execute api test","execute test","do test"
+@jdic func-api-test-cmd:"execute sql test","execute api test"
 @jdic func-api-test-done-msg:"api test done, attention 'OUT'."
-@jdic func-api-test-panel-show-cmd:"show api test","show me api test","open api test","show me sql test","show sql test","open sql test","display api test","display sql test","open test result","show me test result","show test result"
-@jdic func-api-test-panel-hide-cmd:"hide api test","close api test","hide sql test","close sql test","undisplay api test","undisplay sql test","close test result","hide test result"
+@jdic func-api-test-panel-show-cmd:"show api test result"
+@jdic func-api-test-panel-hide-cmd:"close api test result"
 @jdic func-api-subquery-chk-error:"subquery error. I don't know what you wanna do. look carefully."
 
 # database switching
-@jdic what-db-use-now-cmd:"database now", "current database","current db","current data base"
-@jdic func-db-switch-cmd:"change database","change data base","change db","switch database","switch data base","switch db"
+@jdic what-db-use-now-cmd:"current database"
+@jdic func-db-switch-cmd:"change database","switch database"
 @jdic func-select-db-msg:"which database?","what database?","postgresql, mysql or redis, no way mongodb?"
 @jdic func-determine-db-msg:"do you wanna '{Q}' ?","switch to '{Q}' ?"
-@jdic func-use-postgresql-cmd:"postgresql","postgres","postgre"
+@jdic func-use-postgresql-cmd:"postgresql"
 @jdic func-use-mysql-cmd:"mysql"
 @jdic func-use-redis-cmd:"redis"
 @jdic func-use-mongodb-cmd:"mongodb"
 
 # migration in database table
-@jdic func-db-mig-exec-cmd:"do migration","do mig","execute migration","exec mig","exe mig","exec migration","exec table migration","exe table mig","execute table migration"
-@jdic func-db-mig-revert-cmd:"revert migration","revert mig","revert migration table","revert table","do revert","execute revert","exec revert"
-@jdic func-db-mig-show-tables-cmd:"show migration list","show migration table","show mig table","show mig list","open migration list","open migration table","open mig table","open mig list"
-@jdic func-db-mig-hide-tables-cmd:"hide migration list","hide migration table","hide mig table","hide mig list","close migration list","close migration table","close mig table","close mig list"
+@jdic func-db-mig-exec-cmd:"execute database table migration","execute table migration"
+@jdic func-db-mig-revert-cmd:"revert database table migration","revert table migration"
+@jdic func-db-mig-show-tables-cmd:"show migration list","open migration list","open migration table"
+@jdic func-db-mig-hide-tables-cmd:"hide migration list","close migration list","close migration table"
 @jdic func-db-mig-error-msg1:"Hey, open the migration panel first"
 @jdic func-db-mig-error-msg2:"Hey, select a migration table"
 
 #
 #  account management
 #
-@jdic user-manage-add-cmd:"invite new user","add new user","add new account","user add","add user"
-@jdic user-manage-show-profile-cmd:"profile","who am i"
+@jdic user-manage-add-cmd:"invite new user","add new user"
+@jdic user-manage-show-profile-cmd:"show user's profile","who am i"
 @jdic user-manage-profile-msg:"you are {Q}, are't you?"
 @jdic user-manage-username-msg:"type the new user's name in full. e.g. Jhon Sandman"
 @jdic user-manage-swing-missing-msg:"I do not know what do you wanna do"
@@ -250,7 +248,7 @@
 #
 # log out 
 #
-@jdic logout-cmd:"logout","exit","log out","out","return","bye","bye bye","see you","have a nice day","good bye","bye for now"
+@jdic logout-cmd:"logout","exit","bye","see you","have a nice day","good bye","bye for now"
 @jdic afterlogout-msg:"Bye", "Have a good day","Hope you will back soon","I am looking forward you"
 
 #
@@ -261,9 +259,9 @@
 #
 # show or hide error message 
 #
-@jdic hide-something-msg-cmd:"hide error","close error","delete error","hide message","close message","delete message"
-@jdic show-something-msg-cmd:"show message","show me message","open message","display message"
-@jdic searching-errnum-cmd:"show error","show me error","open error", "display error","what has happend","what's happen","what happened","detail"
+@jdic hide-something-msg-cmd:"hide error message panel","close error message panel"
+@jdic show-something-msg-cmd:"show message panel","open message panel"
+@jdic searching-errnum-cmd:"what has happend","show error detail"
 @jdic func-api-error-searching-msg:"gott you?"
 @jdic func-api-error-cannot-searching-msg:"showed message is everything"
 
