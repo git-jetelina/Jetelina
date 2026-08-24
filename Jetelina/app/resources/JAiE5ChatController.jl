@@ -166,19 +166,13 @@ function predict_command(user_input::AbstractString)
     # セキュリティ：プロンプト注入対策として入力の先頭に独自Prefixを強制結合
 #    secured_input = PREFIX * user_input
     secured_input = string(PREFIX,":",user_input)
-#    @info "1 " engine.model
-#    @info "2 " engine.tokenizer
-    @info "3 " secured_input
     # ユーザー入力をベクトル化
     user_vec = get_embedding(engine.model, engine.tokenizer, secured_input)
     
     # 爆速コサイン類似度判定（BLAS行列演算による総当たり）
     similarities = engine.master_embeddings' * user_vec
-    @info "4 " similarities
     # 最も高い類似度スコアとそのインデックスを抽出
     max_score, max_idx = findmax(similarities)
-    @info "5 " max_score
-    @info "6 " max_idx
     # 安全弁（しきい値判定）
     if max_score < threshold
         return "CMD_NOT_FOUND", max_score
@@ -199,9 +193,9 @@ function getAiChatCommand(chat_sentence)
 #    cmd_id, score = predict_command(engine, chat_sentence)
     cmd_id, score = predict_command(chat_sentence)
 
-#    if j_config.JC["debug"]
+    if j_config.JC["debug"]
         @info string("JAiE5ChatController.getAiChatCommand(): ", chat_sentence, " -> ", cmd_id, " & ", score)
-#    end
+    end
 
     return cmd_id, score
 end

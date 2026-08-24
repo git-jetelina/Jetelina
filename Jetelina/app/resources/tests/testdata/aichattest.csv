@@ -1,0 +1,64 @@
+#
+# CSV file
+#
+func-fileupload-open-cmd,"open file directory"
+func-fileupload-open-cmd,"select file for uploading"
+func-fileupload-cmd,"upload file"
+#
+# Data Base
+#
+func-show-table-list-cmd,"open database table list"
+func-show-table-list-cmd,"show me database table"
+func-show-table-list-cmd,"show table list"
+func-table-api-open-close-cmd,"open table and api list panel"
+func-item-select-cmd,"select item among showing columns"
+func-item-select-all-cmd,"select all columns"
+func-selecteditem-cancel-cmd,"cancel selected columns"
+func-selecteditem-all-cancel-cmd,"cancel all selected columns"
+func-tabledrop-cmd,"drop database table"
+func-tabledrop-cmd,"delete document from database"
+func-db-switch-cmd,"change database"
+func-db-switch-cmd,"switch database"
+func-use-postgresql-cmd,"postgresql"
+func-use-mysql-cmd,"mysql"
+func-use-redis-cmd,"redis"
+func-use-mongodb-cmd,"mongodb"
+func-db-mig-exec-cmd,"execute database table migration"
+func-db-mig-exec-cmd,"execute table migration"
+func-db-mig-revert-cmd,"revert database table migration"
+func-db-mig-revert-cmd,"revert table migration"
+func-db-mig-show-tables-cmd,"show migration list"
+func-db-mig-show-tables-cmd,"open migration list"
+func-db-mig-show-tables-cmd,"open migration table"
+func-db-mig-hide-tables-cmd,"hide migration list"
+func-db-mig-hide-tables-cmd,"close migration list"
+func-db-mig-hide-tables-cmd,"close migration table"
+func-subpanel-open-cmd,"show query panel"
+func-subpanel-focus-cmd,"go subquery panel"
+func-subpanel-close-cmd,"close query panel"
+#
+#  Jetelina-API
+#
+func-show-api-list-cmd,"open api list"
+func-show-api-list-cmd,"show me api list"
+func-get-jv-api-list-cmd,"show ivm api list"
+func-get-jv-api-list-cmd,"show ivm's api in api list"
+func-apicreate-cmd,"create new api"
+func-apicreate-cmd,"post api to create new api"
+func-apirecreate-cmd,"recreate api"
+func-apirecreate-cmd,"rebuild api"
+func-apirecreate-cmd,"renewal api"
+func-apidelete-cmd,"delete api from list"
+func-api-test-execute-cmd,"bang"
+func-api-test-execute-cmd,"boom"
+func-api-test-execute-cmd,"honk"
+func-api-test-execute-cmd,"thud"
+func-api-test-cmd,"execute sql test"
+func-api-test-cmd,"execute api test"
+func-api-test-panel-show-cmd,"show api test result"
+func-api-test-panel-hide-cmd,"close api test result"
+#
+# Clean up screen
+#
+func-cleanup-cmd,"refresh display"
+func-cleanup-cmd,"cleanup display"
