@@ -27,11 +27,6 @@ const MODEL_PATH = getFileNameFromConfigPath(j_config.JC["onnxfile"])
 const PREFIX = j_config.JC["onnxprefix"]
 const CSV_PATH = getFileNameFromConfigPath(j_config.JC["chatcommandlist"])
 
-#const MODEL_PATH = "model_quantized.onnx"
-#const CSV_PATH = "master_commands.csv"
-#const PREFIX = "jetelia_chat_message: "
-
-# 最終形態の構造体
 struct CommandEngine
     model::ONNXRunTime.InferenceSession
     tokenizer::HuggingFaceTokenizers.Tokenizer
@@ -42,8 +37,7 @@ end
 """
 function get_embedding(model::ONNXRunTime.InferenceSession, tokenizer::HuggingFaceTokenizers.Tokenizer, text::String)
 
-    map each word in a chat sentence to the closest vecor word in dictionary
-# テキストを384次元のE5ベクトルに変換する関数（外部依存ゼロ・堅牢版）
+    convert text into 384-dimensional E5 vectors.
 
 # Arguments
 - `model::ONNXRunTime.InferenceSession`: 
@@ -52,97 +46,83 @@ function get_embedding(model::ONNXRunTime.InferenceSession, tokenizer::HuggingFa
 - return: {Any}: vector dimention(?)
 """
 function get_embedding(model::ONNXRunTime.InferenceSession, tokenizer::HuggingFaceTokenizers.Tokenizer, text::String)
-    # 1. 純Julia環境でのトークナイズ（数字ID化）
+    # tokenizing the text
     result = HuggingFaceTokenizers.encode(tokenizer, text)
     ids = Int64.(result.ids)
     len = length(ids)
     
-    # 2. ONNXが要求する3つのテンソルを生成
+    # create 3 tensol that are demanded on ONNX
     input_ids = reshape(ids, 1, len)
     attention_mask = reshape(ones(Int64, len), 1, len)
     token_type_ids = reshape(zeros(Int64, len), 1, len)
     
-    # 3. ONNX推論の実行
+    # execute ONNX inference
     outputs = model((
         input_ids = input_ids, 
         attention_mask = attention_mask,
         token_type_ids = token_type_ids
     ))
     
-    # 4. 出力テンソルの正確なパース [トークン数, 384次元]
+    # 4. parse the outing tensol
     raw_output = first(outputs)
     token_embeddings = reshape(raw_output, len, 384) 
     
-    # 🌟 5. 自作・平均プーリング（Mean Pooling）
-    # 外部ライブラリを一切使わず、縦方向に合計（sum）してトークン数（len）で割ります。
-    # 名前空間の衝突が絶対に起きない、最軽量かつ堅牢な実装です。
+    # Mean Pooling
     sum_vec = vec(sum(token_embeddings, dims=1))
     pooled_vec = Float32.(sum_vec ./ len)
     
-    # 6. L2正規化（コサイン類似度を超高速な内積計算にするための必須処理）
+    # Essential processing to convert cosine similarity into ultra-fast inner product calculation.
     return pooled_vec / norm(pooled_vec)
 end
 """
 function init_engine()
 
-    ready for embedding AI dictionary
-# エンジンの初期化処理
+    inititialize E5 engine
 
 # Arguments
 - return {ANY}: dictionary data for AI chatting
 """
 function init_engine()
-    @info "=== 純Julia・爆速判定エンジンの初期化開始 ==="
+    @info "=== init ONNX engine ==="
     
     if !isfile(MODEL_PATH)
-        error("ONNXモデル ($MODEL_PATH) が見つかりません。パスを確認してください。")
+        println("Not Found ONNX model in $MODEL_PATH")
     end
     if !isfile(CSV_PATH)
-        error("マスターCSV ($CSV_PATH) が見つかりません。")
+        println("Not Found $CSV_PATH")
     end
     
-    # 1. ONNXモデルのロード
-    @info "量子化済みONNXモデルをロード中: $MODEL_PATH"
+    println("Loading ONNX model")
     model = ONNXRunTime.load_inference(MODEL_PATH)
     
-    # 2. トークナイザーのロード
-    @info "HuggingFaceからトークナイザー設定を読込中..."
+    println("Reading tokenizer")
     tokenizer = HuggingFaceTokenizers.from_pretrained(Tokenizer, "intfloat/multilingual-e5-small")
     
-    # 3. マスターCSVの読み込み
-    @info "マスターCSVをロード中: $CSV_PATH"
-#    df = CSV.read(CSV_PATH, DataFrame)
-# 1. 一度そのままCSVをDataFrameとして読み込む（ヘッダーなし、列名自動付与の場合）
-# ※もしヘッダーなしなら「header=false」にし、列名を指定すると扱いやすいです
-df = CSV.read(CSV_PATH, DataFrame, header=false, stringtype=String)
-rename!(df, [:command_id, :raw_phrases])
+    println("Loading Jetelina commands")
+    df = CSV.read(CSV_PATH, DataFrame, header=false, stringtype=String)
+    rename!(df, [:command_id, :raw_phrases])
 
-# 2. "raw_phrases" 列の文字列（"['a', 'b']"）をパースして「本物の配列」に変換
-df.parsed_phrases = map(df.raw_phrases) do val
-    clean_str = replace(val, r"[\[\]']" => "")
-    return strip.(split(clean_str, ",")) # ここで1つのセルにVector{String}が入る
-end
+    df.parsed_phrases = map(df.raw_phrases) do val
+        clean_str = replace(val, r"[\[\]']" => "")
+        return strip.(split(clean_str, ",")) # ここで1つのセルにVector{String}が入る
+    end
 
-# 3. flatten機能で、配列の中身を展開して「1行1フレーズ」の縦長DataFrameに一撃変換！
-df_expanded = flatten(df, :parsed_phrases)
+    df_expanded = flatten(df, :parsed_phrases)
     command_ids = Vector{String}(df.command_id)
     num_commands = length(command_ids)
-prefix_phrases = "jetelina_chat_message: " .* df_expanded.parsed_phrases
-
-    # 4. 起動時常駐化処理
+    prefix_phrases = string(j_config.JC["onnxprefix"], ":") .* df_expanded.parsed_phrases
     master_embeddings = Matrix{Float32}(undef, 384, num_commands)
-    @info "CSV内すべてのフレーズ（$(num_commands)件）をベクトル化してメモリに焼き付けています..."
     
     for i in 1:num_commands
         phrase = prefix_phrases[i]
         master_embeddings[:, i] = get_embedding(model, tokenizer, phrase)
     end
     
-    @info "🎉 エンジンの初期化が完了しました。メモリ常駐・BLAS演算準備完了。"
+    @info "done the initialization"
     return CommandEngine(model, tokenizer, command_ids, master_embeddings)
 end
 
-# 判定エンジンの初期化
+# initialize the E5 ONNX engine
 engine = init_engine()
 
 """
