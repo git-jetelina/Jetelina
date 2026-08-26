@@ -13,7 +13,7 @@
 
 module JAitest
 
-using DataFrames, JSON3, CSV
+using DataFrames, JSON3, CSV, Crayons
 using Jetelina.JAiE5ChatController
 import Jetelina.InitConfigManager.ConfigManager as j_config
 
@@ -26,6 +26,10 @@ function doTest()
 
 """
 function doTest(fname::String)
+    red_text = Crayon(foreground = :red)
+    blue_text = Crayon(foreground = :blue)
+    reset_text = Crayon(reset = true)
+
     testfile::String = joinpath(@__DIR__, j_config.JC["testpath"], fname)
 	try
 		#
@@ -43,9 +47,9 @@ function doTest(fname::String)
                 ret = JAiE5ChatController.getAiChatCommand(arr[2])
 
                 if ret[1] == strip(arr[1])
-                    println("success: ", string(arr[2]," -> ", ret[1]))
+                    println(blue_text, "success: ", reset_text, string(arr[2]," -> ", ret[1]))
                 else
-                    println("fail: ", string(arr[2]," -> ", ret[1]))
+                    println(red_text, "fail: ", string(arr[2]," -> ", ret[1]))
                 end
             end
 		end

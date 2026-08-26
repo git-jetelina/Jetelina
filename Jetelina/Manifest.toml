@@ -2,7 +2,7 @@
 
 julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "ae803d2908fe84359b6b8757503b83ec0ea0ae55"
+project_hash = "7945d446acbff7561c513d2539dbc8ca2ffd7e02"
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "2d9c9a55f9c93e8887ad391fbae72f8ef55e1177"
@@ -633,7 +633,7 @@ weakdeps = ["ArrowTypes"]
     JSON3ArrowExt = ["ArrowTypes"]
 
 [[deps.Jetelina]]
-deps = ["CSV", "CSVFiles", "Clustering", "DataFrames", "Dates", "DelimitedFiles", "Genie", "GenieSession", "GenieSessionFileSession", "Inflector", "IterTools", "JSON", "JSON3", "LibPQ", "Logging", "LoggingExtras", "MbedTLS", "Mongoc", "MySQL", "ONNXRunTime", "Plots", "RDatasets", "Redis", "Revise", "SQLite", "SearchLight", "SearchLightSQLite", "StatsBase", "Tables"]
+deps = ["CSV", "CSVFiles", "Clustering", "DataFrames", "Dates", "DelimitedFiles", "Genie", "GenieSession", "GenieSessionFileSession", "HuggingFaceTokenizers", "Inflector", "IterTools", "JSON", "JSON3", "LibPQ", "LinearAlgebra", "Logging", "LoggingExtras", "MbedTLS", "Mongoc", "MySQL", "ONNXRunTime", "Plots", "RDatasets", "Redis", "Revise", "SQLite", "SearchLight", "SearchLightSQLite", "StatsBase", "Tables"]
 path = "."
 uuid = "00b54ba8-8f95-4a02-aa59-537074d87a5a"
 version = "0.1.0"

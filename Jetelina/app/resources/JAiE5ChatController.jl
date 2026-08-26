@@ -8,8 +8,10 @@ Description:
     using Microsoft Multilingual E5 Text Enbeddings
 
 functions
-    aiChatCommand() hear the user's command then apply it to the command list
-    aiLearnCommand() learning in user's new word. adding a new word into HABITS_FILE
+    get_embedding(model::ONNXRunTime.InferenceSession, tokenizer::HuggingFaceTokenizers.Tokenizer, text::String) convert text into 384-dimensional E5 vectors.
+    init_engine() inititialize E5 engine
+    predict_command(engine::CommandEngine, user_input::AbstractString) predict user input string as command with E5 engine
+    getAiChatCommand(chat_sentence::String) find the command against the user input sentence
 """
 module JAiE5ChatController
 
@@ -63,7 +65,7 @@ function get_embedding(model::ONNXRunTime.InferenceSession, tokenizer::HuggingFa
         token_type_ids = token_type_ids
     ))
     
-    # 4. parse the outing tensol
+    # parse the outing tensol
     raw_output = first(outputs)
     token_embeddings = reshape(raw_output, len, 384) 
     
@@ -86,25 +88,25 @@ function init_engine()
     @info "=== init ONNX engine ==="
     
     if !isfile(MODEL_PATH)
-        println("Not Found ONNX model in $MODEL_PATH")
+        @info "Not Found ONNX model in " MODEL_PATH
     end
     if !isfile(CSV_PATH)
-        println("Not Found $CSV_PATH")
+        @info "Not Found " CSV_PATH
     end
     
-    println("Loading ONNX model")
+    @info "=== Loading ONNX model ==="
     model = ONNXRunTime.load_inference(MODEL_PATH)
     
-    println("Reading tokenizer")
+    @info "=== Reading tokenizer ==="
     tokenizer = HuggingFaceTokenizers.from_pretrained(Tokenizer, "intfloat/multilingual-e5-small")
     
-    println("Loading Jetelina commands")
+    @info "=== Loading Jetelina commands ==="
     df = CSV.read(CSV_PATH, DataFrame, header=false, stringtype=String)
     rename!(df, [:command_id, :raw_phrases])
 
     df.parsed_phrases = map(df.raw_phrases) do val
         clean_str = replace(val, r"[\[\]']" => "")
-        return strip.(split(clean_str, ",")) # ここで1つのセルにVector{String}が入る
+        return strip.(split(clean_str, ","))
     end
 
     df_expanded = flatten(df, :parsed_phrases)
@@ -118,7 +120,7 @@ function init_engine()
         master_embeddings[:, i] = get_embedding(model, tokenizer, phrase)
     end
     
-    @info "done the initialization"
+    @info "=== Finish the initialization ==="
     return CommandEngine(model, tokenizer, command_ids, master_embeddings)
 end
 
@@ -128,32 +130,25 @@ engine = init_engine()
 """
 function predict_command(engine::CommandEngine, user_input::AbstractString)
 
-    map each word in a chat sentence to the closest vecor word in dictionary
-# テキストを384次元のE5ベクトルに変換する関数（外部依存ゼロ・堅牢版）
-
+    predict user input string as command with E5 engine
+    
 # Arguments
 - `engine::CommandEngine`: 
 - `user_input::AbstractString`: chat input word
 function predict_command(engine::CommandEngine, user_input::AbstractString)
 - return: {Any}: vector dimention(?)
 """
-
-# コマンド判定関数（超軽量推論レイヤー）
-#function predict_command(engine::CommandEngine, user_input::AbstractString)
 function predict_command(user_input::AbstractString)
     threshold = parse(Float64, j_config.JC["onnxthreshold"])
 
-    # セキュリティ：プロンプト注入対策として入力の先頭に独自Prefixを強制結合
-#    secured_input = PREFIX * user_input
     secured_input = string(PREFIX,":",user_input)
-    # ユーザー入力をベクトル化
+    # victornize of user input
     user_vec = get_embedding(engine.model, engine.tokenizer, secured_input)
-    
-    # 爆速コサイン類似度判定（BLAS行列演算による総当たり）
+    # compare user vector with engine
     similarities = engine.master_embeddings' * user_vec
-    # 最も高い類似度スコアとそのインデックスを抽出
+    # find the most similarity index
     max_score, max_idx = findmax(similarities)
-    # 安全弁（しきい値判定）
+
     if max_score < threshold
         return "CMD_NOT_FOUND", max_score
     end
@@ -163,14 +158,13 @@ end
 """
 function getAiChatCommand(chat_sentence::String)
 
-    hear the user's command then apply it to the command list
+    find the command against the user input sentence
 
 # Arguments
 - `chat_sentence::String`: chat input word
 - return : tuple (command, score)
 """
 function getAiChatCommand(chat_sentence)
-#    cmd_id, score = predict_command(engine, chat_sentence)
     cmd_id, score = predict_command(chat_sentence)
 
     if j_config.JC["debug"]
