@@ -96,6 +96,7 @@ let messageScrollTimerID; // '#someting_msg' auto scroll timer interval
 let apitestScrollTimerID; // '#apitest' auto scroll timer interval
 let original_chatbox_input_text = ""; // original text in Jetelina chatbox.
 let isSuggestion = false; // existing the suggestion, true -> is, false -> is not
+let retAi = {};
 /**
  * 
  * @function getScenarioFile
@@ -1345,7 +1346,7 @@ const typing = (i, m) => {
  * 
  * behavior of hitting enter key in the chat box by user
  */
-const chatKeyDown = (cmd) => {
+const chatKeyDown = async (cmd) => {
     let ut = ""; // ut is the input character by user
     let m = ""; // chatbox message string by Jetelina
 
@@ -1370,7 +1371,9 @@ const chatKeyDown = (cmd) => {
         if(stage == "lets_do_something"){
             // chat ai test
             let data = `{"chat_sentence":"${ut}","stage":"${stage}"}`;
-            postAjax2AI(scenario["function-chat-ai-url"][0], data);
+            await postAjax2AI(scenario["function-chat-ai-url"][0], data);
+            retAi.originalUt = ut;
+            ut = retAi.action;
         }
     } else {
         ut = cmd.toLowerCase();
@@ -1403,6 +1406,8 @@ const chatKeyDown = (cmd) => {
     }
 
     let logoutflg = false;
+
+    console.log("present ut: ", ut);
 
     if (ut != null && 0 < ut.length) {
         ut = $.trim(ut);
@@ -1489,7 +1494,8 @@ const chatKeyDown = (cmd) => {
                 $(".yourText").mouseover();
             } else {
                 $(".yourText").mouseout();
-                $(CHATBOXYOURTELL).text(ut);
+//                $(CHATBOXYOURTELL).text(ut);
+                $(CHATBOXYOURTELL).text(retAi.originalUt);
             }
 
             if (isVisibleApiAccessNumbersList() || isVisibleChartPanel() || isVisibleApiSpeedPanel()) {
@@ -1942,7 +1948,8 @@ const logout = () => {
     presentaction = {};
     loginuser = {};
     cancelableCmdList = [];
-
+    retAi = {};
+    
     deleteSelectedItems();
     cleanUp("items");
     cleanUp("tables");
@@ -2031,6 +2038,9 @@ const inScenarioChk = (s, sc, type) => {
     let order;
     if (type == null) {
         order = scenario[`${sc}`];
+        if(s == sc){
+            return true;
+        }
     } else if (type == "config") {
         order = config[`${sc}`];
     }
@@ -2730,11 +2740,12 @@ const findItemnameFromlist = (tag, name) => {
  * 
  * send chat words to AI
  */
-const postAjax2AI = (url, data) => {
+//const postAjax2AI = (url, data) => {
+const postAjax2AI = async (url, data) => {
     if (0 < url.length || url != undefined) {
         if (!url.startsWith("/")) url = "/" + url;
 
-        $.ajax({
+        await $.ajax({
             url: url,
             type: "post",
             contentType: 'application/json',
@@ -2748,14 +2759,10 @@ const postAjax2AI = (url, data) => {
             }
         }).done(function (result, textStatus, jqXHR) {
             let m = "";
-            const posturls = scenario['function-post-url'];
             if (checkResult(result)) {
-                let specialmsg = "";
-                if (specialmsg == "") {
-                    m = chooseMsg("success-msg", "", "")
-                } else {
-                    m = specialmsg;
-                }
+                console.log("action: ", result.action);
+                retAi.action = result.action;
+                m = chooseMsg("success-msg", "", "")
             } else {
                 cmdCandidates = [];
                 m = chooseMsg("fail-msg", "", "");
