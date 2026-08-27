@@ -1282,7 +1282,8 @@ const functionPanelFunctions = (ut) => {
       cmd = 'fileupload';
       cmdCandidates.push("file upload");
     }
-
+console.log("cmd: ", cmd);
+console.log("ut: ", ut);
     if (cmd == "" && inScenarioChk(ut, 'func-show-table-list-cmd')) {
       cmd = TABLEAPILISTOPEN;
       cmdCandidates.push("show table list");

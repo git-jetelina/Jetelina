@@ -162,7 +162,7 @@
 @jdic common-ajax-error-msg:"Oh my, something server error happened:"
 @jdic common-comand-duplicated-msg:"which do you point to {Q}","Oh oh,{Q},which one?","you makes me confuse, which one {Q}?"
 
-@jdic func-table-api-open-close-cmd:"open table and api list panel"
+@jdic func-table-api-open-close-cmd:"open table","show table","select table","open api","show api","select api"
 @jdic func-item-select-cmd:"select item among showing columns"
 @jdic func-item-select-all-cmd:"select all columns"
 @jdic func-selecteditem-cancel-cmd:"cancel selected columns"

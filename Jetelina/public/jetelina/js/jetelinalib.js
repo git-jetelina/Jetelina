@@ -53,6 +53,8 @@
       determindDateStart2End(dates) pick the min date and max date within query date array
       changeChatGirlImage(imgtype) switching chat box image.
       findItemnameFromlist(tag,name) finding 'name' in the list of ordering 'tag' panel.
+      postAjax2AI(url,data) send chat words to AI. CAUTION: this is async function.
+      gripTableOrApiName(st) pick up table name or api name, if there is in 'st'
 */
 const JETELINACHATTELL = `${JETELINAPANEL} [name='jetelina_tell']`;
 const SOMETHINGMSGPANEL = "#something_msg";
@@ -1369,7 +1371,7 @@ const chatKeyDown = async (cmd) => {
         ut = ut.replaceAll(',', ' ').replaceAll(':', ' ').replaceAll(';', ' ');
 
         if(stage == "lets_do_something"){
-            // chat ai test
+            gripTableOrApiName(ut);
             let data = `{"chat_sentence":"${ut}","stage":"${stage}"}`;
             await postAjax2AI(scenario["function-chat-ai-url"][0], data);
             retAi.originalUt = ut;
@@ -1580,13 +1582,13 @@ const chatKeyDown = async (cmd) => {
                             in previous version, this case had a meaning, however it has be lost 
                             in this version.
                             but wanna say something to the login user before starting the working.
-                            switch to the function panel with chatKeyDown("show tables"), indeed this string
+                            switch to the function panel with chatKeyDown("show table list"), indeed this string
                             is determind in the scenario 'func-show-table-list-cmd', then redirect to
                             'lets_do_somthing', meanwhile 'starting-6-msg' is displayed.
                     */
                     stage = 'lets_do_something';
 
-                    chatKeyDown("show tables");
+                    chatKeyDown("show table list");
                     getAjaxData(scenario["analyzed-data-collect-url"][3]);
                     m = chooseMsg("starting-6-msg", "", "");
 
@@ -2732,7 +2734,6 @@ const findItemnameFromlist = (tag, name) => {
 
     return ret;
 }
-
 /**
  * @function postAjax2AI
  * @param {string} url execute url
@@ -2740,7 +2741,6 @@ const findItemnameFromlist = (tag, name) => {
  * 
  * send chat words to AI
  */
-//const postAjax2AI = (url, data) => {
 const postAjax2AI = async (url, data) => {
     if (0 < url.length || url != undefined) {
         if (!url.startsWith("/")) url = "/" + url;
@@ -2781,5 +2781,41 @@ const postAjax2AI = async (url, data) => {
     } else {
         console.error("postAjax2AI() ajax url is not defined");
         typingControll(chooseMsg("unknown-msg", "", ""));
+    }
+}
+/**
+ * @function gripTableOrApiName
+ * @param {string} st user input string
+ * 
+ * pick up table name or api name, if there is in 'st'
+ */
+const gripTableOrApiName = (st) =>{
+    let tablelist = [];
+    let apilist = [];
+    let findflg = false;
+    let tags = [TABLECONTAINER,APICONTAINER];
+
+    let p = st.replaceAll(","," ").split(" ");
+    for(let i in p){
+        if(0<p[i].length){
+            for(let ii=0;ii<2; ii++){
+                findflg = findItemnameFromlist(tags[ii], p[i]);
+                if(findflg){
+                    if( ii== 0 ){ 
+                        tablelist.push(p[i]);
+                    }else{
+                        apilist.push(p[i]);
+                    }
+                }
+            }
+        }
+    }
+
+    if(0<tablelist.length){
+        retAi.tablelist = tablelist;
+    }
+
+    if(0<apilist.length){
+        retAi.apilist = apilist;
     }
 }
