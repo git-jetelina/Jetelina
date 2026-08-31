@@ -96,7 +96,6 @@ let whatJetelinaTold = ""; // what jetelina was telling in just previous time
 let relatedDataList = {}; // relation data to table/api has been contained here as temporary
 let messageScrollTimerID; // '#someting_msg' auto scroll timer interval 
 let apitestScrollTimerID; // '#apitest' auto scroll timer interval
-let original_chatbox_input_text = ""; // original text in Jetelina chatbox.
 let isSuggestion = false; // existing the suggestion, true -> is, false -> is not
 let retAi = {};
 /**
@@ -1366,8 +1365,7 @@ const chatKeyDown = async (cmd) => {
     }
 
     if (cmd == null) {
-        original_chatbox_input_text = $(JETELINACHATBOX).val();
-        ut = original_chatbox_input_text.toLowerCase();
+        ut = $(JETELINACHATBOX).val().toLowerCase();
         ut = ut.replaceAll(',', ' ').replaceAll(':', ' ').replaceAll(';', ' ');
 
         if(stage == "lets_do_something"){

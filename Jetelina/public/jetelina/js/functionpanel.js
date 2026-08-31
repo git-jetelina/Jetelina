@@ -1475,7 +1475,7 @@ console.log("ut: ", ut);
       let p = `{${preferent.apitestparams[preferent.apiparams_count]}}`;
       let inp = $(`${COLUMNSPANEL} [name='apiin']`).html();
       let reps = "";
-      let chatin = original_chatbox_input_text;
+      let chatin = retAi.originalUt;
       let jform = true;
 
       if (loginuser.dbtype == "mongodb") {
@@ -1579,8 +1579,11 @@ console.log("ut: ", ut);
     case SELECTITEM:
       let findflg = false;
 //      let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
-      let t = original_chatbox_input_text.replaceAll(",", " ").split(' ').filter(Boolean);
-
+      let t = retAi.originalUt.replaceAll(",", " ").split(' ').filter(Boolean);
+//      console.log("SELECT retAi.originalUt: ", retAi.originalUt);
+//      gripTableOrApiName(retAi.originalUt);
+//      console.log("SELECT apilist:", retAi.apilist);
+//      console.log("SELECT tablelist: ", retAi.tablelist);
       // for opening table 
       $(CONTAINERNEWAPINO).remove();
       /*
@@ -1595,7 +1598,7 @@ console.log("ut: ", ut);
               $(this).toggleClass("activeItem");
             }
           });
-        } else {
+        } else { console.log("t is : ", t);
           $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem, .ivmItem").each(function () {
             if ($(this).hasClass("relatedItem")) {
               $(this).removeClass("relatedItem");
@@ -1640,15 +1643,18 @@ console.log("ut: ", ut);
         */
         if (isVisibleMigTableListPanel()) {
           findflg = findItemnameFromlist(MIGRATIONTABLELIST, t[n]);
+         console.log("in Mig table list t is ", t[n], findflg);
         }
-
+/*
         if (!findflg) {
           findflg = findItemnameFromlist(TABLECONTAINER, t[n]);
+          console.log("in Table list t is ", t[n], findflg);
         }
 
         if (!findflg) {
           findflg = findItemnameFromlist(APICONTAINER, t[n]);
-        }
+          console.log("in Api list t is ", t[n], findflg);
+        }*/
       }
 
       // !findlg meaning is not for openging table or api, this time is for selecting columns in opening tables
