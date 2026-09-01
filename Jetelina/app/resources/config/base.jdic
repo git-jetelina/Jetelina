@@ -155,8 +155,8 @@
 #
 # basic commands in function panel
 #
-@jdic common-post-cmd:"post ajax data","send ajax data"
-@jdic common-cancel-cmd:"cancel all"
+@jdic common-post-cmd:"post data","send data","post ajax data","send ajax data"
+@jdic common-cancel-cmd:"cancel all order","all order cancel","cancel all function"
 @jdic common-confirm-msg:"Sure?","Really?","Do it now?"
 @jdic common-alert-msg:"Boo","no hit","could not make it"
 @jdic common-ajax-error-msg:"Oh my, something server error happened:"
@@ -248,7 +248,8 @@
 #
 # log out 
 #
-@jdic logout-cmd:"logout","exit","bye","see you","have a nice day","good bye","bye for now"
+#@jdic logout-cmd:"logout","exit","bye","see you","have a nice day","good bye","bye for now"
+@jdic logout-cmd:"logout from jetelina","have a good day","bye bye","exit from jetelina","get out from jetelina"
 @jdic afterlogout-msg:"Bye", "Have a good day","Hope you will back soon","I am looking forward you"
 
 #
