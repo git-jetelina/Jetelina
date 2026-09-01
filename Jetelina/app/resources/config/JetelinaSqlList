@@ -2,3 +2,8 @@ apino,sql,subquery,db
 ji1,"insert into ftest (ftest_name,ftest_sex,ftest_age,ftest_ave,jetelina_delete_flg) values('{ftest_name}','{ftest_sex}',{ftest_age},{ftest_ave},{jetelina_delete_flg})","","postgresql"
 ju2,"update ftest set ftest_name='{ftest_name}',ftest_sex='{ftest_sex}',ftest_age={ftest_age},ftest_ave={ftest_ave}","where ftest_jt_id={jt_id}","postgresql"
 jd3,"update ftest set jetelina_delete_flg=1","where ftest_jt_id={jt_id}","postgresql"
+ji4,"insert into ftest2 (ftest2_name,ftest2_sex,ftest2_age,ftest2_ave,jetelina_delete_flg) values('{ftest2_name}','{ftest2_sex}',{ftest2_age},{ftest2_ave},{jetelina_delete_flg})","","postgresql"
+ju5,"update ftest2 set ftest2_name='{ftest2_name}',ftest2_sex='{ftest2_sex}',ftest2_age={ftest2_age},ftest2_ave={ftest2_ave}","where ftest2_jt_id={jt_id}","postgresql"
+jd6,"update ftest2 set jetelina_delete_flg=1","where ftest2_jt_id={jt_id}","postgresql"
+js7,"select ftest.ftest_name,ftest2.ftest2_name,ftest.ftest_sex,ftest2.ftest2_sex,ftest.ftest_age,ftest2.ftest2_age from ftest as ftest,ftest2 as ftest2","where ((ftest.jetelina_delete_flg=0)and(ftest2.jetelina_delete_flg=0 ))and(ftest.ftest_jt_id = ftest2.ftest2_jt_id)","postgresql"
+js8,"select ftest.ftest_name,ftest.ftest_ave from ftest as ftest","where ftest.jetelina_delete_flg=0","postgresql"

@@ -1369,7 +1369,7 @@ const chatKeyDown = async (cmd) => {
         ut = ut.replaceAll(',', ' ').replaceAll(':', ' ').replaceAll(';', ' ');
 
         if(stage == "lets_do_something"){
-            gripTableOrApiName(ut);
+//            gripTableOrApiName(ut);
             let data = `{"chat_sentence":"${ut}","stage":"${stage}"}`;
             await postAjax2AI(scenario["function-chat-ai-url"][0], data);
             retAi.originalUt = ut;
@@ -1406,8 +1406,6 @@ const chatKeyDown = async (cmd) => {
     }
 
     let logoutflg = false;
-
-    console.log("present ut: ", ut);
 
     if (ut != null && 0 < ut.length) {
         ut = $.trim(ut);

@@ -166,7 +166,7 @@ function createScenario()
 				println(tf, string("scenario[\"", ret[1], "\"]=", ret[2], ";"))
 			
 #				if startswith(ret[1], "func-") && endswith(ret[1],"-cmd")
-				if endswith(ret[1],"-cmd")
+				if !startswith(ret[1], "greeting-") && endswith(ret[1],"-cmd")
 					cmdraw= replace(ret[2], "[" => "", "]" => "")
 					arr = String.(collect(first(CSV.File(IOBuffer(cmdraw), delim=',', header=false, quotechar='"', types=String))))
 					for ii ∈ 1:length(arr)

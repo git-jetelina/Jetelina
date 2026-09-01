@@ -1,3 +1,8 @@
 ji1:ftest:postgresql
 ju2:ftest:postgresql
 jd3:ftest:postgresql
+ji4:ftest2:postgresql
+ju5:ftest2:postgresql
+jd6:ftest2:postgresql
+js7:ftest,ftest2:postgresql
+js8:ftest:postgresql

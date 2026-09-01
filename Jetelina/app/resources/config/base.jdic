@@ -202,9 +202,9 @@
 @jdic func-postcolumn-available-msg:"Now you can hit 'post' ..or 'cancel'","Do post them by 'post' ..or 'cancel'","Type 'post' now ..or 'cancel'"
 #
 # in 'func-subpanel-open-cmd', because 'open' is already taken in 'func-table-api-open-close-cmd'. need to think something alternative words, maybe.
-@jdic func-subpanel-open-cmd:"show query panel"
-@jdic func-subpanel-focus-cmd:"go subquery panel"
-@jdic func-subpanel-close-cmd:"close query panel"
+@jdic func-subpanel-open-cmd:"show query panel","open query panel","show subquery panel","open query panel"
+@jdic func-subpanel-focus-cmd:"go subquery panel","go query panel","focus on subquery panel","focus on query panel"
+@jdic func-subpanel-close-cmd:"close query panel","close subquery panel","hide subquery panel","hide query panel"
 @jdic func-subpanel-opened-msg:"Set your sub query in 'Sub Query' field","Ready to 'Sub Query' field"
 @jdic func-api-test-set-params-msg:"set {Q}"
 @jdic func-api-test-msg:"Why do not you try it, type 'sql test' to execute this SQL","Let's check it with typing 'sql check'"
@@ -259,9 +259,9 @@
 #
 # show or hide error message 
 #
-@jdic hide-something-msg-cmd:"hide error message panel","close error message panel"
-@jdic show-something-msg-cmd:"show message panel","open message panel"
-@jdic searching-errnum-cmd:"what has happend","show error detail"
+@jdic hide-something-msg-cmd:"hide error panel","hide message panel","close error panel","close message panel"
+@jdic show-something-msg-cmd:"show message panel","open message panel","open error panel","show error panel"
+@jdic searching-errnum-cmd:"what has happend","show error detail","get error"
 @jdic func-api-error-searching-msg:"gott you?"
 @jdic func-api-error-cannot-searching-msg:"showed message is everything"
 

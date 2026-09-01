@@ -1260,12 +1260,12 @@ const functionPanelFunctions = (ut) => {
         this duplicated commands.
         it is not good as 'if{}else if{}else....', here shoud be 'if{} if{}...'
     */
-    if (inScenarioChk(ut, 'common-cancel-cmd') || inScenarioChk(ut, 'func-selecteditem-cancel-cmd')) {
+    if (inScenarioChk(ut, 'common-cancel-cmd') || inScenarioChk(ut, 'func-selecteditem-cancel-cmd') || inScenarioChk(ut,'func-selecteditem-all-cancel-cmd')) {
       cmd = 'cancel';
       preferent.cmd = "";
       cmdCandidates.push("cancel");
     }
-
+console.log("chk1 ut: ",ut);
     if (cmd == "" && inScenarioChk(ut, 'func-cleanup-cmd')) {
       cmd = 'cleanup';
       cmdCandidates.push("clean up");
@@ -1282,8 +1282,7 @@ const functionPanelFunctions = (ut) => {
       cmd = 'fileupload';
       cmdCandidates.push("file upload");
     }
-console.log("cmd: ", cmd);
-console.log("ut: ", ut);
+
     if (cmd == "" && inScenarioChk(ut, 'func-show-table-list-cmd')) {
       cmd = TABLEAPILISTOPEN;
       cmdCandidates.push("show table list");
@@ -1409,7 +1408,8 @@ console.log("ut: ", ut);
     if (cmd.length == 0) {
       cmd = getPreferentPropertie('cmd');
       if (cmd.length == 0) {
-        cmd = ut;
+//        cmd = ut;
+        cmd = retAi.originalUt;
       }
     }
 
@@ -1530,6 +1530,7 @@ console.log("ut: ", ut);
         15.recreatapi: recreate api
         default: non
   */
+ console.log("functionPanelFun.... swith(cmd):", cmd);
   switch (cmd) {
     case FILESELECTOROPEN://open file selector
       $(UPFILE).click();
@@ -1643,18 +1644,15 @@ console.log("ut: ", ut);
         */
         if (isVisibleMigTableListPanel()) {
           findflg = findItemnameFromlist(MIGRATIONTABLELIST, t[n]);
-         console.log("in Mig table list t is ", t[n], findflg);
         }
-/*
+
         if (!findflg) {
           findflg = findItemnameFromlist(TABLECONTAINER, t[n]);
-          console.log("in Table list t is ", t[n], findflg);
         }
 
         if (!findflg) {
           findflg = findItemnameFromlist(APICONTAINER, t[n]);
-          console.log("in Api list t is ", t[n], findflg);
-        }*/
+        }
       }
 
       // !findlg meaning is not for openging table or api, this time is for selecting columns in opening tables
@@ -1798,7 +1796,10 @@ console.log("ut: ", ut);
       }
 
       if (0 < selectedItemsArr.length) {
-        if (ut == cmd) {
+        let t = retAi.originalUt.replaceAll(",", " ").split(' ').filter(Boolean);
+
+//        if (ut == cmd) {
+        if ($.inArray(cmd,t) != -1){
           // the first calling            
           if (containsMultiTables()) {
             // 'where sentence' is demanded if there were multi tables
@@ -1884,9 +1885,11 @@ console.log("ut: ", ut);
         $(FILEUP).removeClass("genelic_panel");
         rejectCancelableCmdList(FILESELECTOROPEN);
         m = chooseMsg("cancel-msg", "", "");
-      } else if (inCancelableCmdList([SELECTITEM])) {
-        let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+      } else if (inCancelableCmdList([SELECTITEM])) {console.log("chk2 ut: ", ut);
+//        let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+//        let t = retAi.originalUt.replaceAll(",", " ").split(' ').filter(Boolean);
         // cancel selected columns
+//        if (inScenarioChk(ut, "func-selecteditem-all-cancel-cmd") || inScenarioChk(ut,"common-cancel-cmd")) {
         if (inScenarioChk(ut, "func-selecteditem-all-cancel-cmd")) {
           // cancel all items
           $(`${CONTAINERPANEL} span`).filter(".selectedItem").each(function (i, v) {
@@ -1903,6 +1906,7 @@ console.log("ut: ", ut);
           m = chooseMsg('cancel-msg', "", "");
         } else {
           // cancel each item
+          let t = retAi.originalUt.replaceAll(",", " ").split(' ').filter(Boolean);
           for (cw in t) {
             $(`${CONTAINERPANEL} span`).filter(".selectedItem").each(function (i, v) {
               if (v.textContent.indexOf(t[cw]) != -1) {
