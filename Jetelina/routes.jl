@@ -63,10 +63,16 @@ route( "/jetelinawords", PostDataController._addJetelinaWords, method = POST)
 route( "/getdbsavailability",GetDataController.getWorkingDBList )
 # returns table list data in Json
 route( "/getalldbtable", GetDataController.getTableList )
+# return migration-able table list
+route( "/getmigrationtablelist", GetDataController.mig_getTableList )
 # drops table by ordering
 route( "/deletetable", PostDataController.deleteTable, method = POST )
 # returns column list ordered by table in Json
 route( "/getcolumns", PostDataController.getColumns, method = POST )
+# execute table migration
+route( "/executedbmigration", PostDataController.execTableMigration, method = POST )
+# revert table migration
+route( "/canceldbmigration", PostDataController.revertTableMigration, method = POST )
 #===
  handle json data for db action of insert/update/delete/select
  can use whichever url, the backs are same. :)
@@ -131,5 +137,10 @@ route("/getconfigdata", PostDataController.getConfigData, method = POST)
 route("/changeconfigdata", PostDataController.configParamUpdate, method = POST)
 route("/getconfigchangehistory", GetDataController.getConfigHistory)
 route("/getoperationhistory", GetDataController.getOperationHistory)
+#===
 
+  ■AI chat features
+    through chatting strings with an user, get a correct command name 
+
+===#
 route("/aichat", PostDataController.getAiChatCommand, method = POST)

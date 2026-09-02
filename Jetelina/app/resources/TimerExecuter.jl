@@ -20,7 +20,7 @@ include("LogFileRotator.jl")
 include("ApiAccessCounter.jl")
 
 function __init__()
-    @info "==============TimerExecuter init==============="
+    @info "=== TimerExecuter init ==="
 #    SQLAnalyzer.main()
     LogFileRotator.main()
     ApiAccessCounter.main()

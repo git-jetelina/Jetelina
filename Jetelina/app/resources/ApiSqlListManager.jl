@@ -38,7 +38,7 @@ function __init__()
 	this is the initialize process for importing registered SQL sentence list in JC["sqllistfile"] to DataFrame.
 """
 function __init__()
-    @info "=======ApiSqlListManager init=========="
+    @info "=== ApiSqlListManager init ==="
     _setApiSequenceNumber()
 end
 """

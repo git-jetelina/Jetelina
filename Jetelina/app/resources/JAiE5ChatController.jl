@@ -85,7 +85,7 @@ function init_engine()
 - return {ANY}: dictionary data for AI chatting
 """
 function init_engine()
-    @info "=== init ONNX engine ==="
+    @info "--- init ONNX engine ---"
     
     if !isfile(MODEL_PATH)
         @info "Not Found ONNX model in " MODEL_PATH
@@ -94,13 +94,13 @@ function init_engine()
         @info "Not Found " CSV_PATH
     end
     
-    @info "=== Loading ONNX model ==="
+    @info "--- Loading ONNX model ---"
     model = ONNXRunTime.load_inference(MODEL_PATH)
     
-    @info "=== Reading tokenizer ==="
+    @info "--- Reading tokenizer ---"
     tokenizer = HuggingFaceTokenizers.from_pretrained(Tokenizer, "intfloat/multilingual-e5-small")
     
-    @info "=== Loading Jetelina commands ==="
+    @info "--- Loading Jetelina commands ---"
     df = CSV.read(CSV_PATH, DataFrame, header=false, stringtype=String)
     rename!(df, [:command_id, :raw_phrases])
 
@@ -120,7 +120,7 @@ function init_engine()
         master_embeddings[:, i] = get_embedding(model, tokenizer, phrase)
     end
     
-    @info "=== Finish the initialization ==="
+    @info "--- Finish the initialization ---"
     return CommandEngine(model, tokenizer, command_ids, master_embeddings)
 end
 

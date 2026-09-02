@@ -685,4 +685,46 @@ function getAiChatCommand()
 
     return ret
 end
+"""
+function execTableMigration()
+
+	execute migration not-Jetelna table to Jetelina table by ordering. 
+    this function calls DBDataController.mig_execute_migration(tableName,stichwort)
+	ordered table name is posted as the name 'tablename' in jsonpayload().
+"""
+function execTableMigration()
+    if !isnothing(JSession.get())
+        ret = ""
+        tableName::Vector = jsonpayload("tablename")
+        stichwort::String = jsonpayload("pass")
+        if !isnothing(tableName)
+            ret = DBDataController.mig_execute_migration(tableName, stichwort)
+        end
+
+        return ret
+    else
+        return nothing
+    end
+end
+"""
+function revertTableMigration()
+
+	revert migration Jetelna table to not-Jetelina table by ordering. 
+    this function calls DBDataController.mig_revert_migration(tableName,stichwort)
+	ordered table name is posted as the name 'tablename' in jsonpayload().
+"""
+function revertTableMigration()
+    if !isnothing(JSession.get())
+        ret = ""
+        tableName::Vector = jsonpayload("tablename")
+        stichwort::String = jsonpayload("pass")
+        if !isnothing(tableName)
+            ret = DBDataController.mig_revert_migration(tableName, stichwort)
+        end
+
+        return ret
+    else
+        return nothing
+    end
+end
 end

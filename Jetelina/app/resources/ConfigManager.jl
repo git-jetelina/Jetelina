@@ -32,7 +32,7 @@ function __init__()
 	this function calls _readConfig function.
 """
 function __init__()
-	@info "=======ConfigManager init=========="
+	@info "=== ConfigManager init ==="
 	_readConfig()
 	createScenario()
 end
