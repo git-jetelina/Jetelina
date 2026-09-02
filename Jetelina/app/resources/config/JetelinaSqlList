@@ -7,3 +7,4 @@ ju5,"update ftest2 set ftest2_name='{ftest2_name}',ftest2_sex='{ftest2_sex}',fte
 jd6,"update ftest2 set jetelina_delete_flg=1","where ftest2_jt_id={jt_id}","postgresql"
 js7,"select ftest.ftest_name,ftest2.ftest2_name,ftest.ftest_sex,ftest2.ftest2_sex,ftest.ftest_age,ftest2.ftest2_age from ftest as ftest,ftest2 as ftest2","where ((ftest.jetelina_delete_flg=0)and(ftest2.jetelina_delete_flg=0 ))and(ftest.ftest_jt_id = ftest2.ftest2_jt_id)","postgresql"
 js8,"select ftest.ftest_name,ftest.ftest_ave from ftest as ftest","where ftest.jetelina_delete_flg=0","postgresql"
+js9,"select ftest.ftest_age,ftest.ftest_name from ftest as ftest","where ftest.jetelina_delete_flg=0","postgresql"

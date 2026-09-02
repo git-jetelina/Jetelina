@@ -62,7 +62,7 @@
 
 # etc 
 @jdic starting-3-msg:"What?","Are you kidding me?","Never mind"
-@jdic general-thanks-cmd:"thank you","nice job","well done","good job"
+@jdic general-thanks-cmd:"thank you","nice job","well done","good job","thnx"
 @jdic general-thanks-msg:"you're welcome","my pleasure, {Q}"
 @jdic what-did-i-say-cmd:"what did i say","what did i type"
 @jdic no-authority-js-msg:"you do not have the authority, yet"
@@ -165,10 +165,10 @@
 @jdic func-table-api-open-close-cmd:"open table","show table","select table","close table","open api","show api","select api","close api"
 @jdic func-item-select-cmd:"select item among showing columns"
 @jdic func-item-select-all-cmd:"select all columns"
-@jdic func-selecteditem-cancel-cmd:"cancel selected columns"
-@jdic func-selecteditem-all-cancel-cmd:"cancel all selected columns"
+@jdic func-selecteditem-cancel-cmd:"cancel selected columns","cancel item","cancel column","withdraw item","withdraw column","delete column","delete item"
+@jdic func-selecteditem-all-cancel-cmd:"cancel all selected columns","cancel all items","cancel all columns","cancel all items"
 @jdic func-cleanup-cmd:"refresh display","cleanup display"
-@jdic func-tabledrop-cmd:"drop database table","delete document from database"
+@jdic func-tabledrop-cmd:"drop database table","delete document from database","delete database table"
 @jdic func-tabledrop-msg:"Which table do you want to drop?","correct order is 'droptable <table name>' and so on"
 @jdic func-tabledrop-ng-msg:"Hey open the table list first!","Huum?","Check it first","Watch it"
 

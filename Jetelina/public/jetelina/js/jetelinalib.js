@@ -1388,8 +1388,10 @@ const chatKeyDown = async (cmd) => {
             window.open(scenario["jetelina-web-site-url"][0], "_blank");
         } else {
             //            m = guidancePageController(ut);
-            if (ut.startsWith("go")) {
-                let gcom = ut.split(" ");
+//            if (ut.startsWith("go")) {
+            if (retAi.originalUt.startsWith("go")) {
+//                let gcom = ut.split(" ");
+                let gcom = retAi.originalUt.split(" ");
                 if (0 < gcom.length) {
                     for (k in gcom) {
                         if (gcom[k].startsWith("m") && 1 < gcom[k].length) {

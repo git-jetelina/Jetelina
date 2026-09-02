@@ -1381,7 +1381,8 @@ console.log("chk1 ut: ",ut);
         let san = selectedapino.text();
         let sanArr = san.split("js");
 
-        if (ut.indexOf(san) != -1 || ut.indexOf(sanArr[1]) != -1 || !isSelectedItem()) {
+//        if (ut.indexOf(san) != -1 || ut.indexOf(sanArr[1]) != -1 || !isSelectedItem()) {
+        if (retAi.originalUt.indexOf(san) != -1 || retAi.originalUt.indexOf(sanArr[1]) != -1 || !isSelectedItem()) {
           /*
             Tips:
               html() is used in pref..original_apiin_str to fetch the origin,
@@ -1449,7 +1450,8 @@ console.log("chk1 ut: ",ut);
   */
   if (1 < cmdCandidates.length) {
     if (preferent.ut == null || preferent.ut == "") {
-      preferent.ut = ut;
+//      preferent.ut = ut;
+      preferent.ut = retAi.originalUt;
     }
 
     cmd = "";
@@ -1467,7 +1469,8 @@ console.log("chk1 ut: ",ut);
   if (0 < cmd.length) {
     cmdCandidates = [];
     if (preferent.ut != null && 0 < preferent.ut.length) {
-      ut = preferent.ut;
+//      ut = preferent.ut;
+      retAi.originalUt = preferent.ut;
       preferent.ut = "";
     }
 
@@ -1487,7 +1490,12 @@ console.log("chk1 ut: ",ut);
           preferent.jsonokflg = false;
         }
 
-        if ($.inArray(ut, scenario["func-api-test-cmd"]) == -1) {
+//        if ($.inArray(ut, scenario["func-api-test-cmd"]) == -1) {
+        /**
+         * Attention:
+         *    simply expecting retAi.ori.. = bang/thud/boom/honk here
+         */
+        if ($.inArray(retAi.originalUt, scenario["func-api-test-cmd"]) == -1) {
           if (p == `{${mongodb_api_ji_json_str}}` && !preferent.jsonokflg) {
             if (!jsonFromCheck(chatin)) {
               // bad json form
@@ -1743,7 +1751,8 @@ console.log("chk1 ut: ",ut);
           Attention:
             only 'js*' api can be deleted.
         */
-        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+//        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+        let utarray = retAi.originalUt.replaceAll(",", " ").split(' ').filter(Boolean);
         for (let n = 0; n < utarray.length; n++) {
           $(`${TABLECONTAINER} span`).each(function (i, v) {
             if (v.textContent == utarray[n]) {
@@ -2165,7 +2174,8 @@ console.log("chk1 ut: ",ut);
             must be opened MIGRATIONTABLELIST panel, because to prevent double migration execution on jetelina table.
             of cause the safety lock is done in *.jl program, but wanna do forward check here.
         */
-        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+//        let utarray = ut.replaceAll(",", " ").split(' ').filter(Boolean);
+        let utarray = retAi.originalUt.replaceAll(",", " ").split(' ').filter(Boolean);
         if(cmd == TABLEMIGRATION){
           cancelableCmdList.push(TABLEMIGRATION);
           for (let n = 0; n < utarray.length; n++) {
