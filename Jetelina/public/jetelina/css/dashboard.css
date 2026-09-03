@@ -364,3 +364,21 @@ textarea.user-input{
     font-style: italic;
     color: aquamarine;
   }
+
+  .smth-msg-panel-close-btn {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      cursor: pointer;
+      background: none;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      font-size: 16px;
+      font-weight: bold;
+      color: #666;
+  }
+
+  .smth-msg-panel-close-btn:hover {
+      color: #000;
+  }

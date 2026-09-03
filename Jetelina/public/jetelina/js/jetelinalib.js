@@ -1534,19 +1534,20 @@ const chatKeyDown = async (cmd) => {
             */
             switch (stage) {
                 case 1:
-                    if (inScenarioChk(ut, 'greeting-1-cmd')) {
+
+//                    if (inScenarioChk(ut, 'greeting-1-cmd')) {
                         /* say 'nice' if a user said 'fine' */
-                        m = chooseMsg('greeting-1a-msg', "", "");
-                    } else if (inScenarioChk(ut, 'greeting-2-cmd')) {
+//                        m = chooseMsg('greeting-1a-msg', "", "");
+//                    } else if (inScenarioChk(ut, 'greeting-2-cmd')) {
                         /* reply something your mood if a uer asks you 'how about you' */
-                        m = chooseMsg('greeting-2-msg', "", "");
-                    } else {
+//                        m = chooseMsg('greeting-2-msg', "", "");
+//                    } else {
                         /* lead to login with 'can I ask your name?' */
                         if (!$(GUIDANCE).is(":visible")) {
                             m = chooseMsg("starting-2-msg", "", "");
                             stage = 'login';
                         }
-                    }
+ //                   }
 
                     break;
                 case 'login':
@@ -2702,7 +2703,14 @@ const changeChatGirlImage = (imgtype) => {
     let concernimg = "jetelina/img/jetelina-concern.png";
 
     if (imgtype == "concern") {
-        imgtag.show();
+        /**
+         * Attention:
+         *      2026/9/2 must review near days.
+         *      with api stats graph style.
+         *      till then, keep hide the chat girl.
+         */
+
+//        imgtag.show();
     } else if (imgtype == "chat") {
         imgtag.hide();
     }
@@ -2817,3 +2825,10 @@ const gripTableOrApiName = (st) =>{
         retAi.apilist = apilist;
     }
 }
+
+/**
+ * close something box by clicking each 'x' button
+ */
+$(".smth-msg-panel-close-btn").on('click',function(){
+  showSomethingMsgPanel(false);
+})
