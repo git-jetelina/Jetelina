@@ -134,14 +134,14 @@
 @jdic stats-apiaccessnumberslist-again-cmd:"show api access stats all page"
 
 # Access Numbers list/chart 
-@jdic stats-api-access-numbers-list-show-cmd:"show api access stats","open api access stats"
-@jdic stats-api-access-numbers-list-hide-cmd:"hide api access stats","close api access stats"
-@jdic stats-api-exec-speed-show-cmd:"show api speed stats","open api speed stats"
-@jdic stats-api-exec-speed-hide-cmd:"hide api speed stats","close api speed stats"
-@jdic stats-db-access-numbers-chart-show-cmd:"show db access stats","open database access stats"
-@jdic stats-db-access-numbers-chart-hide-cmd:"hide db access stats","close db access stats"
-@jdic stats-all-graph-show-cmd:"show all stats data","open all stats graph"
-@jdic stats-all-graph-hide-cmd:"hide all stats","close all stats graph"
+@jdic stats-api-access-numbers-list-show-cmd:"show api access","open api access","show api use","open api use"
+@jdic stats-api-access-numbers-list-hide-cmd:"hide api access","close api access","hide api usr","close api use"
+@jdic stats-api-exec-speed-show-cmd:"show api speed","open api speed","show api exec","open api exec"
+@jdic stats-api-exec-speed-hide-cmd:"hide api speed","close api speed","hide api exec","close api exec"
+@jdic stats-db-access-numbers-chart-show-cmd:"show database access","open database access","show database count","open database count"
+@jdic stats-db-access-numbers-chart-hide-cmd:"hide database access","close database access","hide database count","close database count"
+@jdic stats-all-graph-show-cmd:"show all stats","open all stats","show every graph","open every graph"
+@jdic stats-all-graph-hide-cmd:"hide all stats","close all stats","hide all graph","close all graph"
 
 # SQL Execution Time graph
 @jdic stats-sql-performance-graph-show-cmd:"any suggestion","idea in improving performance"

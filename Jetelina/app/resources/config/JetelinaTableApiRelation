@@ -4,6 +4,8 @@ jd3:ftest:postgresql
 ji4:ftest2:postgresql
 ju5:ftest2:postgresql
 jd6:ftest2:postgresql
-js7:ftest,ftest2:postgresql
-js8:ftest:postgresql
-js9:ftest:postgresql
+js16:ftest,ftest2:postgresql
+ji17:ftest:mysql
+ju18:ftest:mysql
+jd19:ftest:mysql
+js20:ftest:mysql

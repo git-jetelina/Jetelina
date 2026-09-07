@@ -64,6 +64,7 @@ const openStatsPanel = (s, b, type) => {
                 getAjaxData(dataurls[5]);
             }
         } else if (type == APIEXECUTIONSPEEDCOMMAND) {
+            s = retAi.originalUt;
             let p = s.split(" ");
             if (0 < p.length) {
                 let apino = "";
