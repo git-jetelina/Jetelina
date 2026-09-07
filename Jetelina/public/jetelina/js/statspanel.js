@@ -35,6 +35,11 @@ const APISPEEDPANEL = $(APISPEEDPANELTAGID);
 const APIACCESSNUMBERSCOMMAND = "apiaccessnumbers";
 const DBACCESSNUMBERSCOMMAND = "dbaccessnumbers";
 const APIEXECUTIONSPEEDCOMMAND = "apiexecutionspeed";
+
+let isApiAccessList = false;    // there is the api access list data or not
+let isDbPiechart = false;       // there is the database access piechart data or not
+let isApiSpeedLineChart = false;// there is the api speed line graph data or not
+
 /*
     Tips:
         the real sql execution performance data is stored in this parameter temporarily.
@@ -85,6 +90,7 @@ const openStatsPanel = (s, b, type) => {
     } else {
         hideApiAccessNumbersList();
         $(PIECHARTPANEL).hide();
+        $(LINECHARTPANEL).hide();
     }
 }
 /**
@@ -406,6 +412,7 @@ const showApiAccessNumbersList = () => {
     }
 
     $(APIACCESSNUMBERSLIST).DataTable(tableoptions);
+    isApiAccessList = true;
 }
 /**
  * @function hideApiAccessNumbersList
@@ -500,6 +507,7 @@ const viewPlotlyChart = (basedata, type) => {
                 but should call purgePlotlygraph('db') alike 'as', if the time has come. 
         */
         Plotly.react('piechart_graph', data, layout);
+        isDbPiechart = true;
     } else if (type == "as") {
         let smean = {
             type: 'scatter',
@@ -567,6 +575,7 @@ const viewPlotlyChart = (basedata, type) => {
 
         purgePlotlygraph('as');
         Plotly.react('apispeed_graph', data, layout);
+        isApiSpeedLineChart = true;
     } else {
         /*
         let real_data =

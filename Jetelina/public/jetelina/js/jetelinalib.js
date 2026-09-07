@@ -1510,7 +1510,7 @@ const chatKeyDown = async (cmd) => {
                     $(LINECHARTPANEL).hide();
                     hideApiAccessNumbersList();
                 } else if (inScenarioChk(ut, "general-thanks-cmd")) {
-                    openStatsPanel(false, ut);
+                    openStatsPanel(ut,false);
                     ret = chooseMsg('general-thanks-msg', loginuser.lastname, "c");
                 } else {
                     // hijack every command if showing and getting forcus on the api access numbers panel
@@ -1522,6 +1522,16 @@ const chatKeyDown = async (cmd) => {
                     if (!$(GUIDANCE).is(":visible") && isVisibleApiAccessNumbers()) {
                         m = apiAccessNumbersListController(ut);
                     }
+                }
+            }else if(inScenarioChk(ut, "stats-all-graph-show-cmd")){
+                if(isApiAccessList){
+                    showApiAccessNumbersList();
+                }
+                if(isDbPiechart){
+                    $(PIECHARTPANEL).show();
+                }
+                if(isApiSpeedLineChart ){                
+                    $(LINECHARTPANEL).show()
                 }
             }
 
