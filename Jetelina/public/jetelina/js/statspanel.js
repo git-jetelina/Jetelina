@@ -401,18 +401,21 @@ const setGraphData = (o, type) => {
  * show api access number data in DataTable 
  */
 const showApiAccessNumbersList = () => {
+    if(!isApiAccessList){
+        let tableoptions = {
+            "paging": true,
+            "info": false,
+            "searching": true,
+            "order": [1, 'desc'],
+            "pagingType": "simple",
+            "data": preferent.apiaccesslistdata
+        }
 
-    let tableoptions = {
-        "paging": true,
-        "info": false,
-        "searching": true,
-        "order": [1, 'desc'],
-        "pagingType": "simple",
-        "data": preferent.apiaccesslistdata
+        $(APIACCESSNUMBERSLIST).DataTable(tableoptions);
+        isApiAccessList = true;
+    }else{
+        $(APIACCESSNUMBERS).show();
     }
-
-    $(APIACCESSNUMBERSLIST).DataTable(tableoptions);
-    isApiAccessList = true;
 }
 /**
  * @function hideApiAccessNumbersList
@@ -421,7 +424,7 @@ const showApiAccessNumbersList = () => {
  */
 const hideApiAccessNumbersList = () => {
     $(APIACCESSNUMBERS).hide();
-    $(APIACCESSNUMBERSLIST).DataTable().destroy();
+//   $(APIACCESSNUMBERSLIST).DataTable().destroy();
 }
 /**
  * @function apiAccessNumbersListController
