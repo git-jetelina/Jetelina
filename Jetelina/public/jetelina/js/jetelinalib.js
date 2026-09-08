@@ -47,8 +47,8 @@
       showMigTableList(b) "#migration_panel" show or hide
       showPreciousPanel(b) "#jetelina_teach_you_smg" show or hide
       jsonFromCheck(s) check for json form in mongodb
-      guidancePageFootLinkController(n) create cmd and call guidancePageController in case of clickcing the page link on the footer 
-      guidancePageController(n) move the guidance page order by 'n' 
+      *guidancePageFootLinkController(n) create cmd and call guidancePageController in case of clickcing the page link on the footer 
+      *guidancePageController(n) move the guidance page order by 'n' 
       jetelinaPanelPositionController(b) JETELINAPANEL position change 
       determindDateStart2End(dates) pick the min date and max date within query date array
       changeChatGirlImage(imgtype) switching chat box image.
@@ -1388,9 +1388,7 @@ const chatKeyDown = async (cmd) => {
             window.open(scenario["jetelina-web-site-url"][0], "_blank");
         } else {
             //            m = guidancePageController(ut);
-//            if (ut.startsWith("go")) {
-            if (retAi.originalUt.startsWith("go")) {
-//                let gcom = ut.split(" ");
+            if (ut.startsWith("go")) {
                 let gcom = retAi.originalUt.split(" ");
                 if (0 < gcom.length) {
                     for (k in gcom) {
@@ -2028,7 +2026,7 @@ const showGuidance = (b) => {
             left: "5%"
         }, ANIMATEDURATION).draggable();
 
-        guidancefootnote(1);
+//        guidancefootnote(1);
     } else {
         $(GUIDANCE).hide();
         if (loginuser.user_id == null) {
@@ -2570,20 +2568,25 @@ const jsonFromCheck = (s) => {
  * @function guidancePageFootLinkController
  * @param {integer} n page number in the 'pnum'
  * 
+ * deprecated
  * create cmd and call guidancePageController in case of clickcing the page link on the footer 
  */
 const guidancePageFootLinkController = (n) => {
+/*
     if (n != null) {
         guidancePageController(`page ${n}`);
     }
+*/
 }
 /**
  * @function guidancePageController
  * @param {String} cmd: user input in the chatbox
  * 
+ * deprecated
  * move the guidance page 
  */
 const guidancePageController = (cmd) => {
+/*
     let totalpagenumbers = $(`${GUIDANCE} div[name^="page"]`).length;
     let pn = "";
     let currentPage = 1;
@@ -2633,16 +2636,19 @@ const guidancePageController = (cmd) => {
     guidancefootnote(movetoPage);
 
     return chooseMsg('stats-graph-show-msg', '', '');
+*/
 }
 /**
  * @function guidancefootnote
  * 
  * @param {integer} p move to pange number
  * 
+ * deprecated
  * set page numbers on the footnote of guidance panges
  */
 const guidancefootnote = (p) => {
     // create page fotter
+/*
     let totalpagenumbers = $(`${GUIDANCE} div[name^="page"]`).length;
     let pages = "Page ";
 
@@ -2653,6 +2659,7 @@ const guidancefootnote = (p) => {
     }
 
     $(`${GUIDANCE} div[name="page${p}"] div[name="pnum"]`).html(pages);
+*/
 }
 /**
  * @function jetelinaPanelPositionController
