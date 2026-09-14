@@ -216,8 +216,8 @@ const checkResult = (o) => {
                     preventing its unexpected updating 
             */
             if (presentaction.config_name != null) {
-                presentaction.config_name = null;
-                presentaction.config_data = null;
+//                presentaction.config_name = null;
+//                presentaction.config_data = null;
             }
         }
     } else {
@@ -1450,10 +1450,17 @@ const chatKeyDown = async (cmd) => {
             */
             //            if (m.length == 0) {
             // check ordered the command list
-            if (inScenarioChk(ut, 'guidance-cmd')) {
+            let guidemecmd = ut;
+            if(retAi.originalUt != null && retAi.originalUt != ""){
+                guidemecmd = retAi.originalUt;
+            }
+
+//            if (inScenarioChk(ut, 'guidance-cmd')) {
+            if (inScenarioChk(guidemecmd, 'guidance-cmd')) {
                 showGuidance(true);
                 m = chooseMsg("starting-6a-msg", "", "");
-            } else if ($(GUIDANCE).is(":visible") && inScenarioChk(ut, 'general-thanks-cmd')) {
+//            } else if ($(GUIDANCE).is(":visible") && inScenarioChk(ut, 'general-thanks-cmd')) {
+            } else if ($(GUIDANCE).is(":visible") && inScenarioChk(guidemecmd, 'general-thanks-cmd')) {
                 showGuidance(false);
                 m = chooseMsg('waiting-next-msg', "", "");
                 if (loginuser.user_id == null) {
@@ -1676,7 +1683,8 @@ const chatKeyDown = async (cmd) => {
                                         but after showing them to user, may the right one inputing.
                                         the first 'if' is maybe not hit, but secondly inputing may kit it.
                                 */
-                                if (ut == zzz) {
+//                                if (ut == zzz) {
+                                if (retAi.originalUt == zzz) {
                                     /*
                                         Tips:
                                             there is possilbility someting in multiscript[] yet.
@@ -1686,8 +1694,10 @@ const chatKeyDown = async (cmd) => {
                                     multiscript.push(zzz);
                                     break;
                                 } else {
-                                    if (inScenarioChk(ut, zzz, 'config')) {
-                                        let r = countCandidates(ut, zzz, 'config');
+//                                    if (inScenarioChk(ut, zzz, 'config')) {
+                                    if (inScenarioChk(retAi.originalUt, zzz, 'config')) {
+//                                        let r = countCandidates(ut, zzz, 'config');
+                                        let r = countCandidates(retAi.originalUt, zzz, 'config');
                                         multi += r[0];
                                         multiscript.push(zzz);
                                     }
@@ -1726,6 +1736,7 @@ const chatKeyDown = async (cmd) => {
                             if (presentaction.config_name != null) {
                                 if ($(SOMETHINGINPUT).is(":visible")) {
                                     if (inScenarioChk(ut, 'common-post-cmd')) {
+//                                    if (inScenarioChk(ut, 'config-update-cmd')) {
                                         let new_param = $(SOMETHINGINPUT).val();
                                         if (0 < new_param.length) {
                                             /*
@@ -1769,7 +1780,7 @@ const chatKeyDown = async (cmd) => {
                         }
 
                         /* ①come here first, anyhow */
-                        if (inScenarioChk(ut, 'config-show-cmd')) {
+                        if (inScenarioChk(ut, 'config-show-cmd') || inScenarioChk(ut, 'config-update-cmd')) {
                             presentaction.cmd = CONFIGCHANGE;
                             cancelableCmdList.push(presentaction.cmd);
                             if (presentaction.config_name != null && presentaction.config_data != null) {
