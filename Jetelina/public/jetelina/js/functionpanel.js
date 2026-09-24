@@ -1265,7 +1265,7 @@ const functionPanelFunctions = (ut) => {
       preferent.cmd = "";
       cmdCandidates.push("cancel");
     }
-console.log("chk1 ut: ",ut);
+
     if (cmd == "" && inScenarioChk(ut, 'func-cleanup-cmd')) {
       cmd = 'cleanup';
       cmdCandidates.push("clean up");
@@ -1538,7 +1538,6 @@ console.log("chk1 ut: ",ut);
         15.recreatapi: recreate api
         default: non
   */
- console.log("functionPanelFun.... swith(cmd):", cmd);
   switch (cmd) {
     case FILESELECTOROPEN://open file selector
       $(UPFILE).click();
@@ -1607,7 +1606,7 @@ console.log("chk1 ut: ",ut);
               $(this).toggleClass("activeItem");
             }
           });
-        } else { console.log("t is : ", t);
+        } else {
           $(`${TABLECONTAINER} span, ${APICONTAINER} span`).filter(".relatedItem, .activeItem, .activeandrelatedItem, .ivmItem").each(function () {
             if ($(this).hasClass("relatedItem")) {
               $(this).removeClass("relatedItem");
@@ -1894,7 +1893,7 @@ console.log("chk1 ut: ",ut);
         $(FILEUP).removeClass("genelic_panel");
         rejectCancelableCmdList(FILESELECTOROPEN);
         m = chooseMsg("cancel-msg", "", "");
-      } else if (inCancelableCmdList([SELECTITEM])) {console.log("chk2 ut: ", ut);
+      } else if (inCancelableCmdList([SELECTITEM])) {
 //        let t = ut.replaceAll(",", " ").split(' ').filter(Boolean);
 //        let t = retAi.originalUt.replaceAll(",", " ").split(' ').filter(Boolean);
         // cancel selected columns
@@ -1960,7 +1959,8 @@ console.log("chk1 ut: ",ut);
         cancelableCmdList = [];
       }
 
-      presentaction.cmd = null;
+      if(presentaction.cmd != null) presentaction.cmd = null;
+      if(presentaction.um != null) presentaction.um = null;
 
       break;
     case 'cleanup': //clean up the panels

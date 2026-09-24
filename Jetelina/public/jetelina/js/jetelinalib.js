@@ -1387,9 +1387,14 @@ const chatKeyDown = async (cmd) => {
         if (inScenarioChk(ut, 'guidance-goto-jetelinaorg-cmd')) {
             window.open(scenario["jetelina-web-site-url"][0], "_blank");
         } else {
-            //            m = guidancePageController(ut);
-            if (ut.startsWith("go")) {
-                let gcom = retAi.originalUt.split(" ");
+            let gut = ut;
+            if(retAi.originalUt != null){
+                gut = retAi.originalUt;
+            }
+
+            if (gut.startsWith("go")) {
+                let gcom = gut.split(" ");
+            
                 if (0 < gcom.length) {
                     for (k in gcom) {
                         if (gcom[k].startsWith("m") && 1 < gcom[k].length) {
@@ -1823,7 +1828,7 @@ const chatKeyDown = async (cmd) => {
                     } else if (inScenarioChk(ut, 'user-manage-add-cmd')) {
                         presentaction.cmd = USERMANAGE;
                         cancelableCmdList.push(presentaction.cmd);
-                        m = accountManager(ut);
+                        m = accountManager('user-manage-add-cmd');
                     }
 
                     break;
@@ -1992,6 +1997,8 @@ const getPreferentPropertie = (p) => {
         case 'cmd':
             if (preferent.cmd != null && 0 < preferent.cmd.length) {
                 c = preferent.cmd;
+            }else if(presentaction.cmd != null && 0<presentaction.cmd.length){
+                c = presentaction.cmd;
             }
 
             break;
@@ -2794,7 +2801,6 @@ const postAjax2AI = async (url, data) => {
         }).done(function (result, textStatus, jqXHR) {
             let m = "";
             if (checkResult(result)) {
-                console.log("action: ", result.action);
                 retAi.action = result.action;
                 m = chooseMsg("success-msg", "", "")
             } else {

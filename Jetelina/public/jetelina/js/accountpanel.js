@@ -25,13 +25,14 @@ const accountManager = (s) =>{
     */
     if((inScenarioChk(s,'user-manage-add-cmd') ||(presentaction.um == 'user-add')) && loginuser.roll == "admin" ){
         // add new user/account
-        if(presentaction.um == null){
-            presentaction.um = 'user-add';
+        if(presentaction.cmd == "account-manage" && presentaction.um == "user-add"){
+                let data = `{"username":"${retAi.originalUt}"}`;
+                postAjaxData(scenario["function-post-url"][7],data);
         }
 
-        if(-1<$.inArray(whatJetelinaTold, scenario['user-manage-username-msg'])){
-                let data = `{"username":"${s}"}`;
-                postAjaxData(scenario["function-post-url"][7],data);
+        // add new user/account
+        if(presentaction.um == null){
+            presentaction.um = 'user-add';
         }
 
         ret = chooseMsg('user-manage-username-msg',"","");

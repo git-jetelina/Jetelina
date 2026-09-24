@@ -224,10 +224,10 @@
 @jdic func-db-switch-cmd:"change database","switch database"
 @jdic func-select-db-msg:"which database?","what database?","postgresql, mysql or redis, no way mongodb?"
 @jdic func-determine-db-msg:"do you wanna '{Q}' ?","switch to '{Q}' ?"
-@jdic func-use-postgresql-cmd:"postgresql"
-@jdic func-use-mysql-cmd:"mysql"
-@jdic func-use-redis-cmd:"redis"
-@jdic func-use-mongodb-cmd:"mongodb"
+@jdic func-use-postgresql-cmd:"switch to postgresql","use postgresql"
+@jdic func-use-mysql-cmd:"switch to mysql","use mysql"
+@jdic func-use-redis-cmd:"switch to redis","use redis"
+@jdic func-use-mongodb-cmd:"switch to mongodb","use mongodb"
 
 # migration in database table
 @jdic func-db-mig-exec-cmd:"execute database table migration","execute table migration"
@@ -241,7 +241,7 @@
 #  account management
 #
 @jdic user-manage-add-cmd:"invite new user","add new user"
-@jdic user-manage-show-profile-cmd:"show user's profile","who am i"
+@jdic user-manage-show-profile-cmd:"show user's profile","who am i","who i am","what is my role"
 @jdic user-manage-profile-msg:"you are {Q}, are't you?"
 @jdic user-manage-username-msg:"type the new user's name in full. e.g. Jhon Sandman"
 @jdic user-manage-swing-missing-msg:"I do not know what do you wanna do"
