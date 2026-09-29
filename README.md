@@ -4,9 +4,7 @@ Jetelina can manage PostgreSQL, MySQL, redis and MongoDB so far, and you can use
 
 System requirements
 
--Julia = v11.7 (confirmed in Jetelina v3.1)
-
-　v12.* has not been confirmed yet
+-Julia = v12.6 (confirmed in Jetelina v4.0.0)
  
 -RDBMS is mandatry: PostgreSQL or MySQL
 
@@ -21,3 +19,15 @@ System requirements
 -Linux(confirmed Ubuntu24) & Mac were comfirmed in Jetelina v3.1, Windows( should work, but not be comfirmed yet)
 
 　no matter what os, as far as Julia works fine
+
+*Parallel Release Announcement
+
+We are now maintaining two parallel versions of this project to better serve our users. Both tracks are officially supported and available via the Releases section on the right sidebar.
+
+Stable Track (main branch)
+- Best for: Most users who need a production-ready, highly reliable version with minimal bugs.
+
+AI Track (v4.0.0 branch)
+- Best for: Early adopters who want to try out the latest features and cutting-edge improvements before they are officially finalized.
+
+Note: We welcome feedback and bug reports for both versions. Please specify which version you are using when opening an issue.
