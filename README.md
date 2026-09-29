@@ -20,7 +20,7 @@ System requirements
 
 　no matter what os, as far as Julia works fine
 
-*Parallel Release Announcement
+**Parallel Release Announcement**
 
 We are now maintaining two parallel versions of this project to better serve our users. Both tracks are officially supported and available via the Releases section on the right sidebar.
 
