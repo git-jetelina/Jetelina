@@ -22,6 +22,8 @@ System requirements
 
 **Parallel Release Announcement**
 
+Powered by [Microsoft Multilingual E5 Text Embeddings: A Technical Report](https://arxiv.org)
+
 We are now maintaining two parallel versions of this project to better serve our users. Both tracks are officially supported and available via the Releases section on the right sidebar.
 
 Stable Track (main branch)
