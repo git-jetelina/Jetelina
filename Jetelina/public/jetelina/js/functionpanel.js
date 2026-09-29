@@ -1251,7 +1251,8 @@ const functionPanelFunctions = (ut) => {
   }
 
   if (1 < cmdCandidates.length) {
-    cmd = whichCommandsInOrders(ut);
+//    cmd = whichCommandsInOrders(ut);
+    cmd = whichCommandsInOrders(retAi.originalUt);
   } else {
     /*
       Tips:
