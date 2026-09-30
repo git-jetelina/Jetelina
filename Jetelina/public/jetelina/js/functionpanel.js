@@ -1322,7 +1322,8 @@ const functionPanelFunctions = (ut) => {
         }
 
         preferent.cmd = cmd;
-        cmdCandidates.push("drop table");
+//        cmdCandidates.push("drop table");
+        cmdCandidates.push(cmd);
       } else {
         m = chooseMsg('no-authority-js-msg', '', '');
       }
@@ -2128,7 +2129,8 @@ const functionPanelFunctions = (ut) => {
         cancelableCmdList.push(TABLEMIGRATIONCANCELLATION);
       }
 */
-      if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
+//      if (inScenarioChk(ut, 'confirmation-sentences-cmd')) {
+      if (inScenarioChk(retAi.originalUt, 'confirmation-sentences-cmd')) {
         /*
           Tips:
             get 'pass phrase' confirmation here.
@@ -2372,11 +2374,14 @@ const whichCommandsInOrders = (s) => {
         case "file open": c = FILESELECTOROPEN; break;
         case "open or close table/api": case "select columns": case "select columns all": c = SELECTITEM; break;
         case "open sub query panel": c = subquery; break;
-        case "drop table": case "delete api": c = TABLEAPIDELETE; break;
+        case "drop table": case "delete api": case "TABLEAPIDELETE": c = TABLEAPIDELETE; break;
         case "post": c = "post"; break;
         case "preapitest": c = "preapitest"; break;
         case "apitest": c = "apitest"; break;
         case "switchdb": c = "switchdb"; break;
+        case TABLEMIGRATION: c = TABLEMIGRATION; break;
+        case TABLEMIGRATIONCANCELLATION: c = TABLEMIGRATIONCANCELLATION; break;
+        case "recreatapi": c = "recreateapi"; break;
         default:
           break;
       }
