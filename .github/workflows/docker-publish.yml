@@ -16,24 +16,24 @@ jobs:
         with:
           lfs: false
 
-      # 2. 【隠蔽ロジック①】コンテナ内の自動初期コピー＆ONNX自動DLスクリプトを動的生成
+      # 2. 【隠蔽ロジック①】キャッシュを破壊しない「ファイル単体制御版」entrypoint.shを動的生成
       - name: Create entrypoint.sh dynamically
         run: |
           cat << 'EOF' > entrypoint.sh
           #!/bin/bash
           set -e
 
-          MOUNTED_DIR="/app/Jetelina/app/resources/config"
-          TARGET_CONFIG="${MOUNTED_DIR}/JetelinaConfig.cnf"
-          TARGET_ONNX="${MOUNTED_DIR}/model_quantized.onnx"
+          # パスをファイル単体、および独立したONNXパスに分離
+          TARGET_CONFIG="/app/Jetelina/app/resources/config/JetelinaConfig.cnf"
           TEMPLATE_CONFIG="/app/Jetelina/app/resources/template_config/JetelinaConfig.cnf"
+          TARGET_ONNX="/app/Jetelina/app/resources/config/model_quantized.onnx"
 
-          # [A] 設定ファイルの処理：なければコピー、あれば何もしない
+          # [A] 設定ファイルの処理：なければテンプレートから初期配置
           if [ ! -f "$TARGET_CONFIG" ]; then
-              echo "[Jetelina] Local configuration not found. Initializing JetelinaConfig.cnf..."
+              echo "[Jetelina] Local configuration file not found. Initializing JetelinaConfig.cnf..."
               cp "$TEMPLATE_CONFIG" "$TARGET_CONFIG"
           else
-              echo "[Jetelina] Local configuration found. Keeping your existing settings."
+              echo "[Jetelina] Local configuration file found. Keeping your settings."
           fi
 
           # [B] ONNXファイルの処理：なければGitHub Releasesから無料・無制限DL、あれば0秒スキップ
@@ -51,11 +51,11 @@ jobs:
           EOF
           chmod +x entrypoint.sh
 
-      # 3. 【隠蔽ロジック②】TimeZones等のライブラリを全自動ビルドする本物の Dockerfile を動的生成
+      # 3. 【隠蔽ロジック②】外部ライブラリを事前に100%焼き付ける本物の Dockerfile を動的生成
       - name: Create Dockerfile dynamically
         run: |
           cat << 'EOF' > Dockerfile
-          # Julia v1.12.6を含む最新環境（Debianベース）を採用
+          # Julia v1.12.6を含む最新の公式環境（Debianベース）を採用
           FROM julia:1.12-bookworm
 
           RUN apt-get update && apt-get install -y \
@@ -68,11 +68,12 @@ jobs:
           # リポジトリ内のすべてのファイルをコンテナへコピー
           COPY . .
 
-          # 【コア修正】TimeZonesを含むすべての依存ライブラリを出荷前にコンテナ内で全自動ビルド
+          # 出荷前にTimeZonesを含むすべての依存ライブラリをコンテナ内で100%完璧に事前ビルド
           RUN cd /app/Jetelina && julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.precompile()'
 
           RUN chmod +x /app/Jetelina/bin/server
 
+          # 初期設定のファイルをコンテナ内の安全な退避エリアにバックアップ
           RUN mkdir -p /app/Jetelina/app/resources/template_config && \
               cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
 
@@ -92,7 +93,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. すべてのパッケージを内包した究極の完成品イメージをビルドしてプッシュ公開
+      # 5. 完成品イメージをビルドしてプッシュ公開
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
