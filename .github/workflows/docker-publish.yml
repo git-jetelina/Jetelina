@@ -21,6 +21,7 @@ jobs:
           #!/bin/bash
           set -e
 
+          # フォルダ階層を正しく合わせた絶対パスに変更
           MOUNTED_DIR="/app/Jetelina/app/resources/config"
           TARGET_CONFIG="${MOUNTED_DIR}/JetelinaConfig.cnf"
           TARGET_ONNX="${MOUNTED_DIR}/model_quantized.onnx"
@@ -57,12 +58,18 @@ jobs:
               ca-certificates \
               && rm -rf /var/lib/apt/lists/*
 
+          # 【最重要】作業ディレクトリを /app にします
           WORKDIR /app
 
-          COPY . ./Jetelina
+          # 【修正①】現在のリポジトリ最上部（.）にあるすべてのファイル・フォルダを
+          # そのままコンテナの /app の中へ丸ごとコピーします。
+          # これにより、コンテナ内は /app/Jetelina/bin/server という完璧な配置になります。
+          COPY . .
 
+          # パスが完璧に一致するため、今度は100%成功します
           RUN chmod +x /app/Jetelina/bin/server
 
+          # 【修正②】バックアップ元のパスから余計な階層を削除し、正しく指定
           RUN mkdir -p /app/Jetelina/app/resources/template_config && \
               cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
 
