@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================================
-# Jetelina Docker Management Script (World Public Edition)
+# Jetelina Docker Management Script (World Public / Cache Protected Edition)
 # ==============================================================================
 
 CONTAINER_NAME="jetelina-run"
@@ -28,9 +28,11 @@ case "$ACTION" in
         docker rm -f ${CONTAINER_NAME} 2>/dev/null
         docker volume create jetelina_data >/dev/null
         
+        # 【最重要変更】フォルダごと上書きマウントするのをやめ、
+        # ファイル単体を狙い撃ちで永続化マウントすることで、コンテナ内部のJulia事前コンパイルキャッシュを100%保護します。
         docker run -d \
           --network=host \
-          -v jetelina_data:/app/Jetelina/app/resources/config \
+          -v jetelina_data:/app/Jetelina/app/resources/config/JetelinaConfig.cnf \
           --name ${CONTAINER_NAME} \
           ${IMAGE_NAME}
           
