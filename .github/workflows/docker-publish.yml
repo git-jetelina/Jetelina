@@ -10,11 +10,13 @@ jobs:
       packages: write
 
     steps:
+      # 1. コードのみを高速チェックアウト（ONNXは除外）
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: false
 
+      # 2. 【隠蔽ロジック①】コンテナ内の自動初期コピー＆ONNX自動DLスクリプトを動的生成
       - name: Create entrypoint.sh dynamically
         run: |
           cat << 'EOF' > entrypoint.sh
@@ -26,6 +28,7 @@ jobs:
           TARGET_ONNX="${MOUNTED_DIR}/model_quantized.onnx"
           TEMPLATE_CONFIG="/app/Jetelina/app/resources/template_config/JetelinaConfig.cnf"
 
+          # [A] 設定ファイルの処理：なければコピー、あれば何もしない
           if [ ! -f "$TARGET_CONFIG" ]; then
               echo "[Jetelina] Local configuration not found. Initializing JetelinaConfig.cnf..."
               cp "$TEMPLATE_CONFIG" "$TARGET_CONFIG"
@@ -33,6 +36,7 @@ jobs:
               echo "[Jetelina] Local configuration found. Keeping your existing settings."
           fi
 
+          # [B] ONNXファイルの処理：なければGitHub Releasesから無料・無制限DL、あれば0秒スキップ
           if [ ! -f "$TARGET_ONNX" ]; then
               echo "[Jetelina] ONNX model not found. Downloading from GitHub Releases (113MB)..."
               DOWNLOAD_URL="https://github.com"
@@ -42,17 +46,18 @@ jobs:
               echo "[Jetelina] ONNX model found locally. Skipping download (Launch time: 0s)."
           fi
 
+          # 本来のアプリケーション（独自サーバー）の起動へ処理をバトンタッチ
           exec "$@"
           EOF
           chmod +x entrypoint.sh
 
+      # 3. 【隠蔽ロジック②】TimeZones等のライブラリを全自動ビルドする本物の Dockerfile を動的生成
       - name: Create Dockerfile dynamically
         run: |
           cat << 'EOF' > Dockerfile
-          # 【バージョン修正】Julia 1.12（v1.12.6含む最新環境）をベースに採用
+          # Julia v1.12.6を含む最新環境（Debianベース）を採用
           FROM julia:1.12-bookworm
 
-          # 最小限のシステムパッケージ（curlなど）をインストール
           RUN apt-get update && apt-get install -y \
               curl \
               ca-certificates \
@@ -60,26 +65,26 @@ jobs:
 
           WORKDIR /app
 
-          # リポジトリ内のすべてのファイル（Jetelinaフォルダを含む）をコンテナ内へコピー
+          # リポジトリ内のすべてのファイルをコンテナへコピー
           COPY . .
 
-          # 独自サーバーの実行バイナリに実行権限を確実に付与
+          # 【コア修正】TimeZonesを含むすべての依存ライブラリを出荷前にコンテナ内で全自動ビルド
+          RUN cd /app/Jetelina && julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.precompile()'
+
           RUN chmod +x /app/Jetelina/bin/server
 
-          # 初期設定のJetelinaConfig.cnfをコンテナ内の退避エリアにバックアップ
           RUN mkdir -p /app/Jetelina/app/resources/template_config && \
               cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
 
-          # 生成したentrypointを内部へ埋め込む
           COPY entrypoint.sh /usr/local/bin/entrypoint.sh
           RUN chmod +x /usr/local/bin/entrypoint.sh
 
           ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-          # 指定された本物の起動コマンドを実行（指定されたバージョンのJuliaが裏で連動します）
           CMD ["sh", "-c", "cd /app/Jetelina/bin && exec ./server -l 0.0.0.0"]
           EOF
 
+      # 4. GitHub Packages (GHCR) へ自動認証ログイン
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -87,6 +92,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # 5. すべてのパッケージを内包した究極の完成品イメージをビルドしてプッシュ公開
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
