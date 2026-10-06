@@ -50,7 +50,7 @@ jobs:
         run: |
           cat << 'EOF' > Dockerfile
           # 【バージョン修正】Julia 1.12（v1.12.6含む最新環境）をベースに採用
-          FROM julia:1.12-focal
+          FROM julia:1.12-bookworm
 
           # 最小限のシステムパッケージ（curlなど）をインストール
           RUN apt-get update && apt-get install -y \
