@@ -1,0 +1,91 @@
+name: Docker Image Publish
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Create entrypoint.sh dynamically
+        run: |
+          cat << 'EOF' > entrypoint.sh
+          #!/bin/bash
+          set -e
+
+          MOUNTED_DIR="/app/Jetelina/app/resources/config"
+          TARGET_CONFIG="${MOUNTED_DIR}/JetelinaConfig.cnf"
+          TARGET_ONNX="${MOUNTED_DIR}/model_quantized.onnx"
+          TEMPLATE_CONFIG="/app/Jetelina/app/resources/template_config/JetelinaConfig.cnf"
+
+          if [ ! -f "$TARGET_CONFIG" ]; then
+              echo "[Jetelina] Local configuration not found. Initializing JetelinaConfig.cnf..."
+              cp "$TEMPLATE_CONFIG" "$TARGET_CONFIG"
+          else
+              echo "[Jetelina] Local configuration found. Keeping your existing settings."
+          fi
+
+          if [ ! -f "$TARGET_ONNX" ]; then
+              echo "[Jetelina] ONNX model not found. Downloading from GitHub Releases (113MB)..."
+              DOWNLOAD_URL="https://github.com"
+              curl -L "$DOWNLOAD_URL" -o "$TARGET_ONNX"
+              echo "[Jetelina] ONNX model downloaded successfully!"
+          else
+              echo "[Jetelina] ONNX model found locally. Skipping download (Launch time: 0s)."
+          fi
+
+          exec "$@"
+          EOF
+          chmod +x entrypoint.sh
+
+      - name: Create Dockerfile dynamically
+        run: |
+          cat << 'EOF' > Dockerfile
+          FROM ubuntu:22.04
+
+          RUN apt-get update && apt-get install -y \
+              curl \
+              libstdc++6 \
+              ca-certificates \
+              && rm -rf /var/lib/apt/lists/*
+
+          WORKDIR /app
+
+          # 最上層（.）にあるすべてのフォルダ（Jetelina/を含む）をコンテナ内へ丸ごとコピー
+          COPY . .
+
+          RUN chmod +x /app/Jetelina/bin/server
+
+          RUN mkdir -p /app/Jetelina/app/resources/template_config && \
+              cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
+
+          COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+          RUN chmod +x /usr/local/bin/entrypoint.sh
+
+          ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+          CMD ["sh", "-c", "cd /app/Jetelina/bin && exec ./server -l 0.0.0.0"]
+          EOF
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/git-jetelina/jetelina:latest
