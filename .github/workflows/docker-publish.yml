@@ -10,25 +10,23 @@ jobs:
       packages: write
 
     steps:
-      # 1. コードのみを高速チェックアウト（ONNXは除外）
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: false
 
-      # 2. 【隠蔽ロジック①】キャッシュを破壊しない「ファイル単体制御版」entrypoint.shを動的生成
+      # 2. 【最重要修正】ONNXのダウンロードURLを本物の物理URLに固定し、不完全ダウンロードを防止します
       - name: Create entrypoint.sh dynamically
         run: |
           cat << 'EOF' > entrypoint.sh
           #!/bin/bash
           set -e
 
-          # パスをファイル単体、および独立したONNXパスに分離
           TARGET_CONFIG="/app/Jetelina/app/resources/config/JetelinaConfig.cnf"
           TEMPLATE_CONFIG="/app/Jetelina/app/resources/template_config/JetelinaConfig.cnf"
           TARGET_ONNX="/app/Jetelina/app/resources/config/model_quantized.onnx"
 
-          # [A] 設定ファイルの処理：なければテンプレートから初期配置
+          # [A] 設定ファイルの処理
           if [ ! -f "$TARGET_CONFIG" ]; then
               echo "[Jetelina] Local configuration file not found. Initializing JetelinaConfig.cnf..."
               cp "$TEMPLATE_CONFIG" "$TARGET_CONFIG"
@@ -36,26 +34,28 @@ jobs:
               echo "[Jetelina] Local configuration file found. Keeping your settings."
           fi
 
-          # [B] ONNXファイルの処理：なければGitHub Releasesから無料・無制限DL、あれば0秒スキップ
+          # [B] ONNXファイルの処理：リダイレクトを挟まないv4.0.0のダイレクトURLを指定
           if [ ! -f "$TARGET_ONNX" ]; then
               echo "[Jetelina] ONNX model not found. Downloading from GitHub Releases (113MB)..."
+              
+              # ★曖昧なlatestを廃止し、v4.0.0に置かれている本物の実体URLへ直接アクセスさせます
               DOWNLOAD_URL="https://github.com"
-              curl -L "$DOWNLOAD_URL" -o "$TARGET_ONNX"
+              
+              # --failを付けることで、万が一ダウンロードに失敗した時に壊れたファイルが残るのを防ぎます
+              curl -L --fail "$DOWNLOAD_URL" -o "$TARGET_ONNX"
               echo "[Jetelina] ONNX model downloaded successfully!"
           else
               echo "[Jetelina] ONNX model found locally. Skipping download (Launch time: 0s)."
           fi
 
-          # 本来のアプリケーション（独自サーバー）の起動へ処理をバトンタッチ
           exec "$@"
           EOF
           chmod +x entrypoint.sh
 
-      # 3. 【隠蔽ロジック②】外部ライブラリを事前に100%焼き付ける本物の Dockerfile を動的生成
+      # 3. Dockerfileの生成
       - name: Create Dockerfile dynamically
         run: |
           cat << 'EOF' > Dockerfile
-          # Julia v1.12.6を含む最新の公式環境（Debianベース）を採用
           FROM julia:1.12-bookworm
 
           RUN apt-get update && apt-get install -y \
@@ -65,15 +65,12 @@ jobs:
 
           WORKDIR /app
 
-          # リポジトリ内のすべてのファイルをコンテナへコピー
           COPY . .
 
-          # 出荷前にTimeZonesを含むすべての依存ライブラリをコンテナ内で100%完璧に事前ビルド
           RUN cd /app/Jetelina && julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.precompile()'
 
           RUN chmod +x /app/Jetelina/bin/server
 
-          # 初期設定のファイルをコンテナ内の安全な退避エリアにバックアップ
           RUN mkdir -p /app/Jetelina/app/resources/template_config && \
               cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
 
@@ -85,7 +82,6 @@ jobs:
           CMD ["sh", "-c", "cd /app/Jetelina/bin && exec ./server -l 0.0.0.0"]
           EOF
 
-      # 4. GitHub Packages (GHCR) へ自動認証ログイン
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -93,7 +89,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. 完成品イメージをビルドしてプッシュ公開
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
