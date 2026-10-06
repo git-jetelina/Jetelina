@@ -145,7 +145,7 @@ not_include_to_jetelina_delete_flg_user_definition = @mydef_start,@mydef_end
 @jdic pg_work:"postgresql run","postgresql availability","start postgresql","postgresql start"
 pg_work = false
 @jdic pg_host:"postgresql host"
-pg_host = localhost
+pg_host = 127.0.0.1
 @jdic pg_port:"postgresql port"
 pg_port = 5432
 @jdic pg_user:"postgresql user","postgresql login"
@@ -177,7 +177,7 @@ pg_allowclauses = order by,limit,offset
 @jdic my_work:"mysql run","mysql availability","start mysql","mysql start"
 my_work = false
 @jdic my_host:"mysql host"
-my_host = localhost
+my_host = 127.0.0.1
 @jdic my_port:"mysql port"
 my_port = 3306
 @jdic my_user:"mysql user","mysql login"
