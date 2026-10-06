@@ -12,72 +12,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          lfs: false
 
-      # 1. 【確実に固定】GitHub Releasesの物理アセットURLから113MBのONNXを取得して内包
-      - name: Download ONNX Model from Releases for Baking
+      - name: Download Model and Build
         run: |
           mkdir -p Jetelina/app/resources/config
-          TARGET_ONNX="Jetelina/app/resources/config/model_quantized.onnx"
-          
-          # 正確なReleasesアセットのダイレクトURLを指定します
-          curl -fsSL "https://github.com" -o "$TARGET_ONNX"
-          
-          # サイズを計測して安全性を担保
-          FILE_SIZE=$(stat -c%s "$TARGET_ONNX")
-          echo "Downloaded file size: $FILE_SIZE bytes"
-          
-          if [ $FILE_SIZE -lt 100000000 ]; then
-            echo "ERROR: Downloaded file from Releases is too small! (Size: $FILE_SIZE bytes)"
-            exit 1
-          fi
-
-      # 2. entrypoint.shの動的生成
-      - name: Create entrypoint.sh dynamically
-        run: |
-          cat << 'EOF' > entrypoint.sh
-          #!/bin/bash
-          set -e
-          TARGET_CONFIG="/app/Jetelina/app/resources/config/JetelinaConfig.cnf"
-          TEMPLATE_CONFIG="/app/Jetelina/app/resources/template_config/JetelinaConfig.cnf"
-          
-          # ローカルにあればそのまま使い、無ければコンテナから初回コピーする変わらぬロジック
-          if [ ! -f "$TARGET_CONFIG" ]; then
-              echo "[Jetelina] Local configuration file not found. Initializing JetelinaConfig.cnf..."
-              cp "$TEMPLATE_CONFIG" "$TARGET_CONFIG"
-          else
-              echo "[Jetelina] Local configuration file found. Keeping your settings."
-          fi
-          
-          exec "$@"
-          EOF
-          chmod +x entrypoint.sh
-
-      # 3. Dockerfileの生成
-      - name: Create Dockerfile dynamically
-        run: |
-          cat << 'EOF' > Dockerfile
-          FROM julia:1.12-bookworm
-          RUN apt-get update && apt-get install -y \
-              curl \
-              ca-certificates \
-              && rm -rf /var/lib/apt/lists/*
-          WORKDIR /app
-          COPY . .
-          
-          # 事前にONNXがあるため、Juliaの事前コンパイルが正常かつ完全に通ります
-          RUN cd /app/Jetelina && julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.precompile()'
-          RUN chmod +x /app/Jetelina/bin/server
-          
-          RUN mkdir -p /app/Jetelina/app/resources/template_config && \
-              cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
-          
-          COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-          RUN chmod +x /usr/local/bin/entrypoint.sh
-          ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-          CMD ["sh", "-c", "cd /app/Jetelina/bin && exec ./server -l 0.0.0.0"]
-          EOF
+          curl -fsSL "https://github.com{{ github.repository }}/releases/download/v4.0.0/model_quantized.onnx" -o Jetelina/app/resources/config/model_quantized.onnx
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -91,5 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ghcr.io/git-jetelina/jetelina:latest
+          tags: ghcr.io/${{ github.repository_owner }}/jetelina:latest
