@@ -49,29 +49,34 @@ jobs:
       - name: Create Dockerfile dynamically
         run: |
           cat << 'EOF' > Dockerfile
-          FROM ubuntu:22.04
+          # 【バージョン修正】Julia 1.12（v1.12.6含む最新環境）をベースに採用
+          FROM julia:1.12-focal
 
+          # 最小限のシステムパッケージ（curlなど）をインストール
           RUN apt-get update && apt-get install -y \
               curl \
-              libstdc++6 \
               ca-certificates \
               && rm -rf /var/lib/apt/lists/*
 
           WORKDIR /app
 
-          # 最上層（.）にあるすべてのフォルダ（Jetelina/を含む）をコンテナ内へ丸ごとコピー
+          # リポジトリ内のすべてのファイル（Jetelinaフォルダを含む）をコンテナ内へコピー
           COPY . .
 
+          # 独自サーバーの実行バイナリに実行権限を確実に付与
           RUN chmod +x /app/Jetelina/bin/server
 
+          # 初期設定のJetelinaConfig.cnfをコンテナ内の退避エリアにバックアップ
           RUN mkdir -p /app/Jetelina/app/resources/template_config && \
               cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
 
+          # 生成したentrypointを内部へ埋め込む
           COPY entrypoint.sh /usr/local/bin/entrypoint.sh
           RUN chmod +x /usr/local/bin/entrypoint.sh
 
           ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
+          # 指定された本物の起動コマンドを実行（指定されたバージョンのJuliaが裏で連動します）
           CMD ["sh", "-c", "cd /app/Jetelina/bin && exec ./server -l 0.0.0.0"]
           EOF
 
