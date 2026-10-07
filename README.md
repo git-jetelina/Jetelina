@@ -33,3 +33,44 @@ AI Track (v4.0.0 branch)
 - Best for: Early adopters who want to try out the latest features and cutting-edge improvements before they are officially finalized.
 
 Note: We welcome feedback and bug reports for both versions. Please specify which version you are using when opening an issue.
+
+
+**Docker version in v4.01***
+
+## Deploying with Docker
+
+Use the official pre-built Docker package to avoid local runtime setup. The AI model (approx. 145MB ONNX file) is pre-baked into the container image for a faster startup sequence.
+
+### Quick Start Instructions
+
+1. Clone the repository and navigate into the directory:
+```bash
+git clone -b v4.0.1 https://github.com/git-jetelina/Jetelina.git
+cd Jetelina
+```
+
+2. Execute the startup script:
+```bash
+chmod +x run_jetelina_docker.sh
+sudo ./run_jetelina_docker.sh start
+```
+
+3. Monitor container logs (First-time initialization takes approx. more a few minute):
+```bash
+sudo ./run_jetelina_docker.sh logs
+```
+*Note: Wait for the log output to display the server standby message before accessing the application.*
+
+4. Access the Application at `http://localhost:8000/jetelina/` once ready.
+
+---
+
+### Upgrading from a Previous Version
+
+To reset the container state and clear old configuration files from previous versions:
+
+```bash
+sudo ./run_jetelina_docker.sh stop
+sudo docker volume rm jetelina_data
+sudo ./run_jetelina_docker.sh start
+```
