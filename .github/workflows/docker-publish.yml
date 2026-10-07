@@ -12,11 +12,76 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: false
 
-      - name: Download Model and Build
+      # 1. 変数をシェルの文字列結合に落とし込み、スラッシュを100%固定して匿名DLします
+      - name: Download ONNX Model from Releases for Baking
         run: |
           mkdir -p Jetelina/app/resources/config
-          curl -fsSL "https://github.com/git-jetelina/Jetelina/releases/download/v4.0.0/model_quantized.onnx" -o Jetelina/app/resources/config/model_quantized.onnx
+          TARGET_ONNX="Jetelina/app/resources/config/model_quantized.onnx"
+          
+          # 構文エラーを防ぐため、GitHub Actionsの環境変数をBashのシェル変数に一度安全に代入します
+          REPO_PATH="${{ github.repository }}"
+          DOWNLOAD_URL="https://github.com/git-jetelina/Jetelina/releases/download/v4.0.0/model_quantized.onnx"
+          
+          echo "[Build] Downloading ONNX from exact URL: $DOWNLOAD_URL"
+          curl -fsSL "$DOWNLOAD_URL" -o "$TARGET_ONNX"
+          
+          # ダウンロードしたファイルの容量（バイト数）を厳密にチェック
+          FILE_SIZE=$(stat -c%s "$TARGET_ONNX")
+          echo "Verified downloaded file size: $FILE_SIZE bytes"
+          
+          if [ $FILE_SIZE -lt 100000000 ]; then
+            echo "ERROR: Downloaded file from Releases is too small! (Size: $FILE_SIZE bytes)."
+            exit 1
+          fi
+
+      # 2. entrypoint.shの動的生成
+      - name: Create entrypoint.sh dynamically
+        run: |
+          cat << 'EOF' > entrypoint.sh
+          #!/bin/bash
+          set -e
+          TARGET_CONFIG="/app/Jetelina/app/resources/config/JetelinaConfig.cnf"
+          TEMPLATE_CONFIG="/app/Jetelina/app/resources/template_config/JetelinaConfig.cnf"
+          
+          # 【挙動維持】1回目はコンテナからコピーして使用、2回目以降はローカルの設定をそのまま維持して使用
+          if [ ! -f "$TARGET_CONFIG" ]; then
+              echo "[Jetelina] Local configuration file not found. Initializing JetelinaConfig.cnf..."
+              cp "$TEMPLATE_CONFIG" "$TARGET_CONFIG"
+          else
+              echo "[Jetelina] Local configuration file found. Keeping your settings."
+          fi
+          
+          exec "$@"
+          EOF
+          chmod +x entrypoint.sh
+
+      # 3. Dockerfileの生成
+      - name: Create Dockerfile dynamically
+        run: |
+          cat << 'EOF' > Dockerfile
+          FROM julia:1.12-bookworm
+          RUN apt-get update && apt-get install -y \
+              curl \
+              ca-certificates \
+              && rm -rf /var/lib/apt/lists/*
+          WORKDIR /app
+          COPY . .
+          
+          # 事前にONNXがあるため、Juliaの事前コンパイルが完璧に成功します
+          RUN cd /app/Jetelina && julia --project=. -e 'import Pkg; Pkg.instantiate(); Pkg.precompile()'
+          RUN chmod +x /app/Jetelina/bin/server
+          
+          RUN mkdir -p /app/Jetelina/app/resources/template_config && \
+              cp /app/Jetelina/app/resources/config/JetelinaConfig.cnf /app/Jetelina/app/resources/template_config/JetelinaConfig.cnf
+          
+          COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+          RUN chmod +x /usr/local/bin/entrypoint.sh
+          ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+          CMD ["sh", "-c", "cd /app/Jetelina/bin && exec ./server -l 0.0.0.0"]
+          EOF
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -30,4 +95,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/jetelina:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/jetelina:latest
