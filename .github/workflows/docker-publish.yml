@@ -16,7 +16,7 @@ jobs:
       - name: Download Model and Build
         run: |
           mkdir -p Jetelina/app/resources/config
-          curl -fsSL "https://github.com{REPO_PATH}/releases/download/v4.0.0/model_quantized.onnx" -o Jetelina/app/resources/config/model_quantized.onnx
+          curl -fsSL "https://github.com/git-jetelina/Jetelina/releases/download/v4.0.0/model_quantized.onnx" -o Jetelina/app/resources/config/model_quantized.onnx
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
