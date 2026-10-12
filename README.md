@@ -55,6 +55,7 @@ cd Jetelina
 chmod +x run_jetelina_docker.sh
 sudo ./run_jetelina_docker.sh start
 ```
+*Note: It does not mean this ending is the server up. Keep going to 3.
 
 3. Monitor container logs (first-time initialization takes approx. more than a few minutes):
 ```bash
