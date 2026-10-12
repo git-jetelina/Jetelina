@@ -61,10 +61,10 @@ sudo ./run_jetelina_docker.sh start
 ```bash
 sudo ./run_jetelina_docker.sh logs
 ```
-*Note: Wait for the log output to display the server standby message before accessing the application.
-The logs says at the last,
-[Info:....Web Server starting at http://0.0.0.0:8000 - press Ctrl....
-[Info:....Listening on 0.0.0.0:8000, thread id:1*
+*Note: Wait for the log output to display the server standby message before accessing the application.*
+*The logs says at the last,*
+*[Info:....Web Server starting at http://0.0.0.0:8000 - press Ctrl....*
+*[Info:....Listening on 0.0.0.0:8000, thread id:1*
 
 4. Access the Application at `http://localhost:8000/jetelina/` once ready.
 
