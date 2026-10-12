@@ -47,7 +47,7 @@ Here is the case in Ubuntu.
 1. Clone the repository and navigate into the directory:
 ```bash
 git clone -b v4.0.1 https://github.com/git-jetelina/Jetelina.git
-cd Jetelina
+cd Jetelina/Jetelina
 ```
 
 2. Execute the startup script:
