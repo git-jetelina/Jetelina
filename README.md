@@ -40,6 +40,7 @@ Note: We welcome feedback and bug reports for both versions. Please specify whic
 ## Deploying with Docker
 
 Use the official pre-built Docker package to avoid local runtime setup. The AI model (approx. 145MB ONNX file) is pre-baked into the container image for a faster startup sequence.
+Here is the case in Ubuntu.
 
 ### Quick Start Instructions
 
@@ -55,7 +56,7 @@ chmod +x run_jetelina_docker.sh
 sudo ./run_jetelina_docker.sh start
 ```
 
-3. Monitor container logs (First-time initialization takes approx. more a few minute):
+3. Monitor container logs (first-time initialization takes approx. more than a few minutes):
 ```bash
 sudo ./run_jetelina_docker.sh logs
 ```
