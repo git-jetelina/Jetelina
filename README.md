@@ -39,7 +39,7 @@ Note: We welcome feedback and bug reports for both versions. Please specify whic
 
 ## Deploying with Docker
 
-Use the official pre-built Docker package to avoid local runtime setup. The AI model (approx. 145MB ONNX file) is pre-baked into the container image for a faster startup sequence.
+Use the official pre-built Docker package(linux/amd64) to avoid local runtime setup. The AI model (approx. 145MB ONNX file) is pre-baked into the container image for a faster startup sequence.
 Here is the case in Ubuntu.
 
 ### Quick Start Instructions
